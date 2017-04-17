@@ -19,9 +19,13 @@
 *
 * Definitely, this function can be used in other circumstance to detect specific
 * pattern of a given string.
+*
+* To extract HTML elements from a given string, you can also easily
+* accomplish with string methods `match` together with regular expression.
 */
 function elementFinder(str, startTag, endTag) {
   str = str.toLowerCase();
+  startTag = startTag.slice(0, -1);
   if (str.indexOf(startTag) === -1) {
     console.log('No startTag detected in the string!');
     return 0;
@@ -94,9 +98,13 @@ function elementFinder(str, startTag, endTag) {
   console.log(sm);
 }
 
-var text = '<table><tr>\n<td>\n<p>this is a paragraph</p>\n<p>this is' +
+var text = '<table id="myTable"><tr>\n<td>\n<p>this is a' +
+  ' paragraph</p>\n<p>this is' +
   ' another paragraph</p>\n</td>\n<td>this cell contains a table:\n  <table>\n<tr>\n<td>a</td>\n<td>b</td>\n</tr>\n<tr>\n<td>c</td>\n<td>d</td>\n</tr>\n</table>\n</td>\n</tr>\n<tr>\n<td>this cell contains a' +
-  ' list\n<ul>\n<li>apples</li>\n<li>bananas</li>\n<li>pineapples</li>\n</ul>\n</td>\n<td>hello</td>\n</tr>\n</table>';
+  ' list\n<ul>\n<li' +
+  ' id="l1">apples</li>\n<li' +
+  ' id="l2">bananas</li>\n<li' +
+  ' id="l3">pineapples</li>\n</ul>\n</td>\n<td>hello</td>\n</tr>\n</table>';
 
 console.log(elementFinder(text, '<table>', '</table>'));
 console.log(elementFinder(text, '<li>', '</li>'));
