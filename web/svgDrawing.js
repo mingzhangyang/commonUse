@@ -202,7 +202,7 @@ var drawing = (function drawing() {
 
 // var path = '';
 // for (var i = 0; i < 24; i++) {
-//   path += drawArrow();
+//   path += drawAngle();
 // }
 //
 // console.log(path);
@@ -336,6 +336,8 @@ var drawing = (function drawing() {
     var len = params.len || 5;
     var style = params.style ? styleObjectToString(params.style) : '';
     var close = params.close || false;
+    var className = params.className || '';
+    var id = params.id || '';
 
     var d = Math.sqrt((start[0] - end[0])*(start[0] - end[0]) + (start[1] - end[1])*(start[1] - end[1]));
     var alpha = Math.asin((start[0] - end[0]) / d);
@@ -346,18 +348,114 @@ var drawing = (function drawing() {
     var y2 = end[1] - len * Math.cos(alpha + angle);
 
     if (close) {
-      return `<g style="${style}"><path d="M${x1} ${y1} L ${end[0]} ${end[1]} L ${x2} ${y2} Z"></path><path d="M${start[0]} ${start[1]} L ${end[0]} ${end[1]}"></path></g>`;
+      return `<g class="${className}" id="${id}" style="${style}"><path d="M${x1} ${y1} L ${end[0]} ${end[1]} L ${x2} ${y2} Z"></path><path d="M${start[0]} ${start[1]} L ${end[0]} ${end[1]}"></path></g>`;
     }
-    return `<g style="${style}"><path d="M${x1} ${y1} L ${end[0]} ${end[1]} L ${x2} ${y2}"></path><path d="M${start[0]} ${start[1]} L ${end[0]} ${end[1]}"></path></g>`;
+    return `<g class="${className}" id="${id}" style="${style}"><path d="M${x1} ${y1} L ${end[0]} ${end[1]} L ${x2} ${y2}"></path><path d="M${start[0]} ${start[1]} L ${end[0]} ${end[1]}"></path></g>`;
   }
 
+  // console.log(drawArrow({
+  // start: [500, 50],
+  // end: [600, 150],
+  // close: true
+  // }));
+
+
+
+  function drawAxis(params) {
+    params = params || {};
+    var start = params.start || [10, 10];
+    var end = params.end || [50, 10];
+    if (start[0] !== end[0] && start[1] !== end[1]) {
+      console.log('Only horizontal or vertical axis are allowed.');
+      return;
+    }
+    var style = params.style ? styleObjectToString(params.style) : '';
+    var arrow = params.arrow || false;
+    var ticks = params.ticks || [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+    var tickPosition = params.tickPosition ? params.tickPosition : 'outer';
+    var tickLen = params.tickLen || 6;
+    var innerTicks = params.innerTicks || 0;
+    var labelRotation = params.labelRotation || 0;
+    var labelFontSize = params.labelFontSize || '16px';
+    var id = params.id || '';
+    var className = params.className || '';
+
+    var bone;
+    if (arrow) {
+      bone = drawArrow({
+        start: start,
+        end: end,
+        className: 'axis-bone'
+      });
+    } else {
+      bone = `<g class="axis-bone"><path d="M${start[0]} ${start[1]} L ${end[0]} ${end[1]}"></path></g>`;
+    }
+
+    var tickCode = '<g class="axis-ticks">';
+    var h = (start[1] === end[1]);
+    var d = (start[1] === end[1]) ? ((end[0] - start[0]) / ticks.length) : ((end[1] - start[1]) / ticks.length);
+    for (var i = 0; i < ticks.length; i++) {
+      var tx1, ty1, tx2, ty2, lx, ly;
+      if (h) {
+        tx1 = start[0] + i * d;
+        ty1 = start[1];
+        tx2 = tx1;
+        ty2 = (tickPosition === 'outer') ? ty1 + tickLen : ty1 - tickLen;
+        lx = tx1;
+        ly = (tickPosition === 'outer') ? ty2 + 16 : ty1 + 16;
+
+        tickCode += `<path d="M${tx1} ${ty1} L ${tx2} ${ty2}"></path><text class="axis-labels" x="${lx}" y="${ly}" transform="rotate(${labelRotation} ${lx} ${ly})" style="text-anchor: middle; font-size: ${labelFontSize}">${ticks[i]}</text>`;
+
+        if (innerTicks) {
+          var _d = d / (innerTicks + 1);
+          for (var j = 1; j < innerTicks + 1; j++) {
+            tickCode += `<path d="M${tx1 + _d * j} ${ty1} L ${tx1 + _d * j} ${(tickPosition === 'outer') ? ty1 + tickLen/2 : ty1 - tickLen/2}"></path>`;
+          }
+        }
+
+      } else {
+        tx1 = (tickPosition === 'outer') ? start[0] - tickLen : start[0] + tickLen;
+        ty1 = start[1] + i * d;
+        tx2 = start[0];
+        ty2 = ty1;
+        lx = (tickPosition === 'outer') ? tx1 - 12 : tx2 - 12;
+        ly = ty1;
+
+        tickCode += `<path d="M${tx1} ${ty1} L ${tx2} ${ty2}"></path><text class="axis-labels" x="${lx}" y="${ly}" transform="rotate(${labelRotation} ${lx} ${ly})" style="text-anchor: end; alignment-baseline: middle; font-size: ${labelFontSize};">${ticks[i]}</text>`;
+
+        if (innerTicks) {
+          var _d = d / (innerTicks + 1);
+          for (var k = 1; k < innerTicks + 1; k++) {
+            tickCode += `<path d="M${(tickPosition === 'outer') ? tx2 - tickLen/2 : tx2 + tickLen/2} ${ty1 + _d * k} L ${tx2} ${ty1 + _d * k}"></path>`;
+          }
+        }
+
+      }
+    }
+    tickCode += '</g>';
+
+    return `<g class="${className}" id="${id}">` + bone + tickCode + '</g>';
+  }
+
+  // console.log(drawAxis({
+  // start: [650, 50],
+  // end: [650, 650],
+  // arrow: true,
+  // ticks: [2000, 2005, 2010, 2015],
+  // innerTicks: 4,
+  // className: 'myAxis',
+  // id: 'axis-001'
+  // }));
+
+
   return {
+    axis: drawAxis,
+    arrow: drawArrow,
     arc: drawArc,
     arcWithArrow: drawArcWithArrow,
     sector: drawSector,
     annulus: drawAnnulus,
     annulusWithArrow: drawAnnulusWithArrow,
-    arrow: drawArrow,
     barOnCircle: drawBar,
     angleAlongCircle: drawAngle
   }
