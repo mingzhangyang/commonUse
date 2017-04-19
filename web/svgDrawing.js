@@ -382,6 +382,8 @@ var drawing = (function drawing() {
     var id = params.id || '';
     var className = params.className || '';
 
+    var tickCoors = [];
+
     var bone;
     if (arrow) {
       bone = drawArrow({
@@ -406,6 +408,8 @@ var drawing = (function drawing() {
         lx = tx1;
         ly = (tickPosition === 'outer') ? ty2 + 16 : ty1 + 16;
 
+        tickCoors.push([tx1, ty1]);
+
         tickCode += `<path d="M${tx1} ${ty1} L ${tx2} ${ty2}"></path><text class="axis-labels" x="${lx}" y="${ly}" transform="rotate(${labelRotation} ${lx} ${ly})" style="text-anchor: middle; font-size: ${labelFontSize}">${ticks[i]}</text>`;
 
         if (innerTicks && i < ticks.length - 1) {
@@ -416,19 +420,21 @@ var drawing = (function drawing() {
         }
 
       } else {
-        tx1 = (tickPosition === 'outer') ? start[0] - tickLen : start[0] + tickLen;
+        tx1 = start[0];
         ty1 = start[1] + leftPadding + i * d;
-        tx2 = start[0];
+        tx2 = (tickPosition === 'outer') ? tx1 - tickLen : tx1 + tickLen;
         ty2 = ty1;
-        lx = (tickPosition === 'outer') ? tx1 - 12 : tx2 - 12;
+        lx = (tickPosition === 'outer') ? tx2 - 12 : tx1 - 12;
         ly = ty1;
+
+        tickCoors.push([tx1, ty1]);
 
         tickCode += `<path d="M${tx1} ${ty1} L ${tx2} ${ty2}"></path><text class="axis-labels" x="${lx}" y="${ly}" transform="rotate(${labelRotation} ${lx} ${ly})" style="text-anchor: end; alignment-baseline: middle; font-size:${labelFontSize};">${ticks[i]}</text>`;
 
         if (innerTicks && i < ticks.length - 1) {
           var _d = d / (innerTicks + 1);
           for (var k = 1; k < innerTicks + 1; k++) {
-            tickCode += `<path d="M${(tickPosition === 'outer') ? tx2 - tickLen/2 : tx2 + tickLen/2} ${ty1 + _d * k} L ${tx2} ${ty1 + _d * k}"></path>`;
+            tickCode += `<path d="M${(tickPosition === 'outer') ? tx1 - tickLen/2 : tx1 + tickLen/2} ${ty1 + _d * k} L ${tx1} ${ty1 + _d * k}"></path>`;
           }
         }
 
@@ -436,7 +442,10 @@ var drawing = (function drawing() {
     }
     tickCode += '</g>';
 
-    return `<g class="${className}" id="${id}">` + bone + tickCode + '</g>';
+    return {
+      tickCoors: tickCoors,
+      template: `<g class="${className}" id="${id}">` + bone + tickCode + '</g>'
+    };
   }
 
   // console.log(drawAxis({
