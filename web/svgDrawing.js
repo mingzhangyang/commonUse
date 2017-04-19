@@ -369,7 +369,9 @@ var drawing = (function drawing() {
       console.log('Only horizontal or vertical axis are allowed.');
       return;
     }
-    var style = params.style ? styleObjectToString(params.style) : '';
+
+    var leftPadding = params.leftPadding || 0;
+    var rightPadding = params.rightPadding || 0;
     var arrow = params.arrow || false;
     var ticks = params.ticks || [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
     var tickPosition = params.tickPosition ? params.tickPosition : 'outer';
@@ -393,11 +395,11 @@ var drawing = (function drawing() {
 
     var tickCode = '<g class="axis-ticks">';
     var h = (start[1] === end[1]);
-    var d = (start[1] === end[1]) ? ((end[0] - start[0]) / ticks.length) : ((end[1] - start[1]) / ticks.length);
+    var d = (start[1] === end[1]) ? ((end[0] - start[0] - leftPadding - rightPadding) / (ticks.length - 1)) : ((end[1] - start[1] - leftPadding - rightPadding) / (ticks.length - 1));
     for (var i = 0; i < ticks.length; i++) {
       var tx1, ty1, tx2, ty2, lx, ly;
       if (h) {
-        tx1 = start[0] + i * d;
+        tx1 = start[0] + leftPadding + i * d;
         ty1 = start[1];
         tx2 = tx1;
         ty2 = (tickPosition === 'outer') ? ty1 + tickLen : ty1 - tickLen;
@@ -406,7 +408,7 @@ var drawing = (function drawing() {
 
         tickCode += `<path d="M${tx1} ${ty1} L ${tx2} ${ty2}"></path><text class="axis-labels" x="${lx}" y="${ly}" transform="rotate(${labelRotation} ${lx} ${ly})" style="text-anchor: middle; font-size: ${labelFontSize}">${ticks[i]}</text>`;
 
-        if (innerTicks) {
+        if (innerTicks && i < ticks.length - 1) {
           var _d = d / (innerTicks + 1);
           for (var j = 1; j < innerTicks + 1; j++) {
             tickCode += `<path d="M${tx1 + _d * j} ${ty1} L ${tx1 + _d * j} ${(tickPosition === 'outer') ? ty1 + tickLen/2 : ty1 - tickLen/2}"></path>`;
@@ -415,15 +417,15 @@ var drawing = (function drawing() {
 
       } else {
         tx1 = (tickPosition === 'outer') ? start[0] - tickLen : start[0] + tickLen;
-        ty1 = start[1] + i * d;
+        ty1 = start[1] + leftPadding + i * d;
         tx2 = start[0];
         ty2 = ty1;
         lx = (tickPosition === 'outer') ? tx1 - 12 : tx2 - 12;
         ly = ty1;
 
-        tickCode += `<path d="M${tx1} ${ty1} L ${tx2} ${ty2}"></path><text class="axis-labels" x="${lx}" y="${ly}" transform="rotate(${labelRotation} ${lx} ${ly})" style="text-anchor: end; alignment-baseline: middle; font-size: ${labelFontSize};">${ticks[i]}</text>`;
+        tickCode += `<path d="M${tx1} ${ty1} L ${tx2} ${ty2}"></path><text class="axis-labels" x="${lx}" y="${ly}" transform="rotate(${labelRotation} ${lx} ${ly})" style="text-anchor: end; alignment-baseline: middle; font-size:${labelFontSize};">${ticks[i]}</text>`;
 
-        if (innerTicks) {
+        if (innerTicks && i < ticks.length - 1) {
           var _d = d / (innerTicks + 1);
           for (var k = 1; k < innerTicks + 1; k++) {
             tickCode += `<path d="M${(tickPosition === 'outer') ? tx2 - tickLen/2 : tx2 + tickLen/2} ${ty1 + _d * k} L ${tx2} ${ty1 + _d * k}"></path>`;
@@ -438,13 +440,15 @@ var drawing = (function drawing() {
   }
 
   // console.log(drawAxis({
-  // start: [650, 50],
-  // end: [650, 650],
-  // arrow: true,
-  // ticks: [2000, 2005, 2010, 2015],
-  // innerTicks: 4,
-  // className: 'myAxis',
-  // id: 'axis-001'
+  //   start: [65, 65],
+  //   end: [65, 665],
+  //   // arrow: true,
+  //   ticks: [2000, 2005, 2010, 2015],
+  //   innerTicks: 4,
+  //   className: 'myAxis',
+  //   id: 'axis-001',
+  //   leftPadding: 10,
+  //   rightPadding: 10
   // }));
 
 
