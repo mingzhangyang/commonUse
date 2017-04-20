@@ -360,7 +360,6 @@ var drawing = (function drawing() {
   // }));
 
 
-
   function drawAxis(params) {
     params = params || {};
     var start = params.start || [10, 10];
@@ -380,6 +379,8 @@ var drawing = (function drawing() {
     var innerTicks = params.innerTicks || 0; // the number of inner ticks
     var labelRotation = params.labelRotation || 0;
     var labelFontSize = params.labelFontSize || '16px';
+    var title = params.title || '';
+    var titleFontSize = params.titleFontSize || '24px';
     var id = params.id || '';
     var className = params.className || '';
 
@@ -423,7 +424,7 @@ var drawing = (function drawing() {
 
         tickCoors.push([tx1, ty1]);
 
-        tickCode += `<path d="M${tx1} ${ty1} L ${tx2} ${ty2}"></path><text class="axis-labels" x="${lx}" y="${ly}" transform="rotate(${labelRotation} ${lx} ${ly})" style="text-anchor: middle; font-size: ${labelFontSize}">${tickLabels[i]}</text>`;
+        tickCode += `<path d="M${tx1} ${ty1} L ${tx2} ${ty2}"></path><text class="axis-h-labels" x="${lx}" y="${ly}" transform="rotate(${labelRotation} ${lx} ${ly})" style="text-anchor: middle; font-size: ${labelFontSize}">${tickLabels[i]}</text>`;
 
         if (innerTicks && i < tickLabels.length - 1) {
           for (var j = 1; j < innerTicks + 1; j++) {
@@ -431,6 +432,9 @@ var drawing = (function drawing() {
           }
         }
       }
+
+      tickCode += `<text class="axis-h-title" x="${(end[0] - start[0]) / 2 + start[0]}" y="${start[1] + 45}" style="text-anchor: middle; font-size: ${titleFontSize}">${title}</text>`;
+
     } else {
       if (start[1] > end[1]) {
         leftPadding = 0 - leftPadding;
@@ -450,7 +454,7 @@ var drawing = (function drawing() {
 
         tickCoors.push([tx1, ty1]);
 
-        tickCode += `<path d="M${tx1} ${ty1} L ${tx2} ${ty2}"></path><text class="axis-labels" x="${lx}" y="${ly}" transform="rotate(${labelRotation} ${lx} ${ly})" style="text-anchor: end; alignment-baseline: middle; font-size:${labelFontSize};">${tickLabels[i]}</text>`;
+        tickCode += `<path d="M${tx1} ${ty1} L ${tx2} ${ty2}"></path><text class="axis-v-labels" x="${lx}" y="${ly}" transform="rotate(${labelRotation} ${lx} ${ly})" style="text-anchor: end; alignment-baseline: middle; font-size:${labelFontSize};">${tickLabels[i]}</text>`;
 
         if (innerTicks && i < tickLabels.length - 1) {
           for (var k = 1; k < innerTicks + 1; k++) {
@@ -458,6 +462,9 @@ var drawing = (function drawing() {
           }
         }
       }
+
+      tickCode += `<text class="axis-v-title" x="${start[0] - 45}" y="${(end[1] - start[1]) / 2 + start[1]}" style="text-anchor: middle; font-size: ${titleFontSize}" transform="rotate(${-90} ${start[0] - 45} ${(end[1] - start[1]) / 2 + start[1]})">${title}</text>`;
+
     }
 
     tickCode += '</g>';
@@ -467,6 +474,8 @@ var drawing = (function drawing() {
       template: `<g class="${className}" id="${id}">` + bone + tickCode + '</g>'
     };
   }
+
+
 
   // console.log(drawAxis({
   //   start: [65, 65],
