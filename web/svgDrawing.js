@@ -369,6 +369,8 @@ var drawing = (function drawing() {
       return;
     }
 
+    var bone = params.bone === undefined ? true : params.bone;
+    // the axis-bone will not be shown only if it is explicitly set to be false
     var leftPadding = params.leftPadding || 0;
     var rightPadding = params.rightPadding || 0;
     var arrow = params.arrow || false;
@@ -386,15 +388,17 @@ var drawing = (function drawing() {
 
     var tickCoors = [];
 
-    var bone;
-    if (arrow) {
-      bone = drawArrow({
-        start: start,
-        end: end,
-        className: 'axis-bone'
-      });
-    } else {
-      bone = `<g class="axis-bone"><path d="M${start[0]} ${start[1]} L ${end[0]} ${end[1]}"></path></g>`;
+    var boneCode = '';
+    if (bone) {
+      if (arrow) {
+        boneCode = drawArrow({
+          start: start,
+          end: end,
+          className: 'axis-bone'
+        });
+      } else {
+        boneCode = `<g class="axis-bone"><path d="M${start[0]} ${start[1]} L ${end[0]} ${end[1]}"></path></g>`;
+      }
     }
 
     var tickCode = '<g class="axis-ticks">';
@@ -471,7 +475,7 @@ var drawing = (function drawing() {
 
     return {
       tickCoors: tickCoors,
-      template: `<g class="${className}" id="${id}">` + bone + tickCode + '</g>'
+      template: `<g class="${className}" id="${id}">` + boneCode + tickCode + '</g>'
     };
   }
 
