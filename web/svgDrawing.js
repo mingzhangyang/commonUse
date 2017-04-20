@@ -380,7 +380,7 @@ var drawing = (function drawing() {
     var labelRotation = params.labelRotation || 0;
     var labelFontSize = params.labelFontSize || '16px';
     var title = params.title || '';
-    var titleFontSize = params.titleFontSize || '24px';
+    var titleFontSize = params.titleFontSize || '22px';
     var id = params.id || '';
     var className = params.className || '';
 
