@@ -374,8 +374,8 @@ var drawing = (function drawing() {
     var rightPadding = params.rightPadding || 0;
     var arrow = params.arrow || false;
     var tickLabels = params.tickLabels || [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]; // an array required, an empty string can be used in the array to indicate 'no label here'
-    var tickPosition = params.tickPosition ? params.tickPosition : 'outer'; // 'outer', 'inner' or 'none'
-    var tickLen = params.tickLen || (tickPosition === 'none' ? 0 : 6);
+    var tickPosition = params.tickPosition ? params.tickPosition : 'outer'; // 'outer' or 'inner'
+    var tickLen = params.tickLen || 6;
     // set tickLen to be 0 to show no ticks on the axis
     var innerTicks = params.innerTicks || 0; // the number of inner ticks
     var labelRotation = params.labelRotation || 0;
@@ -397,13 +397,22 @@ var drawing = (function drawing() {
     }
 
     var tickCode = '<g class="axis-ticks">';
+
     var h = (start[1] === end[1]); // h: horizontal
-    var d = h ? ((end[0] - start[0] - leftPadding - rightPadding) / (tickLabels.length - 1)) : ((end[1] - start[1] - leftPadding - rightPadding) / (tickLabels.length - 1)); // distance between two neighbouring ticks
+    var d, _d; // d: distance between two neighbouring ticks; _d: distance between two neighbouring inner ticks
+
     var tx1, ty1, tx2, ty2, lx, ly;
     var i = 0;
-    var _d = innerTicks ? d / (innerTicks + 1) : 0;
-    //  _d indicates the distance between two neighbouring inner ticks
+
     if (h) {
+      if (start[0] > end[0]) {
+        leftPadding = 0 - leftPadding;
+        rightPadding = 0 - rightPadding;
+      }
+
+      d = (end[0] - start[0] - leftPadding - rightPadding) / (tickLabels.length - 1);
+      _d = innerTicks ? d / (innerTicks + 1) : 0;
+
       for (i; i < tickLabels.length; i++) {
         tx1 = start[0] + leftPadding + i * d;
         ty1 = start[1];
@@ -423,6 +432,14 @@ var drawing = (function drawing() {
         }
       }
     } else {
+      if (start[1] > end[1]) {
+        leftPadding = 0 - leftPadding;
+        rightPadding = 0 - rightPadding;
+      }
+
+      d = (end[1] - start[1] - leftPadding - rightPadding) / (tickLabels.length - 1);
+      _d = innerTicks ? d / (innerTicks + 1) : 0;
+
       for (i; i < tickLabels.length; i++) {
         tx1 = start[0];
         ty1 = start[1] + leftPadding + i * d;
