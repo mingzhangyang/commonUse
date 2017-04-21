@@ -557,6 +557,7 @@ var drawing = (function drawing() {
 // }));
 
 
+
   function drawChartArea(params) {
     params = params || {};
     var corner = params.corner || [100, 100];
@@ -712,6 +713,316 @@ var drawing = (function drawing() {
 // console.log(s.convert(178));
 // console.log(s.convert(-78));
 // console.log(s);
+
+
+  function setFigure(config) {
+    config = config || {};
+    var width = config.width || 500;
+    var height = config.height || 500;
+
+    var margins = config.margins || [80, 80, 80, 80]; // top, right, bottom, left
+    var vSpacing = config.vSpacing || 8; // space between v-axis and chart area
+    var hSpacing = config.hSpacing || 8; // h-axis and chart area
+
+    var figureTitle = config.figureTitle || '';
+    var showGridLines = config.showGridLines || false;
+    var background = config.background || 'transparent';
+
+    var hAxisTitle = config.hAxisTitle || '';
+    var vAxisTitle = config.vAxisTitle || '';
+
+    return {
+      chartArea: {
+        corner: [margins[3], margins[0]],
+        width: width - margins[3] - margins[1],
+        height: height - margins[0] - margins[2],
+        figureTitle: figureTitle,
+        showMajorGridLine: showGridLines,
+        fill: background
+      },
+      'h-Axis': {
+        start: [margins[3], height - margins[2] + hSpacing],
+        end: [width - margins[1], height - margins[2] + hSpacing],
+        title: hAxisTitle
+      },
+      'v-Axis': {
+        start: [margins[3] - vSpacing, height - margins[2]],
+        end: [margins[3] - vSpacing, margins[0]],
+        title: vAxisTitle
+      },
+      xRange: [margins[3], width - margins[1]],
+      yRange: [height - margins[2], margins[0]]
+    };
+  }
+
+// console.log(setFigure());
+
+  /*******************************************************************************
+   *
+   *  data formats required:
+   *
+   *  bar chart / line chart / scatter chart
+   *  [{label: 'A', value: 1}, {label: 'B', value: 2}, {label: 'C', value: 3}]
+   *
+   *  multi-bar chart
+   *  [{label: 'X', value: [1, 2, 3, 4]}, {label: 'Y', value: [5, 6, 7, 8]}]
+   *
+   *  line chart / scatter chart
+   *  [1, 2, 3, 4, 5, 6, 7, 8 ...]
+   *
+   *  pair-value data
+   *  [{x: 1, y: 2}, {x: 3, y: 4}, {x: 5, y: 6} ...]
+   *
+   *  hist chart
+   *  [{band: [0, 1], value: 10}, {band: [1, 2], value: 13}, ...]
+   *
+   ******************************************************************************/
+
+  function prepData(arr) {
+    if (typeof arr[0] === 'number') {
+      return {
+        min: arr.reduce(function (acc, val) {
+          return acc < val ? acc : val;
+        }, +Infinity),
+        max: arr.reduce(function (acc, val) {
+          return acc > val ? acc : val;
+        }, -Infinity),
+        values: arr,
+        labels: arr.map(function (v, i) {return i + '';})
+      }
+    }
+
+    return {
+      min: arr.reduce(function (acc, val) {
+        return acc < val.value ? acc : val.value;
+      }, +Infinity),
+      max: arr.reduce(function (acc, val) {
+        return acc > val.value ? acc : val.value;
+      }, -Infinity),
+      values: arr.map(function (val) {return val.value}),
+      labels: arr.map(function (val) {return val.label})
+    }
+  }
+
+// console.log(prepData([2, 4, 6, 8, 10]));
+// console.log(prepData([{
+//   label: 'A',
+//   value: 23
+// }, {
+//   label: 'B',
+//   value: 43
+// }, {
+//   label: 'C',
+//   value: 50
+// }, {
+//   label: 'D',
+//   value: 49
+// }, {
+//   label: 'E',
+//   value: 67
+// }]));
+
+  function getLargerNum(x) {
+    var i;
+    var t;
+    if (x > 0) {
+      if (x < 1) {
+        for (i = 0; i < 10; i++) {
+          t = x * Math.pow(10, i);
+          if (t >= 1 && t < 10) {
+            return Math.ceil(t) / Math.pow(10, i);
+          }
+        }
+      } else if (x > 10) {
+        for (i = 0; i < 10; i++) {
+          t = x / Math.pow(10, i);
+          if (t >= 1 && t < 10) {
+            return Math.ceil(t) * Math.pow(10, i);
+          }
+        }
+      } else {
+        return Math.ceil(x);
+      }
+    } else if (x < 0) {
+      if ((-x) < 1) {
+        for (i = 0; i < 10; i++) {
+          t = (-x) * Math.pow(10, i);
+          if (t >= 1 && t < 10) {
+            return -(Math.floor(t) / Math.pow(10, i));
+          }
+        }
+      } else if ((-x) > 10) {
+        for (i = 0; i < 10; i++) {
+          t = (-x) / Math.pow(10, i);
+          if (t >= 1 && t < 10) {
+            return -(Math.floor(t) * Math.pow(10, i));
+          }
+        }
+      } else {
+        return -(Math.floor(-x));
+      }
+    } else {
+      return 0;
+    }
+  }
+
+// console.log(nearestNum(-0.021));
+
+  function getSmallerNum(x) {
+    var i;
+    var t;
+    if (x > 0) {
+      if (x < 1) {
+        for (i = 0; i < 10; i++) {
+          t = x * Math.pow(10, i);
+          if (t >= 1 && t < 10) {
+            return Math.floor(t) / Math.pow(10, i);
+          }
+        }
+      } else if (x > 10) {
+        for (i = 0; i < 10; i++) {
+          t = x / Math.pow(10, i);
+          if (t >= 1 && t < 10) {
+            return Math.floor(t) * Math.pow(10, i);
+          }
+        }
+      } else {
+        return Math.floor(x);
+      }
+    } else if (x < 0) {
+      if ((-x) < 1) {
+        for (i = 0; i < 10; i++) {
+          t = (-x) * Math.pow(10, i);
+          if (t >= 1 && t < 10) {
+            return -(Math.ceil(t) / Math.pow(10, i));
+          }
+        }
+      } else if ((-x) > 10) {
+        for (i = 0; i < 10; i++) {
+          t = (-x) / Math.pow(10, i);
+          if (t >= 1 && t < 10) {
+            return -(Math.ceil(t) * Math.pow(10, i));
+          }
+        }
+      } else {
+        return -(Math.ceil(-x));
+      }
+    } else {
+      return 0;
+    }
+  }
+
+// console.log(getSmallerNum(0.24));
+
+  function dataToCoordinates(data, dataRange, coorRange) {
+    var scale = new LinearScale();
+
+    scale.from = dataRange;
+    scale.to = coorRange;
+
+    return data.map(function (v) {
+      return scale.convert(v);
+    });
+  }
+
+  function drawLabeValuePairs(arr, xRange, yRange, options) {
+    options = options || {};
+    var lineColor = options.lineColor || '#000';
+    var lineWidth = options.lineWidth || '2px';
+    var pointFill = options.pointFill || '#00';
+    var pointSize = options.pointSize || '3px';
+    var pointBorder = options.pointBorder || '#000';
+    var pointBorderWeight = pointBorderWeight || '2px';
+    var fillOpacity = options.fillOpacity || 1;
+
+    var data = prepData(arr);
+    var vMin = getSmallerNum(data.min);
+    var vMax = getLargerNum(data.max);
+    var d = (vMax - vMin) / 5;
+
+    var ValueYCoors = dataToCoordinates(data.values, [vMin, vMax], yRange);
+    var LabelXCoors = data.labels.map(function (v, i) {
+      return xRange[0] + i * (xRange[1] - xRange[0]) / (data.labels.length - 1);
+    });
+
+    // console.log(LabelXCoors, ValueYCoors);
+
+    var points = '';
+    for (var j = 0; j < ValueYCoors.length; j++) {
+      points += `<circle class="data-circles" cx="${LabelXCoors[j]}" cy="${ValueYCoors[j]}" r="${pointSize}" fill="${pointFill}" fill-opacity="${fillOpacity}" stroke="${pointBorder}" stroke-width="${pointBorderWeight}"></circle>`;
+    }
+
+    var line = '<path d="M';
+    for (var k = 0; k < ValueYCoors.length; k++) {
+      line += ` ${LabelXCoors[k]} ${ValueYCoors[k]} L`;
+    }
+    line = line.slice(0, -2) + `" stroke="${lineColor}" stroke-width="${lineWidth}" fill="transparent"></path>`;
+
+    return {
+      hAxisTickLabels: data.labels,
+      vAxisTickLabels: [0, 1, 2, 3, 4, 5].map(function (val) {
+        return (vMin + d * val) + '';
+      }),
+      points: points,
+      line: line
+    }
+  }
+
+
+  function drawXLableYValueLineChart(arr, options) {
+    options = options || {};
+
+    var settings = setFigure({showGridLines: true});
+    var c = settings['chartArea'];
+    var hA = settings['h-Axis'];
+    var vA = settings['v-Axis'];
+    var xRange = settings.xRange;
+    var yRange = settings.yRange;
+
+    // console.log(xRange, yRange);
+
+    var data = drawLabeValuePairs(arr, xRange, yRange);
+
+    hA.tickLabels = data.hAxisTickLabels;
+    vA.tickLabels = data.vAxisTickLabels;
+
+    if (options.showGridLines) {
+      c.hMajorLines = hA.tickLabels.length;
+      c.vMajorLines = vA.tickLabels.length;
+    }
+
+    if (options.verticalGridLine) {
+      c.vMajorLines = vA.tickLabels.length;
+    }
+
+    if (options.horizontalGridLines) {
+      c.hMajorLines = hA.tickLabels.length;
+    }
+
+    var hAxis = drawAxis(hA) ;
+    var vAxis = drawAxis(vA);
+    var area = drawChartArea(c);
+
+    return '<g>' + hAxis + vAxis + area + data.points + data.line + '</g>';
+
+  }
+
+  // console.log(drawXLableYValueLineChart([{
+  //   label: 'A',
+  //   value: 23
+  // }, {
+  //   label: 'B',
+  //   value: 43
+  // }, {
+  //   label: 'C',
+  //   value: 50
+  // }, {
+  //   label: 'D',
+  //   value: 49
+  // }, {
+  //   label: 'E',
+  //   value: 67
+  // }], {horizontalGridLines: true}));
 
 
   return {
