@@ -44,8 +44,8 @@ var drawing = (function drawing() {
     var angle = params.angle ? params.angle / 180 * Math.PI : Math.PI/2;
     var startAngle = params.startAngle ? params.startAngle / 180 * Math.PI : 0;
     var fill = params.fill || 'transparent';
-    var borderColor = params.borderColor || '#000';
-    var borderLineWidth = params.borderLineWidth || '2px';
+    var lineColor = params.lineColor || '#000';
+    var lineWidth = params.lineWidth || '2px';
     var fillOpacity = params.fillOpacity || '1';
     var className = params.className || '';
     var id = params.id || '';
@@ -60,7 +60,7 @@ var drawing = (function drawing() {
 
     return {
       points: [center, [x1, y1], [x2, y2]],
-      template: `<g><path class="${className}" id="${id}" d="M${x1} ${y1} A ${r} ${r}, ${rot}, ${laf}, ${sf}, ${x2} ${y2} L ${center[0]} ${center[1]} Z" fill="${fill}" stroke="${borderColor}" stroke-width="${borderLineWidth}" fill-opacity="${fillOpacity}"></path></g>`
+      template: `<g><path class="${className}" id="${id}" d="M${x1} ${y1} A ${r} ${r}, ${rot}, ${laf}, ${sf}, ${x2} ${y2} L ${center[0]} ${center[1]} Z" fill="${fill}" stroke="${lineColor}" stroke-width="${lineWidth}" fill-opacity="${fillOpacity}"></path></g>`
     };
   }
 
@@ -109,8 +109,8 @@ var drawing = (function drawing() {
     var endAngle = startAngle + angle;
     var fill = params.fill || 'transparent';
     var fillOpacity = params.fillOpacity || '1';
-    var borderLineWidth = params.borderLineWidth || '2px';
-    var borderColor = params.borderColor || '#000';
+    var lineWidth = params.lineWidth || '2px';
+    var lineColor = params.lineColor || '#000';
     var className = params.className || '';
     var id = params.id || '';
 
@@ -130,7 +130,7 @@ var drawing = (function drawing() {
     x4 = center[0] + iR * Math.sin(endAngle);
     y4 = center[1] - iR * Math.cos(endAngle);
 
-    return `<g class="${className}" id="${id}"><path d="M ${x1} ${y1} A ${oR} ${oR}, ${rot}, ${laf}, ${sf}, ${x2} ${y2} L ${x4} ${y4} A ${iR} ${iR}, ${rot}, ${laf}, ${sf ? 0 : 1}, ${x3} ${y3} L ${x1} ${y1} Z" fill="${fill}" fill-opacity="${fillOpacity}" stroke="${borderColor}" stroke-width="${borderLineWidth}"></path></g>`;
+    return `<g class="${className}" id="${id}"><path d="M ${x1} ${y1} A ${oR} ${oR}, ${rot}, ${laf}, ${sf}, ${x2} ${y2} L ${x4} ${y4} A ${iR} ${iR}, ${rot}, ${laf}, ${sf ? 0 : 1}, ${x3} ${y3} L ${x1} ${y1} Z" fill="${fill}" fill-opacity="${fillOpacity}" stroke="${lineColor}" stroke-width="${lineWidth}"></path></g>`;
 
   }
 
@@ -155,9 +155,17 @@ var drawing = (function drawing() {
    * ang is the angle from vertical bar
    * extra is the tail of the bar, specified by h and v distance
    */
-  function drawBar(x, y, r, ang, len, extra) {
+  function drawBar(params) {
+    params = params || {};
+    var x = params.x || 100;
+    var y = params.y || 100;
+    var r = params.r || 50;
+    var ang = params.angle || 0;
+    var len = params.len || 20;
+    var lineWidth = params.lineWidth || '2px';
+    var lineColor = params.lineColor || '#000';
+
     ang = ang / 180 * Math.PI;
-    extra = extra || {h: 0, v: 0};
 
     var x1 = x + r * Math.sin(ang);
     var y1 = y - r * Math.cos(ang);
@@ -165,13 +173,11 @@ var drawing = (function drawing() {
     var x2 = x + (r + len) * Math.sin(ang);
     var y2 = y - (r + len) * Math.cos(ang);
 
-    var h = Math.sin(ang) >= 0 ? extra.h : -(extra.h);
-    var v = Math.cos(ang) >= 0 ? -(extra.v) : extra.v;
-
-    var x3 = x2 + h;
-    var y3 = y2 + v;
-
-    return `<path d="M${x1} ${y1} L ${x2} ${y2} L ${x3} ${y3}"></path>`
+    return {
+      start: [x1, y1],
+      end: [x2, y2],
+      template: `<path d="M${x1} ${y1} L ${x2} ${y2}" stroke="${lineColor}" stroke-width="${lineWidth}"></path>`
+    };
   }
 
 // console.log(drawBar(300, 300, 150, 30, 10, {h: 20, v: 0}));
@@ -239,6 +245,11 @@ var drawing = (function drawing() {
     var endAngle;
     var d = (oR - iR) * 0.5;
     var id = params.id || '';
+    var className = params.className || '';
+    var lineWidth = params.lineWidth || '2px';
+    var lineColor = params.lineColor || '#000';
+    var fill = params.fill || 'transparent';
+    var fillOpacity = params.fillOpacity || '1';
 
     if (forward) {
       endAngle = startAngle + angle - Math.PI / 18;
@@ -273,7 +284,7 @@ var drawing = (function drawing() {
       x7 = center[0] + (iR - d) * Math.sin(endAngle);
       y7 = center[1] - (iR - d) * Math.cos(endAngle);
 
-      return `<g id="${id}"><path d="M${x1} ${y1} A ${oR} ${oR}, ${rot}, ${laf}, ${sf}, ${x2} ${y2} L ${x5} ${y5} L ${x6} ${y6} L ${x7} ${y7} L ${x4} ${y4} A ${iR} ${iR}, ${rot}, ${laf}, ${sf ? 0 : 1}, ${x3} ${y3} Z"></path></g>`;
+      return `<g id="${id}" class="${className}" stroke="${lineColor}" stroke-width="${lineWidth}" fill="${fill}" fill-opacity="${fillOpacity}"><path d="M${x1} ${y1} A ${oR} ${oR}, ${rot}, ${laf}, ${sf}, ${x2} ${y2} L ${x5} ${y5} L ${x6} ${y6} L ${x7} ${y7} L ${x4} ${y4} A ${iR} ${iR}, ${rot}, ${laf}, ${sf ? 0 : 1}, ${x3} ${y3} Z"></path></g>`;
 
     } else {
       x5 = center[0] + (oR + d) * Math.sin(startAngle);
@@ -285,7 +296,7 @@ var drawing = (function drawing() {
       x7 = center[0] + (iR - d) * Math.sin(startAngle);
       y7 = center[1] - (iR - d) * Math.cos(startAngle);
 
-      return `<g id="${id}"><path d="M${x7} ${y7} L ${x6} ${y6} L ${x5} ${y5} L ${x1} ${y1} A ${oR} ${oR}, ${rot}, ${laf}, ${sf}, ${x2} ${y2} L ${x4} ${y4} A ${iR} ${iR}, ${rot}, ${laf}, ${sf ? 0 : 1}, ${x3} ${y3} Z"></path></g>`;
+      return `<g id="${id}" class="${className}" stroke="${lineColor}" stroke-width="${lineWidth}" fill="${fill}" fill-opacity="${fillOpacity}"><path d="M${x7} ${y7} L ${x6} ${y6} L ${x5} ${y5} L ${x1} ${y1} A ${oR} ${oR}, ${rot}, ${laf}, ${sf}, ${x2} ${y2} L ${x4} ${y4} A ${iR} ${iR}, ${rot}, ${laf}, ${sf ? 0 : 1}, ${x3} ${y3} Z"></path></g>`;
     }
   }
 
@@ -304,6 +315,8 @@ var drawing = (function drawing() {
     var forward = (params.forward === undefined) ? true : params.forward;
     var close = params.close || false;
     var id = params.id || '';
+    var lineWidth = params.lineWideth || '2px';
+    var lineColor = params.lineColor || '#000';
 
     var rot = 0;
     var laf = angle > Math.PI ? 1 : 0;
@@ -323,9 +336,9 @@ var drawing = (function drawing() {
       y4 = center[1] - (r - len) * Math.cos(startAngle + angle - Math.PI/18);
 
       if (!close) {
-        return `<g id="${id}"><path d="M${x1} ${y1} A ${r} ${r}, ${rot}, ${laf}, ${sf}, ${x2} ${y2}"></path><path d="M${x3} ${y3} L ${x2} ${y2} L ${x4} ${y4}"></path></g>`;
+        return `<g id="${id}" stroke="${lineColor}" stroke-width="${lineWidth}"><path d="M${x1} ${y1} A ${r} ${r}, ${rot}, ${laf}, ${sf}, ${x2} ${y2}"></path><path d="M${x3} ${y3} L ${x2} ${y2} L ${x4} ${y4}"></path></g>`;
       } else {
-        return `<g id="${id}"><path d="M${x1} ${y1} A ${r} ${r}, ${rot}, ${laf}, ${sf}, ${x2} ${y2}" fill="transparent"></path><path d="M${x3} ${y3} L ${x2} ${y2} L ${x4} ${y4} Z"></path></g>`;
+        return `<g id="${id}" stroke="${lineColor}" stroke-width="${lineWidth}"><path d="M${x1} ${y1} A ${r} ${r}, ${rot}, ${laf}, ${sf}, ${x2} ${y2}" fill="transparent"></path><path d="M${x3} ${y3} L ${x2} ${y2} L ${x4} ${y4} Z"></path></g>`;
       }
     } else {
       x3 = center[0] + (r + len) * Math.sin(startAngle + Math.PI/18);
@@ -334,9 +347,9 @@ var drawing = (function drawing() {
       y4 = center[1] - (r - len) * Math.cos(startAngle + Math.PI/18);
 
       if (!close) {
-        return `<g id="${id}"><path d="M${x1} ${y1} A ${r} ${r}, ${rot}, ${laf}, ${sf}, ${x2} ${y2}"></path><path d="M${x3} ${y3} L ${x1} ${y1} L ${x4} ${y4}"></path></g>`;
+        return `<g id="${id}" stroke="${lineColor}" stroke-width="${lineWidth}"><path d="M${x1} ${y1} A ${r} ${r}, ${rot}, ${laf}, ${sf}, ${x2} ${y2}"></path><path d="M${x3} ${y3} L ${x1} ${y1} L ${x4} ${y4}"></path></g>`;
       } else {
-        return `<g id="${id}"><path d="M${x1} ${y1} A ${r} ${r}, ${rot}, ${laf}, ${sf}, ${x2} ${y2}" fill="transparent;"></path><path d="M${x3} ${y3} L ${x1} ${y1} L ${x4} ${y4} Z"></path></g>`;
+        return `<g id="${id}" stroke="${lineColor}" stroke-width="${lineWidth}"><path d="M${x1} ${y1} A ${r} ${r}, ${rot}, ${laf}, ${sf}, ${x2} ${y2}" fill="transparent;"></path><path d="M${x3} ${y3} L ${x1} ${y1} L ${x4} ${y4} Z"></path></g>`;
       }
     }
   }
@@ -356,6 +369,8 @@ var drawing = (function drawing() {
     var close = params.close || false;
     var className = params.className || '';
     var id = params.id || '';
+    var lineWidth = params.lineWidth || '2px';
+    var lineColor = params.lineColor || '#000';
 
     var d = Math.sqrt((start[0] - end[0])*(start[0] - end[0]) + (start[1] - end[1])*(start[1] - end[1]));
     var alpha = Math.asin((start[0] - end[0]) / d);
@@ -366,9 +381,9 @@ var drawing = (function drawing() {
     var y2 = end[1] - len * Math.cos(alpha + angle);
 
     if (close) {
-      return `<g class="${className}" id="${id}"><path d="M${x1} ${y1} L ${end[0]} ${end[1]} L ${x2} ${y2} Z"></path><path d="M${start[0]} ${start[1]} L ${end[0]} ${end[1]}"></path></g>`;
+      return `<g class="${className}" id="${id}" stroke="${lineColor}" stroke-width="${lineWidth}"><path d="M${x1} ${y1} L ${end[0]} ${end[1]} L ${x2} ${y2} Z"></path><path d="M${start[0]} ${start[1]} L ${end[0]} ${end[1]}"></path></g>`;
     }
-    return `<g class="${className}" id="${id}"><path d="M${x1} ${y1} L ${end[0]} ${end[1]} L ${x2} ${y2}"></path><path d="M${start[0]} ${start[1]} L ${end[0]} ${end[1]}"></path></g>`;
+    return `<g class="${className}" id="${id}" stroke="${lineColor}" stroke-width="${lineWidth}"><path d="M${x1} ${y1} L ${end[0]} ${end[1]} L ${x2} ${y2}"></path><path d="M${start[0]} ${start[1]} L ${end[0]} ${end[1]}"></path></g>`;
   }
 
 // console.log(drawArrow({
@@ -406,9 +421,13 @@ var drawing = (function drawing() {
     var labelRotation = params.labelRotation || 0;
     var labelFontSize = params.labelFontSize || '16px';
     var title = params.title || '';
-    var titleFontSize = params.titleFontSize || '22px';
+    var titleFontSize = params.titleFontSize || '20px';
     var id = params.id || '';
     var className = params.className || '';
+    var tickColor = params.tickColor || '#000';
+    var tickWeight = params.tickWeight || '2px';
+    var boneColor = params.boneColor || '#000';
+    var boneWeight = params.boneWeight || '2px';
 
     var tickCoors = [];
 
@@ -418,10 +437,12 @@ var drawing = (function drawing() {
         boneCode = drawArrow({
           start: start,
           end: end,
-          className: 'axis-bone'
+          className: 'axis-bone',
+          lineWidth: boneWeight,
+          lineColor: boneColor
         });
       } else {
-        boneCode = `<g class="axis-bone"><path d="M${start[0]} ${start[1]} L ${end[0]} ${end[1]}"></path></g>`;
+        boneCode = `<g class="axis-bone" stroke="${boneColor}" stroke-width="${boneWeight}"><path d="M${start[0]} ${start[1]} L ${end[0]} ${end[1]}"></path></g>`;
       }
     }
 
@@ -461,8 +482,7 @@ var drawing = (function drawing() {
 
         tickCoors.push([tx1, ty1]);
 
-        tickCode += `<path 
-d="M${tx1} ${ty1} L ${tx2} ${ty2}"></path><text class="axis-h-labels" x="${lx}" y="${ly}" transform="rotate(${labelRotation} ${lx} ${ly})" text-anchor="middle" font-size="${labelFontSize}">${tickLabels[i]}</text>`;
+        tickCode += `<path d="M${tx1} ${ty1} L ${tx2} ${ty2}" stroke="${tickColor}" stroke-width="${tickWeight}"></path><text class="axis-h-labels" x="${lx}" y="${ly}" transform="rotate(${labelRotation} ${lx} ${ly})" text-anchor="middle" font-size="${labelFontSize}">${tickLabels[i]}</text>`;
 
         if (innerTicks && i < tickLabels.length - 1) {
           for (var j = 1; j < innerTicks + 1; j++) {
@@ -471,8 +491,7 @@ d="M${tx1} ${ty1} L ${tx2} ${ty2}"></path><text class="axis-h-labels" x="${lx}" 
         }
       }
 
-      tickCode += `<text class="axis-h-title" x="${(end[0] - start[0]) / 2 + start[0]}" y="${start[1] + 45}" 
-text-anchor="middle" font-size="${titleFontSize}">${title}</text>`;
+      tickCode += `<text class="axis-h-title" x="${(end[0] - start[0]) / 2 + start[0]}" y="${start[1] + 45}" text-anchor="middle" font-size="${titleFontSize}">${title}</text>`;
 
     } else {
       if (start[1] > end[1]) {
@@ -501,7 +520,7 @@ text-anchor="middle" font-size="${titleFontSize}">${title}</text>`;
 
         tickCoors.push([tx1, ty1]);
 
-        tickCode += `<path d="M${tx1} ${ty1} L ${tx2} ${ty2}"></path><text class="axis-v-labels" x="${lx}" y="${ly}" transform="rotate(${labelRotation} ${lx} ${ly})" text-anchor="end" alignment-baseline="middle" font-size="${labelFontSize}">${tickLabels[i]}</text>`;
+        tickCode += `<path d="M${tx1} ${ty1} L ${tx2} ${ty2}" stroke="${tickColor}" stroke-width="${tickWeight}"></path><text class="axis-v-labels" x="${lx}" y="${ly}" transform="rotate(${labelRotation} ${lx} ${ly})" text-anchor="end" alignment-baseline="middle" font-size="${labelFontSize}">${tickLabels[i]}</text>`;
 
         if (innerTicks && i < tickLabels.length - 1) {
           for (var k = 1; k < innerTicks + 1; k++) {
@@ -538,7 +557,7 @@ text-anchor="middle" font-size="${titleFontSize}">${title}</text>`;
 // }));
 
 
-  function drawGrid(params) {
+  function drawChartArea(params) {
     params = params || {};
     var corner = params.corner || [100, 100];
     var width = params.width;
@@ -549,30 +568,42 @@ text-anchor="middle" font-size="${titleFontSize}">${title}</text>`;
     var rightBorder = params.rightBorder || false;
     var bottomBorder = params.bottomBorder || false;
     var topBorder = params.topBorder || false;
-    var hMajorLines = params.hLines || 0; // equals v-axis tick labels
+
+    var showMajorGridLine = params.showMajorGridLine || false;
+    var showMinorGridLine = params.showMinorGridLine || false;
+
+    var hMajorLines = params.hMajorLines || 0; // equals v-axis tick labels
     if (hMajorLines && hMajorLines < 2) {
       console.log('hMajorLines has to be at least 2.');
       return -1;
     }
+
+    var vMajorLines = params.vMajorLines || 0; // equals h-axis ticks labels
     if (vMajorLines && vMajorLines < 2) {
       console.log('vMajorLines has to be at least 2.');
       return -1;
     }
-    var vMajorLines = params.vLines || 0; // equals h-axis ticks labels
+
+    if (hMajorLines !== 0 || vMajorLines !== 0) {
+      showMajorGridLine = true;
+    }
+
     var leftPadding = params.leftPadding || 0;
     var rightPadding = params.rightPadding || 0;
     var topPadding = params.topPadding || 0;
     var bottomPadding = params.bottomPadding || 0;
-    var showMajorGridLine = params.showMajorGridLine || false;
-    var showMinorGridLine = params.showMinorGridLine || false;
+
     var majorGridLineWidth = params.majorGridLineWidth || '2px';
     var minorGridLineWidth = params.minorGridLineWidth || '1px';
     var borderLineWidth = params.borderLineWidth || '2px';
     var borderColor = params.borderColor || '#000';
     var borders = params.borders || false;
     // set params.borders to true, all borders will be shown
+    var className = params.className || '';
+    var id = params.id || '';
+    var figureTitle = params.figureTitle || '';
 
-    var code = `<g class="figure-area" transform="translate(${corner[0]} ${corner[1]})">`;
+    var code = `<g class="figure-area ${className}" id="${id}" transform="translate(${corner[0]} ${corner[1]})">`;
 
     code += `<rect width="${width}" height="${height}" fill="${fill}"></rect>`;
 
@@ -592,7 +623,9 @@ text-anchor="middle" font-size="${titleFontSize}">${title}</text>`;
           code += `<path class="minor-h-grid-line" d="M0 ${ty + dh * 0.5} L ${width} ${ty + dh * 0.5}" stroke="${gridLineColor}" stroke-width="${minorGridLineWidth}"></path>`;
         }
 
-        code += `<path class="major-h-grid-line" d="M0 ${ty} L ${width} ${ty}" stroke="${gridLineColor}" stroke-width="${majorGridLineWidth}"></path>`;
+        if (ty !== 0 && ty !== height) {
+          code += `<path class="major-h-grid-line" d="M0 ${ty} L ${width} ${ty}" stroke="${gridLineColor}" stroke-width="${majorGridLineWidth}"></path>`;
+        }
       }
     }
 
@@ -603,7 +636,9 @@ text-anchor="middle" font-size="${titleFontSize}">${title}</text>`;
           code += `<path class="minor-v-grid-line" d="M${tx + dv * 0.5} 0 L ${tx + dv * 0.5} ${height}" stroke="${gridLineColor}" stroke-width="${minorGridLineWidth}"></path>`;
         }
 
-        code += `<path class="major-v-grid-line" d="M${tx} 0 L ${tx} ${height}" stroke="${gridLineColor}" stroke-width="${majorGridLineWidth}"></path>`;
+        if (tx !== 0 && tx !== width) {
+          code += `<path class="major-v-grid-line" d="M${tx} 0 L ${tx} ${height}" stroke="${gridLineColor}" stroke-width="${majorGridLineWidth}"></path>`;
+        }
       }
     }
 
@@ -619,13 +654,13 @@ text-anchor="middle" font-size="${titleFontSize}">${title}</text>`;
     code += `<path class="figure-area-right-border" d="M${width} 0 L ${width} ${height}" stroke="${borderColor}" stroke-width="${borderLineWidth}" stroke-opacity="${rightBorder ? 1 : 0}"></path>`;
     code += `<path class="figure-area-bottom-border" d="M${width} ${height} L 0 ${height}" stroke="${borderColor}" stroke-width="${borderLineWidth}" stroke-opacity="${bottomBorder ? 1 : 0}"></path>`;
 
-    code += '</g>';
+    code += `<text x="${width/2}" y="-30" text-anchor="middle" font-size="24px"> ${figureTitle}</text></g>`;
 
     return code;
 
   }
 
-// console.log(drawGrid({
+// console.log(drawChartArea({
 //   corner: [100, 100],
 //   // fill: '#fff',
 //   gridLineColor: 'grey',
@@ -633,15 +668,50 @@ text-anchor="middle" font-size="${titleFontSize}">${title}</text>`;
 //   height: 400,
 //   showMajorGridLine: true,
 //   showMinorGridLine: 1,
-//   vLines: 3,
-//   hLines: 3,
+//   vMajorLines: 3,
+//   hMajorLines: 3,
 //   leftPadding: 20,
 //   rightPadding: 20,
 //   topPadding: 20,
 //   bottomPadding: 20,
 //   // leftBorder: true
-//   borders: true
+//   // borders: true
+//   figureTitle: 'This is a test'
 // }));
+
+
+  function LinearScale() {
+    this.from = [0, 1];
+    this.to = [0, 1];
+    this.outRangeTolerance = false;
+    this.convert = function (x) {
+      if (x < this.from[0]) {
+        if (this.outRangeTolerance) {
+          return this.to[0];
+        } else {
+          console.log('Out of range!');
+          return;
+        }
+      }
+      if (x > this.from[1]) {
+        if (this.outRangeTolerance) {
+          return this.to[1];
+        } else {
+          console.log('Out of range!');
+          return;
+        }
+      }
+      return (x - this.from[0]) / (this.from[1] - this.from[0]) * (this.to[1] - this.to[0]) + this.to[0];
+    }
+  }
+
+// var s = new LinearScale();
+// s.from = [10, 100];
+// s.to = [1, 10];
+// console.log(s.convert(78));
+// console.log(s.convert(178));
+// console.log(s.convert(-78));
+// console.log(s);
 
 
   return {
