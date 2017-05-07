@@ -3,7 +3,7 @@
  */
 'use strict';
 
-var mycomponents = (function () {
+var myt = (function () {
   function comp1(options) {
     options = options || {};
     // let repeat = options.repeat || 1;
