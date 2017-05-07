@@ -4,7 +4,6 @@
 
 ### Support or Contact
 
-[contact support]
 - [@Mingzhang_Yang](https://twitter.com/mingzhang_yang)
 - [Google+](https://plus.google.com/u/0/+MingzhangYang)
 - Email: redondoself(AT)gmail(dot)com
