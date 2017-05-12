@@ -55,7 +55,7 @@ function sum(arr) {
   for (let i = 0; i < arr.length; i++) {
     s += arr[i];
   }
-  return s;
+  return typeof s === 'number' ? s : NaN;
 }
 
 function mean(arr) {
@@ -63,6 +63,11 @@ function mean(arr) {
 }
 
 function median(arr) {
+  // for (let i = 0; i < arr.length; i++) {
+  //   if (typeof arr[i] !== 'number') {
+  //     throw new Error('All must be numbers!');
+  //   }
+  // }
   let cp = arr.slice();
   cp.sort((a, b) => a - b );
   let m = cp.length;
