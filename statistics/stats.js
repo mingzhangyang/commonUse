@@ -3,10 +3,41 @@
  */
 'use strict';
 
+// generate a list of numbers
+function range(n) {
+  let result = [];
+  for (let i = 0; i < n; i++) {
+    result.push(i);
+  }
+  return result;
+}
+
 // get one item from an array randomly
-function sample(arr) {
-  var t = Math.floor(arr.length * Math.random());
-  return arr[t];
+function sample(arr, n) {
+  n = typeof n === 'undefined' ? 1 : n;
+  if (typeof n !== 'number') {
+    throw new Error('The second parameter should be number!');
+  }
+  var t;
+  if (n === 1) {
+    t = Math.floor(arr.length * Math.random());
+    return arr[t];
+  } else if (n > 1 && n < arr.length) {
+    let idxList = [];
+    do {
+      t = Math.floor(arr.length * Math.random());
+      if (idxList.indexOf(t) === -1) {
+        idxList.push(t);
+      }
+    } while (idxList.length < n);
+    let result = [];
+    for (let i = 0; i < n; i++) {
+      result.push(arr[idxList[i]]);
+    }
+    return result;
+  } else {
+    throw new Error('Out of range!');
+  }
 }
 
 // shuffle an array
@@ -94,15 +125,51 @@ function min(arr) {
   return m;
 }
 
-let a = [1, 6, 4, 3, 7, 2, 8, 3, 5, 9, 1, 5, 6];
+
+function variance(arr) {
+  let u = mean(arr);
+  // let na = arr.map((d) => (d - u) * (d - u));
+  let s = 0;
+  let c;
+  for (let i = 0; i < arr.length; i++) {
+    c = arr[i];
+    s += (c - u) * (c - u);
+  }
+  return {
+    pV: s / arr.length,
+    sV: s / (arr.length - 1)
+  };
+}
+
+
+let a = [1, 6, 4, 3, 7, 2, 8, 30, 50, 9, 10, 5, 60];
 // console.log(a.length);
 // console.log(median(a));
+// console.log(mean(a));
 // console.log(a.slice().sort((a, b) => a - b));
 // console.log(a.filter((d) => d < 5));
 // console.log(a.filter((d) => d > 5));
 // console.log(max(a));
 // console.log(min(a));
 // console.log(sum(a));
+// console.log(shuffle(a));
+
+// const request = require('request');
+// const fs = require('fs');
+// let url = 'https://raw.githubusercontent.com/genomicsclass/dagdata/master/inst/extdata/femaleControlsPopulation.csv';
+// request(url).pipe(fs.createWriteStream('femaleControlPopulation.csv'));
+// let csv = fs.readFileSync('femaleControlPopulation.csv', 'utf8');
+// csv = csv.split('\n');
+// csv = csv.slice(1).map((d) => +d.trim());
+// // console.log(csv);
+// let start = Date.now();
+// let nu = [];
+// for (let i = 0; i < 10000; i++) {
+//   nu.push(mean(sample(csv, 12)) - mean(sample(csv, 12)));
+// }
+// console.log(mean(nu));
+// console.log(Date.now() - start);
+
 
 
 if (typeof module) {
