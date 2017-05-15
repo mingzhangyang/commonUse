@@ -141,6 +141,7 @@ function variance(arr) {
   };
 }
 
+// import * from 'tdArray'
 
 let a = [1, 6, 4, 3, 7, 2, 8, 30, 50, 9, 10, 5, 60];
 // console.log(a.length);
