@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Navigation Tab</title>
+    <style>
+        body {
+            background-color: rgba(240,240,240,0.5);
+        }
+        #container {
+            width: 80%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 50px;
+        }
+        ol {
+            list-style-type: none;
+            border-bottom: 1px solid red;
+            background-color: rgba(240, 240, 240, 1);
+        }
+
+        li {
+            display: inline-block;
+            margin-right: 5px;
+            margin-bottom: -1px;
+            padding: 5px;
+            border-radius: 2px;
+        }
+
+        a:link {
+            text-decoration: none;
+        }
+
+        .selected {
+            background-color: #fff;
+            border-top: 3px solid #f66;
+            border-left: 1px solid #f66;
+            border-right: 1px solid #f66;
+            border-bottom: 0 solid transparent;
+        }
+
+    </style>
+</head>
+<body>
+<div id="container">
+    <ol>
+        <li class="nav-tab selected"><a>Google</a></li>
+        <li class="nav-tab"><a>Facebook</a></li>
+        <li class="nav-tab"><a>Twitter</a></li>
+    </ol>
+    <div id="msg"></div>
+    <script>
+      let elems = document.getElementsByTagName('a');
+      for (let i = 0; i < elems.length; i++) {
+        elems[i].addEventListener('click', function() {
+          for (let j = 0; j < elems.length; j++) {
+            let cls = elems[j].parentNode.getAttribute('class');
+            if (typeof cls === 'string' && cls.includes('selected')) {
+              elems[j].parentNode.setAttribute('class', removeClass(cls, 'selected'));
+            }
+          }
+          let ccls = this.parentNode.className;
+          this.parentNode.setAttribute('class', ccls + ' selected');
+        })
+      }
+
+
+      function removeClass(names, name) {
+        return names.replace(name, '');
+      }
+    </script>
+</div>
+</body>
+</html>
