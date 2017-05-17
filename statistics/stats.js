@@ -4,16 +4,16 @@
 'use strict';
 
 // generate a list of numbers
-function range(n) {
+const range = function (n) {
   let result = [];
   for (let i = 0; i < n; i++) {
     result.push(i);
   }
   return result;
-}
+};
 
 // get one item from an array randomly
-function sample(arr, n) {
+const sample = function (arr, n) {
   n = typeof n === 'undefined' ? 1 : n;
   if (typeof n !== 'number') {
     throw new Error('The second parameter should be number!');
@@ -38,10 +38,10 @@ function sample(arr, n) {
   } else {
     throw new Error('Out of range!');
   }
-}
+};
 
 // shuffle an array
-function shuffle(arr) {
+const shuffle = function (arr) {
   var result = [];
   var len = arr.length;
   var cp = arr.slice();
@@ -50,18 +50,21 @@ function shuffle(arr) {
     result.push(cp.splice(idx, 1)[0]);
   }
   return result;
-}
+};
 
 // console.log(shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9]));
 
-function findUnique(arr) {
+const findUnique = function (arr) {
   let uniq = [];
   let dupl = [];
 
   for (let i = 0; i < arr.length; i++) {
     let elem = arr[i];
+    if (dupl.find(d => d.elem === elem)) {
+      continue;
+    }
     let count = 1;
-    for (let j = i + 1; j < arr.length - 1; j++) {
+    for (let j = i + 1; j < arr.length; j++) {
       if (elem === arr[j]) {
         count += 1;
       }
@@ -79,21 +82,21 @@ function findUnique(arr) {
     unique: uniq,
     duplicate: dupl
   };
-}
+};
 
-function sum(arr) {
+const sum = function (arr) {
   let s = 0;
   for (let i = 0; i < arr.length; i++) {
     s += arr[i];
   }
   return typeof s === 'number' ? s : NaN;
-}
+};
 
-function mean(arr) {
+const mean = function (arr) {
   return sum(arr) / arr.length;
-}
+};
 
-function median(arr) {
+const median = function (arr) {
   // for (let i = 0; i < arr.length; i++) {
   //   if (typeof arr[i] !== 'number') {
   //     throw new Error('All must be numbers!');
@@ -103,9 +106,9 @@ function median(arr) {
   cp.sort((a, b) => a - b );
   let m = cp.length;
   return m % 2 ? cp[(m - 1) / 2] : (cp[m / 2 - 1] + cp[m / 2]) / 2;
-}
+};
 
-function max(arr) {
+const max = function (arr) {
   let m = arr[0];
   for (let i = 1; i < arr.length; i++) {
     if (m < arr[i]) {
@@ -113,9 +116,9 @@ function max(arr) {
     }
   }
   return m;
-}
+};
 
-function min(arr) {
+const min = function (arr) {
   let m = arr[0];
   for (let i = 1; i < arr.length; i++) {
     if (m > arr[i]) {
@@ -123,10 +126,45 @@ function min(arr) {
     }
   }
   return m;
-}
+};
+
+const arithmetic = function (sign, arr1, arr2) {
+  if (typeof arr2 === 'number') {
+    let t = arr2;
+    arr2 = arr1.map(d => t);
+  }
+  if (arr1.length !== arr2.length) {
+    throw new Error('The two arrays should be of the same length.');
+  }
+  if (typeof sign === 'string') {
+    switch (sign) {
+      case '+':
+        return arr1.map((d, i) => d + arr2[i]);
+      case '-':
+        return arr1.map((d, i) => d - arr2[i]);
+      case '*':
+        return arr1.map((d, i) => d * arr2[i]);
+      case '/':
+        return arr1.map((d, i) => d / arr2[i]);
+      case '%':
+        return arr1.map((d, i) => d % arr2[i]);
+      case '//':
+        return arr1.map((d, i) => Math.floor(d / arr2[i]));
+      case '^':
+        return arr1.map((d, i) => Math.pow(d, arr2[i]));
+      default:
+        throw new Error('The sign is not supported.');
+    }
+  } else if (typeof sign === 'function') {
+    return arr1.map((d, i) => sign(d, arr2[i]));
+  } else {
+    throw new Error('The first parameter should be a sign of arithmetic' +
+      ' operator or function.');
+  }
+};
 
 
-function variance(arr) {
+const variance = function (arr) {
   let u = mean(arr);
   // let na = arr.map((d) => (d - u) * (d - u));
   let s = 0;
@@ -139,11 +177,11 @@ function variance(arr) {
     pV: s / arr.length,
     sV: s / (arr.length - 1)
   };
-}
+};
 
 // import * from 'tdArray'
 
-let a = [1, 6, 4, 3, 7, 2, 8, 30, 50, 9, 10, 5, 60];
+let a = [1, 6, 4, 3, 7, 2, 8, 3, 5, 9, 10, 5, 5];
 // console.log(a.length);
 // console.log(median(a));
 // console.log(mean(a));
@@ -154,6 +192,12 @@ let a = [1, 6, 4, 3, 7, 2, 8, 30, 50, 9, 10, 5, 60];
 // console.log(min(a));
 // console.log(sum(a));
 // console.log(shuffle(a));
+// console.log(arithmetic((d1, d2) => d1*d1 + d2*d2, a, 5));
+// console.log(arithmetic('^', a, 3));
+// console.log(variance(a));
+// console.log(findUnique(a));
+
+
 
 // const request = require('request');
 // const fs = require('fs');
@@ -173,7 +217,7 @@ let a = [1, 6, 4, 3, 7, 2, 8, 30, 50, 9, 10, 5, 60];
 
 
 
-if (typeof module) {
+if (typeof module !== 'undefined') {
   if (module.parent) {
     module.exports = {
       max: max,
@@ -183,9 +227,10 @@ if (typeof module) {
       sum: sum,
       sample: sample,
       shuffle: shuffle,
-      unique: findUnique
+      unique: findUnique,
+      arithmetic: arithmetic
     }
   }
-} else if (typeof window) {
+} else if (typeof window !== 'undefined') {
   console.log('Running in browser!');
 }
