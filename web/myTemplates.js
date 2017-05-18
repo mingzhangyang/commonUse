@@ -8,15 +8,11 @@ var myt = (function () {
     options = options || {};
     // let repeat = options.repeat || 1;
     let className = options.className || 'my-component-1';
-    let labelList = options.labelList || ['Label'];
-    let idList = options.idList || [];
+    let labelList = options.labelList;
+    let idList = options.idList;
     let template = '';
     for (let i = 0; i < labelList.length; i++) {
-      if (idList.length) {
-        template += `<div class="${className}"><div><lable for="input">${labelList[i]}</lable></div><input type="text" id="${idList[i]}" placeholder=""></div>`;
-      } else {
-        template += `<div class="${className}"><div><lable for="input">${labelList[i]}</lable></div><input type="text" placeholder=""></div>`
-      }
+      template += `<div class="${className}"><label for="${idList[i]}">${labelList[i]}</label><input type="text" id="${idList[i]}" placeholder=""></div>`;
     }
     return template;
   }
