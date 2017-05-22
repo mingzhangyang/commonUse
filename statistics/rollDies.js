@@ -10,36 +10,39 @@ function roll(m, n) {
   if (m < 1) {
     throw new Error('m can not be less than 1');
   }
-
   if (n < m || n > m * 6) {
-    console.log(m, n);
     throw new Error('n out of range');
   }
 
-  if (m === 1) {
-    return 1 / 6;
-  }
+  // split checking m, n out from rolling function
 
-  let sum = 0;
+  function rolling(m, n) {
+    if (m === 1) {
+      return 1 / 6;
+    }
 
-  for (let i = 1; i < 7; i++) {
-    if (n - i > (m - 1) * 6) {
-      continue;
+    let sum = 0;
+
+    for (let i = 1; i < 7; i++) {
+      if (n - i > (m - 1) * 6) {
+        continue;
+      }
+      if (n - i < m - 1) {
+        break;
+      }
+      sum += roll(m - 1, n - i) / 6; // * roll(1, i)
     }
-    if (n - i < m - 1) {
-      break;
-    }
-    sum += roll(m - 1, n - i) / 6; // * roll(1, i)
+    return sum;
   }
-  return sum;
+  return rolling(m, n);
 }
 
-// let s = 0;
-// for (let i = 4; i < 25; i++) {
-//   // console.log(i);
-//   // console.log(roll(4, i));
-//
-//   s += roll(4, i);
-//
-// }
-// console.log(s);
+let s = 0;
+for (let i = 4; i < 25; i++) {
+  // console.log(i);
+  // console.log(roll(4, i));
+
+  s += roll(4, i);
+
+}
+console.log(s);
