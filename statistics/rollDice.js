@@ -11,7 +11,8 @@ function roll(m, n) {
     throw new Error('m can not be less than 1');
   }
   if (n < m || n > m * 6) {
-    throw new Error('n out of range');
+    // console.log('n out of range');
+    return 0;
   }
 
   // split checking m, n out from rolling function
@@ -38,11 +39,12 @@ function roll(m, n) {
 }
 
 let s = 0;
-for (let i = 4; i < 25; i++) {
+for (let i = 0; i < 30; i++) {
   // console.log(i);
   // console.log(roll(4, i));
-
-  s += roll(4, i);
-
+  // console.log(i);
+  let t = roll(4, i);
+  console.log(t);
+  s += t;
 }
 console.log(s);
