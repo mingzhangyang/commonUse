@@ -381,7 +381,7 @@ var myc = (function () {
     var forward = (params.forward === undefined) ? true : params.forward;
     var close = params.close || false;
     var id = params.id || '';
-    var lineWidth = params.lineWideth || '2px';
+    var lineWidth = params.lineWidth || '2px';
     var lineColor = params.lineColor || '#000';
     var arrowColor = params.arrowColor || '#000';
 
@@ -434,7 +434,7 @@ var myc = (function () {
     params = params || {};
     var start = params.start || [10, 10];
     var end = params.end || [50, 10];
-    var angle = params.angle ? param.angle / 180 * Math.PI : Math.PI / 4;
+    var angle = params.angle ? params.angle / 180 * Math.PI : Math.PI / 4;
     var len = params.len || 5;
     var close = params.close || false;
     var className = params.className || '';
@@ -653,3 +653,9 @@ var myc = (function () {
 //   }));
 //
 // }
+
+if (typeof module !== 'undefined' && module.parent) {
+  module.exports = myc;
+} else if (typeof window !== 'undefined') {
+  console.log('myc running in the browser!');
+}

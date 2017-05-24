@@ -232,10 +232,8 @@ console.log(stats.unique(a));
 
 
 
-if (typeof module !== 'undefined') {
-  if (module.parent) {
-    module.exports = stats;
-  }
+if (typeof module !== 'undefined' && module.parent) {
+  module.exports = stats;
 } else if (typeof window !== 'undefined') {
-  console.log('Running in browser!');
+  console.log('stats running in browser!');
 }
