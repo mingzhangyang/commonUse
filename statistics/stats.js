@@ -5,15 +5,25 @@
 
 const stats = (function () {
   // generate a list of numbers
-  const range = function (n) {
-    let result = [];
-    for (let i = 0; i < n; i++) {
-      result.push(i);
+  const range = function (n, m) {
+    if (typeof m === 'undefined') {
+      let result = [];
+      for (let i = 0; i < n; i++) {
+        result.push(i);
+      }
+      return result;
+    } else {
+      let b = m > n ? n : m;
+      let t = m > n ? m : n;
+      let result = [];
+      for (let j = b; j < t; j++) {
+        result.push(j);
+      }
+      return result;
     }
-    return result;
   };
 
-// get one item from an array randomly
+  // get one item from an array randomly
   const sample = function (arr, n) {
     n = typeof n === 'undefined' ? 1 : n;
     if (typeof n !== 'number') {
@@ -41,7 +51,7 @@ const stats = (function () {
     }
   };
 
-// shuffle an array
+  // shuffle an array
   const shuffle = function (arr) {
     var result = [];
     var len = arr.length;
@@ -53,7 +63,6 @@ const stats = (function () {
     return result;
   };
 
-// console.log(shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9]));
 
   const findUnique = function (arr) {
     let uniq = [];
@@ -159,8 +168,7 @@ const stats = (function () {
     } else if (typeof sign === 'function') {
       return arr1.map((d, i) => sign(d, arr2[i]));
     } else {
-      throw new Error('The first parameter should be a sign of arithmetic' +
-        ' operator or function.');
+      throw new Error('The first parameter should be a sign of arithmetic' + ' operator or function.');
     }
   };
 
@@ -180,7 +188,37 @@ const stats = (function () {
     };
   };
 
+  // empirical cumulative distribution function
+  const ecdf = function (arr) {
+    return function (v) {
+      let t = arr.filter(d => d <= v);
+      return t.length / arr.length;
+    }
+  };
+
+  // convert string to array object
+  function str2Array(str) {
+    let arr = str.split('\n');
+    let result = [];
+    let headers = arr[0].split(',').map(d => d.trim());
+    let len = headers.length;
+    let line;
+
+    for (let i = 1; i < arr.length - 1; i++) {
+      line = arr[i].split(',').map(d => d.trim());
+      let obj = {};
+      for (let j = 0; j < len; j++) {
+        obj[headers[j]] = line[j];
+      }
+      result.push(obj);
+    }
+    // console.log(result.length);
+    return result;
+  }
+
+
   return {
+    range: range,
     max: max,
     min: min,
     mean: mean,
@@ -190,27 +228,34 @@ const stats = (function () {
     shuffle: shuffle,
     unique: findUnique,
     arithmetic: arithmetic,
-    variance: variance
+    variance: variance,
+    ecdf: ecdf,
+    str2Array: str2Array
   }
 })();
 
 // import * from 'tdArray'
 
-let a = [1, 6, 4, 3, 7, 2, 8, 3, 5, 9, 10, 5, 5];
-console.log(a.length);
-console.log(stats.median(a));
-console.log(stats.mean(a));
-console.log(a.slice().sort((a, b) => a - b));
-console.log(a.filter((d) => d < 5));
-console.log(a.filter((d) => d > 5));
-console.log(stats.max(a));
-console.log(stats.min(a));
-console.log(stats.sum(a));
-console.log(stats.shuffle(a));
-console.log(stats.arithmetic((d1, d2) => d1*d1 + d2*d2, a, 5));
-console.log(stats.arithmetic('^', a, 3));
-console.log(stats.variance(a));
-console.log(stats.unique(a));
+// let a = [1, 6, 4, 3, 7, 2, 8, 3, 5, 9, 10, 5, 5];
+// console.log(a.length);
+// console.log(stats.median(a));
+// console.log(stats.mean(a));
+// console.log(a.slice().sort((a, b) => a - b));
+// console.log(a.filter((d) => d < 5));
+// console.log(a.filter((d) => d > 5));
+// console.log(stats.max(a));
+// console.log(stats.min(a));
+// console.log(stats.sum(a));
+// console.log(stats.shuffle(a));
+// console.log(stats.arithmetic((d1, d2) => d1*d1 + d2*d2, a, 5));
+// console.log(stats.arithmetic('^', a, 3));
+// console.log(stats.variance(a));
+// console.log(stats.unique(a));
+
+let a = stats.range(1, 11);
+let c = stats.ecdf(a);
+console.log(c(4));
+
 
 
 
