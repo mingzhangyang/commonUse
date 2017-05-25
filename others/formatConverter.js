@@ -9,16 +9,20 @@ function json2csv(path) {
   let data = fs.readFileSync(path, 'utf8');
   data = JSON.parse(data);
   // console.log(data);
+  if (!Array.isArray(data)) {
+    console.log('Not a JSON array...');
+    return;
+  }
 
   let headers = Object.keys(data[0]);
-  let str = headers.join(',') + '\n';
+  let str = headers.join(',');
 
   for (let i = 0; i < data.length; i++) {
     let ta = [];
     for (let j = 0; j < headers.length; j++) {
       ta.push(data[i][headers[j]]);
     }
-    str += ta.join(',') + '\n';
+    str += ('\n' + ta.join(','));
   }
 
   console.log(str);
@@ -35,9 +39,9 @@ function json2csv(path) {
 
 function csv2json(path) {
   let str = fs.readFileSync(path, 'utf8');
-
   function str2Array(str) {
     let arr = str.split('\n');
+    arr = arr.filter(d => d.length > 0 && d[0] !== '#');
     let result = [];
     let headers = arr[0].split(',').map(d => d.trim());
     let len = headers.length;
@@ -69,5 +73,8 @@ if (typeof module !== 'undefined' && module.parent) {
     json2csv: json2csv,
     csv2json: csv2json
   }
+} else {
+  // console.log(fs.readdirSync('../statistics'));
+  // json2csv('../../r_playground/mice_pheno.JSON');
 }
 
