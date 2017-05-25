@@ -234,51 +234,58 @@ const stats = (function () {
   }
 })();
 
-// import * from 'tdArray'
-
-// let a = [1, 6, 4, 3, 7, 2, 8, 3, 5, 9, 10, 5, 5];
-// console.log(a.length);
-// console.log(stats.median(a));
-// console.log(stats.mean(a));
-// console.log(a.slice().sort((a, b) => a - b));
-// console.log(a.filter((d) => d < 5));
-// console.log(a.filter((d) => d > 5));
-// console.log(stats.max(a));
-// console.log(stats.min(a));
-// console.log(stats.sum(a));
-// console.log(stats.shuffle(a));
-// console.log(stats.arithmetic((d1, d2) => d1*d1 + d2*d2, a, 5));
-// console.log(stats.arithmetic('^', a, 3));
-// console.log(stats.variance(a));
-// console.log(stats.unique(a));
-
-let a = stats.range(1, 11);
-let c = stats.ecdf(a);
-console.log(c(4));
 
 
+if (typeof module !== 'undefined') {
+  if (module.parent) {
+    module.exports = stats;
 
+  } else { // testing codes go here
 
-// const request = require('request');
-// const fs = require('fs');
-// let url = 'https://raw.githubusercontent.com/genomicsclass/dagdata/master/inst/extdata/femaleControlsPopulation.csv';
-// request(url).pipe(fs.createWriteStream('femaleControlPopulation.csv'));
-// let csv = fs.readFileSync('femaleControlPopulation.csv', 'utf8');
-// csv = csv.split('\n');
-// csv = csv.slice(1).map((d) => +d.trim());
-// // console.log(csv);
-// let start = Date.now();
-// let nu = [];
-// for (let i = 0; i < 10000; i++) {
-//   nu.push(stats.mean(stats.sample(csv, 12)) - stats.mean(stats.sample(csv, 12)));
-// }
-// console.log(mean(nu));
-// console.log(Date.now() - start);
+    // import * from 'tdArray'
+
+    // let a = [1, 6, 4, 3, 7, 2, 8, 3, 5, 9, 10, 5, 5];
+    // console.log(a.length);
+    // console.log(stats.median(a));
+    // console.log(stats.mean(a));
+    // console.log(a.slice().sort((a, b) => a - b));
+    // console.log(a.filter((d) => d < 5));
+    // console.log(a.filter((d) => d > 5));
+    // console.log(stats.max(a));
+    // console.log(stats.min(a));
+    // console.log(stats.sum(a));
+    // console.log(stats.shuffle(a));
+    // console.log(stats.arithmetic((d1, d2) => d1*d1 + d2*d2, a, 5));
+    // console.log(stats.arithmetic('^', a, 3));
+    // console.log(stats.variance(a));
+    // console.log(stats.unique(a));
+
+    // let a = stats.range(1, 11);
+    // let c = stats.ecdf(a);
+    // console.log(c(4));
 
 
 
-if (typeof module !== 'undefined' && module.parent) {
-  module.exports = stats;
+
+    // const request = require('request');
+    // const fs = require('fs');
+    // let url = 'https://raw.githubusercontent.com/genomicsclass/dagdata/master/inst/extdata/femaleControlsPopulation.csv';
+    // request(url).pipe(fs.createWriteStream('femaleControlPopulation.csv'));
+    // let csv = fs.readFileSync('femaleControlPopulation.csv', 'utf8');
+    // csv = csv.split('\n');
+    // csv = csv.slice(1).map((d) => +d.trim());
+    // // console.log(csv);
+    // let start = Date.now();
+    // let nu = [];
+    // for (let i = 0; i < 10000; i++) {
+    //   nu.push(stats.mean(stats.sample(csv, 12)) - stats.mean(stats.sample(csv, 12)));
+    // }
+    // console.log(mean(nu));
+    // console.log(Date.now() - start);
+
+
+  }
+
 } else if (typeof window !== 'undefined') {
   console.log('stats running in browser!');
 }
