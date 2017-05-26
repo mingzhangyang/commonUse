@@ -208,7 +208,7 @@ const stats = (function () {
     };
   };
 
-  // calculate standard deviation
+  // calculate sample standard deviation
   const sd = function (arr) {
     return Math.sqrt(variance(arr).sV);
   };
@@ -241,6 +241,45 @@ const stats = (function () {
     return [b - d, b + d];
   };
 
+  // calculate sample covariance
+  const cov = function (arr1, arr2) {
+    if (arr1.length !== arr2.length) {
+      throw new Error('The two arrays should be of the same length!');
+    }
+    let len = arr1.length;
+    let m1 = mean(arr1);
+    let m2 = mean(arr2);
+
+    let sum = 0;
+    for (let i = 0; i < len; i++) {
+      sum += (arr1[i] - m1) * (arr2[i] - m2);
+    }
+    return sum / (len - 1);
+  };
+
+  // calculate sample correlation coefficient
+  const cor = function (arr1, arr2) {
+    let sd1 = sd(arr1);
+    let sd2 = sd(arr2);
+    return cov(arr1, arr2) / (sd1 * sd2);
+  };
+
+  const quantile = function (arr) {
+    // let cp = arr.slice.sort((d1, d2) => d1 - d2);
+    let me = median(arr);
+    let mi = min(arr);
+    let ma = max(arr);
+
+    return {
+      '0%': mi,
+      '25%': (mi + me) / 2,
+      '50%': me,
+      '75%': (ma + me) / 2,
+      '100%': ma
+    }
+  };
+
+
   return {
     str2Array: str2Array,
     range: range,
@@ -257,7 +296,10 @@ const stats = (function () {
     sd: sd, // only the sample standard deviation
     ecdf: ecdf,
     tstat: tstat,
-    iv: interval
+    iv: interval,
+    cov: cov,
+    cor: cor,
+    quantile: quantile
   }
 })();
 
@@ -292,6 +334,14 @@ if (typeof module !== 'undefined') {
     // console.log(c(4));
 
     // console.log(stats.ttest([3, 5, 2, 4, 3.2, 4.1], [3.1, 3.4, 3.2, 3.4, 3.3]));
+
+    // let x = [1, 2, 3, 4, 5];
+    // let y = [10, 23, 31, 38, 49];
+    //
+    // console.log(stats.cov(x, y));
+    // console.log(stats.cor(x, y));
+
+    // console.log(stats.quantile([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]));
 
 
     // const request = require('request');
