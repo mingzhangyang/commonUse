@@ -4,6 +4,26 @@
 'use strict';
 
 const stats = (function () {
+  // convert string to an array of objects
+  function str2Array(str) {
+    let arr = str.split('\n');
+    let result = [];
+    let headers = arr[0].split(',').map(d => d.trim());
+    let len = headers.length;
+    let line;
+
+    for (let i = 1; i < arr.length - 1; i++) {
+      line = arr[i].split(',').map(d => d.trim());
+      let obj = {};
+      for (let j = 0; j < len; j++) {
+        obj[headers[j]] = line[j];
+      }
+      result.push(obj);
+    }
+    // console.log(result.length);
+    return result;
+  }
+
   // generate a list of numbers
   const range = function (n, m) {
     if (typeof m === 'undefined') {
@@ -183,9 +203,14 @@ const stats = (function () {
       s += (c - u) * (c - u);
     }
     return {
-      pV: s / arr.length,
-      sV: s / (arr.length - 1)
+      pV: s / arr.length, // population variance
+      sV: s / (arr.length - 1) // sample variance
     };
+  };
+
+  // calculate standard deviation
+  const sd = function (arr) {
+    return Math.sqrt(variance(arr).sV);
   };
 
   // empirical cumulative distribution function
@@ -196,28 +221,28 @@ const stats = (function () {
     }
   };
 
-  // convert string to array object
-  function str2Array(str) {
-    let arr = str.split('\n');
-    let result = [];
-    let headers = arr[0].split(',').map(d => d.trim());
-    let len = headers.length;
-    let line;
+  // calculate t-statistic
+  const tstat = function (arr1, arr2) {
 
-    for (let i = 1; i < arr.length - 1; i++) {
-      line = arr[i].split(',').map(d => d.trim());
-      let obj = {};
-      for (let j = 0; j < len; j++) {
-        obj[headers[j]] = line[j];
-      }
-      result.push(obj);
+    if (arr2 === undefined) {
+      return mean(arr1) / Math.sqrt(variance(arr1).sV / arr1.length);
     }
-    // console.log(result.length);
-    return result;
-  }
 
+    let diff = mean(arr1) - mean(arr2);
+    let se = Math.sqrt(variance(arr1).sV / arr1.length + variance(arr2).sV / arr2.length);
+
+    return diff / se;
+  };
+
+  // calculate 95% interval
+  const interval = function (arr) {
+    let b = mean(arr);
+    let d = 1.96 * sd(arr) / Math.sqrt(arr.length);
+    return [b - d, b + d];
+  };
 
   return {
+    str2Array: str2Array,
     range: range,
     max: max,
     min: min,
@@ -228,9 +253,11 @@ const stats = (function () {
     shuffle: shuffle,
     unique: findUnique,
     arithmetic: arithmetic,
-    variance: variance,
+    variance: variance, // both population and sample variance
+    sd: sd, // only the sample standard deviation
     ecdf: ecdf,
-    str2Array: str2Array
+    tstat: tstat,
+    iv: interval
   }
 })();
 
@@ -264,7 +291,7 @@ if (typeof module !== 'undefined') {
     // let c = stats.ecdf(a);
     // console.log(c(4));
 
-
+    // console.log(stats.ttest([3, 5, 2, 4, 3.2, 4.1], [3.1, 3.4, 3.2, 3.4, 3.3]));
 
 
     // const request = require('request');

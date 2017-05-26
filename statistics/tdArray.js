@@ -117,27 +117,29 @@ Object.defineProperty(TdArray.prototype, 'describe', {
 });
 
 TdArray.prototype.appendColumn = function (name, arr) {
+  let that = this;
   let cp = arr.slice();
-  if (cp.length !== this.shape[0]) {
+  if (cp.length !== that.shape[0]) {
     throw new Error('The length of new data not match!');
   }
-  this._columns = this._columns.concat(name);
+  this._columns = that._columns.concat(name);
   for (let i = 0; i < cp.length; i++) {
-    this.data[i].push(cp[i]);
+    that.data[i].push(cp[i]);
   }
-  let idx = this.data[0].length - 1;
-  Object.defineProperty(this, name, {
+  let idx = that.data[0].length - 1;
+
+  Object.defineProperty(that, name, {
     enumerable: true,
     configurable: true,
     get: function () {
-      return this.data.map((d) => d[idx]);
+      return that.data.map((d) => d[idx]);
     },
     set: function (newArr) {
       if (newArr.length !== cp.length) {
         throw new Error('The length of new data not match!');
       }
       for (let j = 0; j < newArr.length; j++) {
-        this.data[j][idx] = newArr[j];
+        that.data[j][idx] = newArr[j];
       }
     }
   });
@@ -168,15 +170,15 @@ df.A = [0, 0, 0, 0];
 console.log(df.shape);
 df.appendColumn('F', [100, 100, 100, 100]);
 console.log(df.values);
-df.F = [200, 200, 200, 200];
-console.log(df.F);
-console.log(df.shape);
-console.log(df.values);
-df.appendRow(['x', 'y', 'z', 'm', 'n', 'p']);
-console.log(df.values);
-console.log(df.A);
-df.D = ['Python', 'JavaScript', 'R', 'Go', 'C'];
-console.log(df.values);
-df.columns = ['A1', 'A2', 'A3', 'A4', 'A5', 'A6'];
-df.describe();
-console.log(Object.keys(df));
+// df.F = [200, 200, 200, 200];
+// console.log(df.F);
+// console.log(df.shape);
+// console.log(df.values);
+// df.appendRow(['x', 'y', 'z', 'm', 'n', 'p']);
+// console.log(df.values);
+// console.log(df.A);
+// df.D = ['Python', 'JavaScript', 'R', 'Go', 'C'];
+// console.log(df.values);
+// df.columns = ['A1', 'A2', 'A3', 'A4', 'A5', 'A6'];
+// df.describe();
+// console.log(Object.keys(df));
