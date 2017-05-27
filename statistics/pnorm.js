@@ -19,7 +19,31 @@ function pnorm(v) {
   return vb + (vt - vb) * (v * 100 - b) / (t - b);
 }
 
-// console.log(pnorm(1.234));
+
+function erfc(x) {
+  var z = Math.abs(x);
+  var t = 1 / (1 + z / 2);
+  var r = t * Math.exp(-z * z - 1.26551223 + t * (1.00002368 +
+      t * (0.37409196 + t * (0.09678418 + t * (-0.18628806 +
+      t * (0.27886807 + t * (-1.13520398 + t * (1.48851587 +
+      t * (-0.82215223 + t * 0.17087277)))))))))
+  return x >= 0 ? r : 2 - r;
+}
+
+function pdf(x) {
+  var m = 1 * Math.sqrt(2 * Math.PI);
+  var e = Math.exp(-Math.pow(x - 0, 2) / (2 * 1));
+  return e / m;
+};
+
+function cdf(x) {
+  return 0.5 * erfc(-(x - 0) / (1 * Math.sqrt(2)));
+};
+
+
+console.log(pnorm(1.234));
+console.log(pdf(1.234));
+console.log(cdf(1.234));
 
 if (typeof module !== 'undefined' && module.parent) {
   module.exports = pnorm;
