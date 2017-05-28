@@ -299,10 +299,10 @@ const stats = (function () {
   // input a probability to get the value whose cumulative distribution
   // equals the probability
   const qnorm = function (x) {
-    if (x <= 0) return -Infinity;
+    if (x === 0) return -Infinity;
     if (x === 1) return Infinity;
-    if (x > 1) {
-      throw new Error('probability can not exceed 1');
+    if (x < 0 || x > 1) {
+      throw new Error('probability should be in domain [0, 1]');
     }
 
     function ierfc(v) {
