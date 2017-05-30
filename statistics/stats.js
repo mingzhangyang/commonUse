@@ -279,6 +279,53 @@ const stats = (function () {
     }
   };
 
+  const erfc = function (v) {
+    let z = Math.abs(v);
+    let t = 1 / (1 + z / 2);
+    let r = t * Math.exp(-z * z - 1.26551223 + t * (1.00002368 +
+        t * (0.37409196 + t * (0.09678418 + t * (-0.18628806 +
+        t * (0.27886807 + t * (-1.13520398 + t * (1.48851587 +
+        t * (-0.82215223 + t * 0.17087277)))))))));
+    return v >= 0 ? r : 2 - r;
+  };
+
+  // https://en.wikipedia.org/wiki/Error_function
+  // input a value to get its cumulative distribution
+  const pnorm = function (x) {
+    return 0.5 * erfc((-x) / (Math.sqrt(2)));
+  };
+
+  // https://github.com/errcw/gaussian/blob/master/lib/gaussian.js
+  // input a probability to get the value whose cumulative distribution
+  // equals the probability
+  const qnorm = function (x) {
+    if (x === 0) return -Infinity;
+    if (x === 1) return Infinity;
+    if (x < 0 || x > 1) {
+      throw new Error('probability should be in domain [0, 1]');
+    }
+
+    function ierfc(v) {
+      if (v >= 2) { return -100; }
+      if (v <= 0) { return 100; }
+
+      var xx = (v < 1) ? v : 2 - v;
+      var t = Math.sqrt(-2 * Math.log(xx / 2));
+
+      var r = -0.70711 * ((2.30753 + t * 0.27061) /
+        (1 + t * (0.99229 + t * 0.04481)) - t);
+
+      for (var j = 0; j < 2; j++) {
+        var err = erfc(r) - xx;
+        r += err / (1.12837916709551257 * Math.exp(-(r * r)) - r * err);
+      }
+
+      return (v < 1) ? r : -r;
+    }
+
+    return -(Math.sqrt(2) * ierfc(2 * x));
+  };
+
 
   return {
     str2Array: str2Array,
@@ -299,7 +346,9 @@ const stats = (function () {
     iv: interval,
     cov: cov,
     cor: cor,
-    quantile: quantile
+    quantile: quantile,
+    pnorm: pnorm,
+    qnorm: qnorm
   }
 })();
 
@@ -342,6 +391,9 @@ if (typeof module !== 'undefined') {
     // console.log(stats.cor(x, y));
 
     // console.log(stats.quantile([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]));
+
+    console.log(stats.pnorm(2));
+    console.log(stats.qnorm(0.95));
 
 
     // const request = require('request');

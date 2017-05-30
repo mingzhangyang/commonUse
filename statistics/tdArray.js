@@ -50,18 +50,21 @@ function TdArray(nestedArr, columns) {
       this._columns = newCols;
       for (let i = 0; i < this._columns.length; i++) {
         delete this[oldOnes[i]];
-        Object.defineProperty(this, this._columns[i], {
+        let c = this._columns[i];
+        Object.defineProperty(this, c, {
           enumerable: true,
           configurable: true,
           get: function () {
-            return this.data.map((row) => row[i]);
+            let idx = this._columns.findIndex((d) => d === c);
+            return this.data.map((row) => row[idx]);
           },
           set: function (newArr) {
             if (newArr.length !== this.data.length) {
               throw new Error('The length of new data not match!');
             }
+            let idx = this._columns.findIndex((d) => d === c);
             for (let j = 0; j < newArr.length; j++) {
-              this.data[j][i] = newArr[j];
+              this.data[j][idx] = newArr[j];
             }
           }
         });
@@ -69,18 +72,21 @@ function TdArray(nestedArr, columns) {
     }
   });
   for (let i = 0; i < this._columns.length; i++) {
-    Object.defineProperty(this, this._columns[i], {
+    let c = this._columns[i];
+    Object.defineProperty(this, c, {
       enumerable: true,
       configurable: true,
       get: function () {
-        return this.data.map((row) => row[i]);
+        let idx = this._columns.findIndex((d) => d === c);
+        return this.data.map((row) => row[idx]);
       },
       set: function (newArr) {
         if (newArr.length !== this.data.length) {
           throw new Error('The length of new data not match!');
         }
+        let idx = this._columns.findIndex((d) => d === c);
         for (let j = 0; j < newArr.length; j++) {
-          this.data[j][i] = newArr[j];
+          this.data[j][idx] = newArr[j];
         }
       }
     });
@@ -152,6 +158,41 @@ TdArray.prototype.appendRow = function (arr) {
   this.data.push(arr);
 };
 
+TdArray.prototype.insertColumn = function (name, idx, func) {
+  let that = this;
+  if (that._columns.includes(name)) {
+    throw new Error(name + ' has already been defined!');
+  }
+  if (idx > that.shape[1] || idx < -that.shape[1]) {
+    throw new Error('Column index out of range!');
+  }
+  that._columns.splice(idx, 0, name);
+  for (let i = 0; i < that.shape[0]; i++) {
+    that.data[i].splice(idx, 0, func(i));
+  }
+
+  Object.defineProperty(that, name, {
+    enumerable: true,
+    configurable: true,
+    get: function () {
+      return that.data.map((d) => d[idx]);
+    },
+    set: function (newArr) {
+      if (newArr.length !== that.shape[0]) {
+        throw new Error('The length of new data not match!');
+      }
+      for (let j = 0; j < newArr.length; j++) {
+        that.data[j][idx] = newArr[j];
+      }
+    }
+  });
+};
+
+
+TdArray.prototype.insertRow = function (idx, func) {
+  this.data.splice(idx, 0, func());
+};
+
 
 let d = [
   [1, 2, 3, 4, 5],
@@ -170,6 +211,14 @@ df.A = [0, 0, 0, 0];
 console.log(df.shape);
 df.appendColumn('F', [100, 100, 100, 100]);
 console.log(df.values);
+
+df.insertColumn('N', 1, function (i) {
+  return i + 'N';
+});
+
+console.log(df.columns);
+console.log(df.B);
+
 // df.F = [200, 200, 200, 200];
 // console.log(df.F);
 // console.log(df.shape);
