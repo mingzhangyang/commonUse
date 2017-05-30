@@ -50,18 +50,21 @@ function TdArray(nestedArr, columns) {
       this._columns = newCols;
       for (let i = 0; i < this._columns.length; i++) {
         delete this[oldOnes[i]];
-        Object.defineProperty(this, this._columns[i], {
+        let c = this._columns[i];
+        Object.defineProperty(this, c, {
           enumerable: true,
           configurable: true,
           get: function () {
-            return this.data.map((row) => row[i]);
+            let idx = this._columns.findIndex((d) => d === c);
+            return this.data.map((row) => row[idx]);
           },
           set: function (newArr) {
             if (newArr.length !== this.data.length) {
               throw new Error('The length of new data not match!');
             }
+            let idx = this._columns.findIndex((d) => d === c);
             for (let j = 0; j < newArr.length; j++) {
-              this.data[j][i] = newArr[j];
+              this.data[j][idx] = newArr[j];
             }
           }
         });
