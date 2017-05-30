@@ -69,10 +69,11 @@ function csv2json(path) {
 }
 
 // the parameter data below is an object
-// e.g. {newCol1: [...], newCol2: [...]}
+// e.g. {newCol1: [...], newCol2: func}
 function addCols(path, data) {
   let csv = fs.readFileSync(path, 'utf8');
   csv = csv.split('\n').map(line => line.trim());
+  csv = csv.filter(line => line[0] !== '#');
 
   let colNames = Object.keys(data);
 
@@ -98,13 +99,58 @@ function addCols(path, data) {
   }).end(csv.join('\n'));
 }
 
+// data should be an object with the format below
+// {name: colName, index: idx, values: valueArray}
+function insertCol(path, data) {
+  let csv = fs.readFileSync(path, 'utf8');
+  csv = csv.split('\n').map(line => line.trim());
+  csv = csv.filter(line => line[0] !== '#');
+
+  csv = csv.map(function (line, idx) {
+    line = line.split(',');
+    if (idx === 0) {
+      line.splice(data.index, 0, data.name);
+    } else {
+      line.splice(data.index, 0, data.values[idx - 1]);
+    }
+    return line.join(',');
+  });
+
+  fs.createWriteStream(path, {
+    flag: 'w',
+    defaultEncoding: 'utf8'
+  }).end(csv.join('\n'));
+}
+
+function selectCols(path, colNames) {
+  let csv = fs.readFileSync(path, 'utf8');
+  csv = csv.split('\n').map(line => line.trim());
+  csv = csv.filter(line => line[0] !== '#');
+
+  let headers = csv[0].split(',');
+  let selected = colNames.map(d => headers.findIndex(h => h === d));
+
+  csv = csv.map(function (line) {
+    line = line.split(',');
+    line = line.filter((d, i) => selected.includes(i));
+    return line.join(',');
+  });
+
+  fs.createWriteStream(path, {
+    flag: 'w',
+    defaultEncoding: 'utf8'
+  }).end(csv.join('\n'));
+}
+
 
 
 if (typeof module !== 'undefined' && module.parent) {
   module.exports = {
     json2csv: json2csv,
     csv2json: csv2json,
-    addCols: addCols
+    addCols: addCols,
+    insertCol: insertCol,
+    selectCols: selectCols
   }
 } else {
   // console.log(fs.readdirSync('../statistics'));
@@ -122,5 +168,11 @@ if (typeof module !== 'undefined' && module.parent) {
   //     return idx;
   //   }
   // });
+  // insertCol('test.csv', {
+  //   name: 'M',
+  //   index: 3,
+  //   values: ['a', 'b', 'c']
+  // });
+  selectCols('test.csv', ['A', 'B', 'C']);
 }
 
