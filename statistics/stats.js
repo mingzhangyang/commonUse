@@ -256,9 +256,12 @@ const stats = (function () {
     let x = Math.pow((s1 / len1 + s2 / len2), 2);
     let y = s1 * s1 / (len1 * len1 * (len1 - 1)) + s2 * s2 / (len2 * len2 * (len2 - 1));
 
+    let p = pt(tValue, x / y);
+
     return {
       t: tValue,
-      df: Math.round(x / y)
+      df: x / y,
+      'p-value': tValue >= 0 ? 1 - p : p
     }
   };
 
@@ -382,6 +385,94 @@ const stats = (function () {
   }
 })();
 
+function gammln(v) {
+  let j, x, tmp, y, ser;
+  let cof = [57.1562356658629235,-59.5979603554754912,
+    14.1360979747417471,-0.491913816097620199,.339946499848118887e-4,
+    .465236289270485756e-4,-.983744753048795646e-4,.158088703224912494e-3,
+    -.210264441724104883e-3,.217439618115212643e-3,-.164318106536763890e-3,
+    .844182239838527433e-4,-.261908384015814087e-4,.368991826595316234e-5];
+  if (v < 0) {
+    throw new Error('bad arg in gammln');
+  }
+
+  x = v;
+  y = v;
+  tmp = x + 5.24218750000000000;
+  tmp = (x + 0.5) * Math.log(tmp) - tmp;
+  ser = 0.999999999999997092;
+  for (j = 0; j < 14; j++) {
+    ser += cof[j] / (++y);
+  }
+  return tmp + Math.log(2.5066282746310005*ser/x);
+}
+
+const FPMIN = 1e-30;
+const EPS = 3e-7;
+
+function betacf(a, b, x) {
+  let m, m2, aa, c, d, del, h, qab, qam, qap;
+  qab = a + b;
+  qap = a + 1;
+  qam = a -1;
+  c = 1;
+  d = 1 - qab * x / qap;
+  if (Math.abs(d) < FPMIN) {
+    d = FPMIN;
+  }
+  d = 1 / d;
+  h = d;
+  for (m = 1; m < 10000; m++) {
+    m2 = 2 * m;
+    aa = m * (b - m) * x / ((qam + m2) * (a + m2));
+    d = 1 + aa * d;
+    if (Math.abs(d) < FPMIN) {
+      d = FPMIN;
+    }
+    c = 1 + aa / c;
+    if (Math.abs(c) < FPMIN) {
+      c = FPMIN;
+    }
+    d = 1 / d;
+    h *= d * c;
+    aa = -(a + m) * (qab + m) * x / ((a + m2) * (qap + m2));
+    d = 1 + aa * d;
+    if (Math.abs(d) < FPMIN) {
+      d = FPMIN;
+    }
+    c = 1 + aa / c;
+    if (Math.abs(c) < FPMIN) {
+      c = FPMIN;
+    }
+    d = 1 / d;
+    del = d * c;
+    h *= del;
+    if (Math.abs(del - 1) < EPS) {
+      break;
+    }
+  }
+  return h;
+}
+
+
+function betai(a, b, x) {
+  let bt;
+  if (a <= 0.0 || b <= 0.0) throw "Bad a or b in routine betai";
+  if (x < 0.0 || x > 1.0) throw "Bad x in routine betai";
+  if (x === 0.0 || x === 1.0) return x;
+  bt=Math.exp(gammln(a+b)-gammln(a)-gammln(b)+a * Math.log(x)+b * Math.log(1.0-x));
+  if (x < (a+1.0)/(a+b+2.0)) return bt*betacf(a,b,x)/a;
+  else return 1.0-bt*betacf(b,a,1.0-x)/b;
+}
+
+
+function pt(t, v) {
+  let p = betai(0.5 * v, 0.5, v / (v + t * t));
+  if (t >= 0) {
+    return 1 - p;
+  }
+  return p;
+}
 
 
 if (typeof module !== 'undefined') {
@@ -412,8 +503,14 @@ if (typeof module !== 'undefined') {
     // let c = stats.ecdf(a);
     // console.log(c(4));
 
-    console.log(stats.tstat([3, 5, 2, 4, 3.2, 4.1], [3.1, 3.4, 3.2, 3.4, 3.3]));
-    console.log(stats.tTest([3, 5, 2, 4, 3.2, 4.1], [3.1, 3.4, 3.2, 3.4, 3.3]));
+    let A = [19.8, 20.4, 19.6, 17.8, 18.5, 18.9, 18.3, 18.9, 19.5, 22.0];
+    let B = [28.2, 26.6, 20.1, 23.3, 25.2, 22.1, 17.7, 27.6, 20.6, 13.7, 23.2, 17.5, 20.6, 18.0, 23.9, 21.6, 24.3, 20.4, 24.0, 13.2];
+    // console.log(stats.tstat(A, B));
+    console.log(stats.tTest(A, B));
+    console.log(stats.tTest(B, A));
+
+
+
 
     // let x = [1, 2, 3, 4, 5];
     // let y = [10, 23, 31, 38, 49];
