@@ -192,7 +192,7 @@ const stats = (function () {
     }
   };
 
-
+  // function for calculating both population and sample variance
   const variance = function (arr) {
     let u = mean(arr);
     // let na = arr.map((d) => (d - u) * (d - u));
@@ -208,9 +208,21 @@ const stats = (function () {
     };
   };
 
+  // the specific function for calculating sample variance
+  const sv = function (arr) {
+    let u = mean(arr);
+    let s = 0;
+    let c;
+    for (let i = 0; i < arr.length; i++) {
+      c = arr[i];
+      s += (c - u) * (c - u);
+    }
+    return s / (arr.length - 1);
+  };
+
   // calculate sample standard deviation
   const sd = function (arr) {
-    return Math.sqrt(variance(arr).sV);
+    return Math.sqrt(sv(arr));
   };
 
   // empirical cumulative distribution function
@@ -225,13 +237,29 @@ const stats = (function () {
   const tstat = function (arr1, arr2) {
 
     if (arr2 === undefined) {
-      return mean(arr1) / Math.sqrt(variance(arr1).sV / arr1.length);
+      return mean(arr1) / Math.sqrt(sv(arr1) / arr1.length);
     }
 
     let diff = mean(arr1) - mean(arr2);
-    let se = Math.sqrt(variance(arr1).sV / arr1.length + variance(arr2).sV / arr2.length);
+    let se = Math.sqrt(sv(arr1) / arr1.length + sv(arr2) / arr2.length);
 
     return diff / se;
+  };
+
+  // Welch's t-test
+  const tTest = function (arr1, arr2) {
+    let s1 = sv(arr1);
+    let len1 = arr1.length;
+    let s2 = sv(arr2);
+    let len2 = arr2.length;
+    let tValue = (mean(arr1) - mean(arr2)) / Math.sqrt(s1 / len1 + s2 / len2);
+    let x = Math.pow((s1 / len1 + s2 / len2), 2);
+    let y = s1 * s1 / (len1 * len1 * (len1 - 1)) + s2 * s2 / (len2 * len2 * (len2 - 1));
+
+    return {
+      t: tValue,
+      df: Math.round(x / y)
+    }
   };
 
   // calculate 95% interval
@@ -340,9 +368,11 @@ const stats = (function () {
     unique: findUnique,
     arithmetic: arithmetic,
     variance: variance, // both population and sample variance
+    sv: sv, // for the sample variance
     sd: sd, // only the sample standard deviation
     ecdf: ecdf,
     tstat: tstat,
+    tTest: tTest,
     iv: interval,
     cov: cov,
     cor: cor,
@@ -382,7 +412,8 @@ if (typeof module !== 'undefined') {
     // let c = stats.ecdf(a);
     // console.log(c(4));
 
-    // console.log(stats.ttest([3, 5, 2, 4, 3.2, 4.1], [3.1, 3.4, 3.2, 3.4, 3.3]));
+    console.log(stats.tstat([3, 5, 2, 4, 3.2, 4.1], [3.1, 3.4, 3.2, 3.4, 3.3]));
+    console.log(stats.tTest([3, 5, 2, 4, 3.2, 4.1], [3.1, 3.4, 3.2, 3.4, 3.3]));
 
     // let x = [1, 2, 3, 4, 5];
     // let y = [10, 23, 31, 38, 49];
@@ -392,8 +423,8 @@ if (typeof module !== 'undefined') {
 
     // console.log(stats.quantile([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]));
 
-    console.log(stats.pnorm(2));
-    console.log(stats.qnorm(0.95));
+    // console.log(stats.pnorm(2));
+    // console.log(stats.qnorm(0.95));
 
 
     // const request = require('request');
