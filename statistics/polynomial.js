@@ -331,10 +331,11 @@ let q = new PolynomialUnit({
 
 let m = new Polynomial(p, q);
 // console.log(m);
-// console.log(m.multiply(m));
+console.log(m.plus(m));
 
-let a = new PolynomialUnit('a^1');
-let b = new PolynomialUnit('b^1');
-
-let n = new Polynomial(a, b);
-console.log(n.pow(9).toString());
+// let a = new PolynomialUnit('a^1');
+// let b = new PolynomialUnit('b^1');
+// let c = new PolynomialUnit('c^1');
+//
+// let n = new Polynomial(a, b, c);
+// console.log(n.pow(5).toString());
