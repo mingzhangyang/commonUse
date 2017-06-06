@@ -166,6 +166,60 @@ function removeCols(path, colNames) {
   }).end(csv.join('\n'));
 }
 
+function merge(arrOfcsv, colName) {
+  arrOfcsv = arrOfcsv.map(function (csv) {
+    csv = csv.split('\n').map(row => row.trim());
+    csv = csv.filter(row => row[0] !== '#');
+    return csv.map(row => row.split(','));
+  });
+  // console.log(arrOfcsv);
+
+  let res = [];
+  let len = arrOfcsv[0].length;
+  let headers = [];
+  for (let i = 0; i < arrOfcsv.length; i++) {
+    headers.push(arrOfcsv[i][0]);
+  }
+  res.push(headers.map(d => d.join()).join());
+
+  let indices = arrOfcsv.map(csv => csv[0].findIndex(h => h === colName));
+  // console.log(indices);
+
+  for (let j = 1; j < len; j++) {
+    let row = [arrOfcsv[0][j]];
+    let v = (arrOfcsv[0][j])[indices[0]];
+    for (let k = 1; k < indices.length; k++) {
+      let line = arrOfcsv[k].find(d => d[indices[k]] === v);
+      if (line) {
+        row.push(line);
+      } else {
+        let t = '';
+        for (let i = 0; i < arrOfcsv[k][0].length - 1; i++) {
+          t += ',';
+        }
+        row.push(t);
+      }
+    }
+    res.push(row.join());
+  }
+  // console.log(res);
+  return res.join('\n');
+}
+
+function mergeCSV(arrOfpaths, colName) {
+  let list = [];
+  for (let i = 0; i < arrOfpaths.length; i++) {
+    if (arguments[i]) {
+      let csv = fs.readFileSync(arrOfpaths[i], 'utf8');
+      list.push(csv);
+    }
+  }
+
+  fs.createWriteStream('merged.csv', {
+    flag: 'w',
+    defaultEncoding: 'utf8'
+  }).end(merge(list, colName));
+}
 
 
 if (typeof module !== 'undefined' && module.parent) {
@@ -175,7 +229,8 @@ if (typeof module !== 'undefined' && module.parent) {
     addCols: addCols,
     insertCol: insertCol,
     selectCols: selectCols,
-    removeCols: removeCols
+    removeCols: removeCols,
+    mergeCSV: mergeCSV
   }
 } else {
   // console.log(fs.readdirSync('../statistics'));
@@ -199,6 +254,7 @@ if (typeof module !== 'undefined' && module.parent) {
   //   values: ['a', 'b', 'c']
   // });
   // selectCols('test.csv', ['A', 'B', 'E', 'F']);
-  removeCols('test.csv', ['F']);
+  // removeCols('test.csv', ['F']);
+  mergeCSV(['test.csv', 'test_modified.csv'], 'A');
 }
 
