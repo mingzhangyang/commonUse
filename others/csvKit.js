@@ -144,6 +144,28 @@ function selectCols(path, colNames) {
   }).end(csv.join('\n'));
 }
 
+function removeCols(path, colNames) {
+  let csv = fs.readFileSync(path, 'utf8');
+  csv = csv.split('\n').map(line => line.trim());
+  csv = csv.filter(line => line[0] !== '#');
+
+  let headers = csv[0].split(',');
+  let selected = colNames.map(d => headers.findIndex(h => h === d));
+
+  csv = csv.map(function (line) {
+    line = line.split(',');
+    line = line.filter((d, i) => !(selected.includes(i)));
+    return line.join(',');
+  });
+
+  let newPath = path.slice(0, -4) + '_modified.csv';
+
+  fs.createWriteStream(newPath, {
+    flag: 'w',
+    defaultEncoding: 'utf8'
+  }).end(csv.join('\n'));
+}
+
 
 
 if (typeof module !== 'undefined' && module.parent) {
@@ -152,7 +174,8 @@ if (typeof module !== 'undefined' && module.parent) {
     csv2json: csv2json,
     addCols: addCols,
     insertCol: insertCol,
-    selectCols: selectCols
+    selectCols: selectCols,
+    removeCols: removeCols
   }
 } else {
   // console.log(fs.readdirSync('../statistics'));
@@ -175,6 +198,7 @@ if (typeof module !== 'undefined' && module.parent) {
   //   index: 3,
   //   values: ['a', 'b', 'c']
   // });
-  selectCols('test.csv', ['A', 'B', 'E', 'F']);
+  // selectCols('test.csv', ['A', 'B', 'E', 'F']);
+  removeCols('test.csv', ['F']);
 }
 
