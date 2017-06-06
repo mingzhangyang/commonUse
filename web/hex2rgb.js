@@ -23,6 +23,30 @@ function hex2rgb(hex) {
   return 'rgb(' + r + ',' + g + ',' + b + ')';
 }
 
+class colorObj {
+  constructor (str) {
+    if (str.startsWith('#')) { // #f66 or #FF6666
+      this.hex = str;
+    }
+    if (str.startsWith('rgb')) { // rgb(255, 102, 102)
+      this.rgb = str;
+    }
+  }
+
+  toRGB() {
+    if (this.rgb) {
+      return this.rgb;
+    }
+    if (this.hex) {
+      this.rgb = hex2rgb(this.hex);
+      return this.rgb;
+    }
+  }
+}
+
+
+
+
 console.log(hex2rgb('#00eeee'));
 
 let cc = `#00eeee 
