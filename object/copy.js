@@ -63,6 +63,8 @@ if (typeof module !== 'undefined' && module.parent) {
 } else if (typeof window !== 'undefined') {
   console.log('copy module running in browser');
 } else {
+  console.log(copy(1));
+
   let a = {x: 3, y: 4, z: 5};
   let arr = [1, 2, 3, 4, 5];
 
