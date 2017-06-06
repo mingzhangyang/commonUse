@@ -19,7 +19,6 @@ function copy(obj, opt) {
     }
     return Object.assign({}, obj);
   }
-  let dcp = ['deep', 'deep copy', 'deepCopy', 'deepcopy'];
 
   function dc(o) {
     if (Array.isArray(o)) {
@@ -48,6 +47,8 @@ function copy(obj, opt) {
     return result;
   }
 
+  let dcp = ['deep', 'deep copy', 'deepCopy', 'deepcopy'];
+
   if (typeof opt === 'string' && dcp.includes(opt)) {
     return dc(obj);
   }
@@ -55,7 +56,7 @@ function copy(obj, opt) {
     return dc(obj);
   }
 
-  throw 'opt not recognized';
+  throw 'command not recognized';
 }
 
 if (typeof module !== 'undefined' && module.parent) {
