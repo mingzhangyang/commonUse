@@ -51,7 +51,7 @@ function copy(obj, opt) {
   if (typeof opt === 'string' && dcp.includes(opt)) {
     return dc(obj);
   }
-  if (opt.deepcopy || opt.deepCopy) {
+  if (opt.deepcopy || opt.deepCopy || opt.deep) {
     return dc(obj);
   }
 
