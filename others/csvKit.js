@@ -136,7 +136,9 @@ function selectCols(path, colNames) {
     return line.join(',');
   });
 
-  fs.createWriteStream(path, {
+  let newPath = path.slice(0, -4) + '_modified.csv';
+
+  fs.createWriteStream(newPath, {
     flag: 'w',
     defaultEncoding: 'utf8'
   }).end(csv.join('\n'));
@@ -173,6 +175,6 @@ if (typeof module !== 'undefined' && module.parent) {
   //   index: 3,
   //   values: ['a', 'b', 'c']
   // });
-  selectCols('test.csv', ['A', 'B', 'C']);
+  selectCols('test.csv', ['A', 'B', 'E', 'F']);
 }
 
