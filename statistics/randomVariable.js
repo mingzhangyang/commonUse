@@ -3,6 +3,8 @@
  */
 'use strict';
 
+const cfs = require('../array/customFuncsOnArray');
+
 class RandVar {
   constructor(arr1, arr2) {
     if (!Array.isArray(arr1)) {
@@ -12,7 +14,8 @@ class RandVar {
     this.values = arr1;
 
     if (typeof arr2 === 'undefined') {
-      this.weights = arr1.map(d => 1 / arr1.length);
+      // this.weights = arr1.map(d => 1 / arr1.length);
+      this.weights = cfs.map(arr1, d => 1 / arr1.length);
     }
 
     if (Array.isArray(arr2)) {
@@ -20,13 +23,14 @@ class RandVar {
         throw 'The two array provided should be same in length!';
       }
       let s = arr2.reduce((acc, d) => acc + d);
-      this.weights = arr2.map(d => d / s);
+      // this.weights = arr2.map(d => d / s);
+      this.weights = cfs.map(arr2, d => d / s);
     }
 
     let ws = this.weights;
     Object.defineProperty(this, 'combined', {
       get: function () {
-        return arr1.map(function (d, i) {
+        return cfs.map(arr1, function (d, i) {
           return {
             v: d,
             p: ws[i]
@@ -169,8 +173,10 @@ class RandVar {
       default:
         throw new Error('sign not recognized.');
     }
-    let vs = result.map(o => o.v);
-    let ws = result.map(o => o.p);
+    // let vs = result.map(o => o.v);
+    let vs = cfs.map(result, o => o.v);
+    // let ws = result.map(o => o.p);
+    let ws = cfs.map(result, o => o.p);
     return new RandVar(vs, ws);
   }
 
@@ -199,7 +205,7 @@ for (let i = 0; i < N; i++) {
 }
 
 ans.sort((o1, o2) => o1.count - o2.count);
-console.log(ans.map(o => ({
+console.log(cfs.map(ans, o => ({
   value: o.value,
   count: o.count,
   ratio: o.count / N

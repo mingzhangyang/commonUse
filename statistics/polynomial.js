@@ -3,6 +3,8 @@
  */
 'use strict';
 
+const cfs = require('../array/customFuncsOnArray');
+
 // to construct a polynomial, the input should follow the requirements below.
 // po as a string: '2a^3b^5c^1', to be noted: '1' is required in 'c^1'
 // po as a object: {indeterminates: ['a', 'b', 'c'], degrees: [3, 5, 1],
@@ -47,7 +49,7 @@ class PolynomialUnit {
           }
           this.indeterminates = po.indeterminates;
           this.coefficient = typeof po.coefficient === 'undefined' ? 1 : po.coefficient;
-          this.degrees = typeof po.degrees === 'undefined' ? po.indeterminates.map(d => 1) : po.degrees;
+          this.degrees = typeof po.degrees === 'undefined' ? cfs.map(po.indeterminates, d => 1) : po.degrees;
           if (typeof this.coefficient !== 'number' || !Array.isArray(this.degrees)) {
             throw new Error('Please see requirements for input!');
           }
@@ -59,7 +61,7 @@ class PolynomialUnit {
     let that = this;
     Object.defineProperty(that, 'combined', {
       get: function () {
-        return that.indeterminates.map((d, i) => ({
+        return cfs.map(that.indeterminates, (d, i) => ({
           symbol: d,
           degree: that.degrees[i]
         })).sort(function (elm1, elm2) {
@@ -148,7 +150,7 @@ class PolynomialUnit {
     }
     return (new PolynomialUnit({
       indeterminates: this.indeterminates,
-      degrees: this.degrees.map(d => d * n),
+      degrees: cfs.map(this.degrees, d => d * n),
       coefficient: Math.pow(this.coefficient, n)
     }))._check();
   }
@@ -333,9 +335,9 @@ let m = new Polynomial(p, q);
 // console.log(m);
 console.log(m.plus(m));
 
-// let a = new PolynomialUnit('a^1');
-// let b = new PolynomialUnit('b^1');
-// let c = new PolynomialUnit('c^1');
-//
-// let n = new Polynomial(a, b, c);
-// console.log(n.pow(5).toString());
+let a = new PolynomialUnit('a^1');
+let b = new PolynomialUnit('b^1');
+let c = new PolynomialUnit('c^1');
+
+let n = new Polynomial(a, b, c);
+console.log(n.pow(5).toString());
