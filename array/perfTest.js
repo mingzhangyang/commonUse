@@ -13,6 +13,7 @@ function map(a, f) {
   for (let i = 0; i < a.length; i++) {
     res.push(f(a[i]));
   }
+  return res;
 }
 
 function filter(a, f) {
@@ -24,6 +25,7 @@ function filter(a, f) {
       res.push(a[i]);
     }
   }
+  return res;
 }
 
 function find(a, f) {

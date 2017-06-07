@@ -4,6 +4,7 @@
 'use strict';
 
 const stats = require('./stats');
+const cfs = require('../array/customFuncsOnArray');
 
 function TdArray(nestedArr) {
   if (!(Array.isArray(nestedArr))) {
@@ -19,7 +20,8 @@ function TdArray(nestedArr) {
     enumerable: false,
     configurable: false,
     writable: true,
-    value: nestedArr.map(d => d.slice())
+    // value: nestedArr.map(d => d.slice())
+    value: cfs.map(nestedArr, d => d.slice())
   });
   Object.defineProperty(this, '_columns', {
     enumerable: false,
@@ -46,7 +48,8 @@ function TdArray(nestedArr) {
 Object.defineProperty(TdArray.prototype, 'addColNames', {
   enumerable: true,
   value: function (columns) {
-    this._columns = columns || this._values[0].map((d, idx) => 'column-' + idx);
+    // this._columns = columns || this._values[0].map((d, idx) => 'column-' + idx);
+    this._columns = columns || cfs.map(this._values[0],(d, idx) => 'column-' + idx);
     let s = new Set(columns);
     if (s.size < columns.length) {
       throw new Error('column names should be unique!');
@@ -72,7 +75,8 @@ Object.defineProperty(TdArray.prototype, 'addColNames', {
             configurable: true,
             get: function () {
               let idx = that._columns.findIndex(d => d === c);
-              return that._values.map((row) => row[idx]);
+              // return that._values.map((row) => row[idx]);
+              return cfs.map(this._values, row => row[idx]);
             },
             set: function (newArr) {
               if (newArr.length !== that._values.length) {
@@ -95,7 +99,8 @@ Object.defineProperty(TdArray.prototype, 'addColNames', {
         configurable: true,
         get: function () {
           let idx = this._columns.findIndex((d) => d === c);
-          return this._values.map((row) => row[idx]);
+          // return this._values.map((row) => row[idx]);
+          return cfs.map(this._values, row => row[idx]);
         },
         set: function (newArr) {
           if (newArr.length !== this._values.length) {
@@ -126,9 +131,11 @@ Object.defineProperty(TdArray.prototype, 'describe', {
   enumerable: true,
   value: function () {
     let result = {};
-    let cols = this.columns || this._values[0].map((d, idx) => 'column-' + idx);
+    // let cols = this.columns || this._values[0].map((d, idx) => 'column-' + idx);
+    let cols = this.columns || cfs.map(this._values[0],(d, idx) => 'column-' + idx);
     for (let i = 0; i < cols.length; i++) {
-      let c = this._values.map(d => d[i]);
+      // let c = this._values.map(d => d[i]);
+      let c = cfs.map(this._values, d => d[i]);
       result[cols[i]] = {
         max: stats.max(c),
         min: stats.min(c),
@@ -181,7 +188,8 @@ TdArray.prototype.appendColumnByName = function (name, arr) {
     configurable: true,
     get: function () {
       let idx = that._columns.findIndex(d => d === name);
-      return that._values.map((d) => d[idx]);
+      // return that._values.map((d) => d[idx]);
+      return cfs.map(that._values, d => d[idx]);
     },
     set: function (newArr) {
       if (newArr.length !== cp.length) {
@@ -215,7 +223,8 @@ TdArray.prototype.insertColumnByName = function (name, idx, func) {
     enumerable: true,
     configurable: true,
     get: function () {
-      return that._values.map((d) => d[idx]);
+      // return that._values.map((d) => d[idx]);
+      return cfs.map(that._values, d => d[idx]);
     },
     set: function (newArr) {
       if (newArr.length !== that.shape[0]) {
@@ -281,7 +290,8 @@ Object.defineProperty(TdArray.prototype, 'apply', {
     switch (by) {
       case 'element':
         for (let i = 0; i < this.shape[0]; i++) {
-          res.push(this._values[i].map((d, i) => func(d, i)));
+          // res.push(this._values[i].map((d, i) => func(d, i)));
+          res.push(cfs.map(this._values[i], (d, i) => func(d, i)));
         }
         return new TdArray(res);
       case 'row':
@@ -291,7 +301,8 @@ Object.defineProperty(TdArray.prototype, 'apply', {
         return res;
       case 'column':
         for (let i = 0; i < this.shape[1]; i++) {
-          let col = this._values.map(d => d[i]);
+          // let col = this._values.map(d => d[i]);
+          let col = cfs.map(this._values, d => d[i]);
           res.push(func(col));
         }
         return res;
@@ -307,7 +318,8 @@ TdArray.prototype.iCol = function (i) {
     throw new Error('index out of range!');
   }
   i = i < 0 ? i + this.shape[1] : i;
-  return this._values.map(d => d[i]);
+  // return this._values.map(d => d[i]);
+  return cfs.map(this._values, d => d[i]);
 };
 
 TdArray.prototype.multiply = function (tdArr) {
@@ -372,6 +384,7 @@ let d = [
   [11, 12, 13, 14, 15],
   [16, 17, 18, 19, 20]
 ];
+
 
 let df = new TdArray(d);
 

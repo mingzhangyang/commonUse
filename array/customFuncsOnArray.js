@@ -9,6 +9,7 @@ const customFuncsOnArray = (function () {
     for (let i = 0; i < a.length; i++) {
       res.push(f(a[i], i));
     }
+    return res;
   }
 
   function filter(a, f) {
@@ -20,6 +21,7 @@ const customFuncsOnArray = (function () {
         res.push(a[i]);
       }
     }
+    return res;
   }
 
   return {
