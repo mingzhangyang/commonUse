@@ -53,44 +53,52 @@ function flatten(elem, result, path) {
   return result;
 }
 
-var a = [
-  {
-    "Name":"family with sequence similarity 161 member A",
-    "EntrezGeneID":84140,
-    "Symbol":"FAM161A",
-    "ClinGenDosageSenMap":[],
-    "Links":[
-      {
-        "LinkURL":"https://www.ncbi.nlm.nih.gov/gene/84140",
-        "LinkTitle":"Gene"
-      },
-      {
-        "LinkURL":"http://www.genenames.org/data/hgnc_data.php?hgnc_id=HGNC:25808",
-        "LinkTitle":"HGNC"
-      },
-      {
-        "LinkURL":"http://www.omim.org/entry/613596",
-        "LinkTitle":"OMIM"
-      },
-      {
-        "LinkURL":"https://www.ncbi.nlm.nih.gov/variation/view/?chr=2&q=FAM161A&assm=GRCh37&from=62051982&to=62081277",
-        "LinkTitle":"Variation Viewer"
-      },
-      {
-        "LinkURL":"https://www.ncbi.nlm.nih.gov/variation/view/?chr=2&q=FAM161A&assm=GRCh38&from=61800240&to=61856074",
-        "LinkTitle":"Variation Viewer"
-      }
-    ]
-  },
-  {
-    "Name":"",
-    "EntrezGeneID":null,
-    "Symbol":"FAM161A",
-    "ClinGenDosageSenMap":[
-    ],
-    "Links":[]
-  }
-];
+if (typeof module !== 'undefined' && module.parent) {
+  module.exports = flatten;
+} else if (typeof window !== 'undefined') {
+  console.log('flatten module running in the browser');
+} else {
+  var a = [
+    {
+      "Name":"family with sequence similarity 161 member A",
+      "EntrezGeneID":84140,
+      "Symbol":"FAM161A",
+      "ClinGenDosageSenMap":[],
+      "Links":[
+        {
+          "LinkURL":"https://www.ncbi.nlm.nih.gov/gene/84140",
+          "LinkTitle":"Gene"
+        },
+        {
+          "LinkURL":"http://www.genenames.org/data/hgnc_data.php?hgnc_id=HGNC:25808",
+          "LinkTitle":"HGNC"
+        },
+        {
+          "LinkURL":"http://www.omim.org/entry/613596",
+          "LinkTitle":"OMIM"
+        },
+        {
+          "LinkURL":"https://www.ncbi.nlm.nih.gov/variation/view/?chr=2&q=FAM161A&assm=GRCh37&from=62051982&to=62081277",
+          "LinkTitle":"Variation Viewer"
+        },
+        {
+          "LinkURL":"https://www.ncbi.nlm.nih.gov/variation/view/?chr=2&q=FAM161A&assm=GRCh38&from=61800240&to=61856074",
+          "LinkTitle":"Variation Viewer"
+        }
+      ]
+    },
+    {
+      "Name":"",
+      "EntrezGeneID":null,
+      "Symbol":"FAM161A",
+      "ClinGenDosageSenMap":[
+      ],
+      "Links":[]
+    }
+  ];
 
 
-console.log(flatten(a));
+  console.log(flatten(a));
+}
+
+
