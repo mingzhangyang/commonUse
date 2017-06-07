@@ -166,6 +166,7 @@ function removeCols(path, colNames) {
   }).end(csv.join('\n'));
 }
 
+// below is a limited merge function, which only works for column that contains only unique values
 function merge(arrOfcsv, colName) {
   arrOfcsv = arrOfcsv.map(function (csv) {
     csv = csv.split('\n').map(row => row.trim());
@@ -178,9 +179,9 @@ function merge(arrOfcsv, colName) {
   let len = arrOfcsv[0].length;
   let headers = [];
   for (let i = 0; i < arrOfcsv.length; i++) {
-    headers.push(arrOfcsv[i][0]);
+    headers.push(arrOfcsv[i][0].join());
   }
-  res.push(headers.map(d => d.join()).join());
+  res.push(headers.join());
 
   let indices = arrOfcsv.map(csv => csv[0].findIndex(h => h === colName));
   // console.log(indices);
