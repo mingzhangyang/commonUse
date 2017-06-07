@@ -8,7 +8,7 @@ function bar (x) {
     setTimeout(function () {
       console.log(x);
       resolve();
-    }, delay);
+    }, 2000);
   });
 }
 
@@ -18,4 +18,6 @@ async function df() {
   }
 }
 
-df();
+if (typeof window !== 'undefined') {
+  df();
+}
