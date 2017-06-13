@@ -5,7 +5,10 @@
 
 const path = require('path');
 
-function rel2abs(rel, dir) {
+// the function below accepts paths of Linux style, namely '/'
+function rel2abs(rel, dir, platform) {
+  let sep = path.sep;
+
   if (path.isAbsolute(rel)) {
     return rel;
   }
@@ -20,22 +23,9 @@ function rel2abs(rel, dir) {
     rel = rel.slice(2);
   }
 
-  // if (rel[0] !== '.') {
-  //   return dir + rel;
-  // }
-  //
-  // let t = rel.split('/');
-  // let p = 0;
-  // for (let i = 0; i < t.length; i++) {
-  //   if (t[i] === '..') {
-  //     p += 1;
-  //   }
-  // }
-  // let r = t.slice(p).join('/');
-  // return dir.split('/').slice(0, -p).join('/') + '/' + (r ? r : '');
-
   let li = rel.split('/');
-  let res = dir.split('/');
+  let res = dir.split(sep);
+  // console.log(res);
 
   for (let i = 0; i < li.length; i++) {
     if (li[i] === '..') {
@@ -44,9 +34,8 @@ function rel2abs(rel, dir) {
       res.push(li[i]);
     }
   }
-
-  return res.join('/');
-
+  // console.log(res);
+  return res.join(sep);
 }
 
 if (typeof module !== 'undefined' && module.parent) {

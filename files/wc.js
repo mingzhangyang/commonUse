@@ -5,7 +5,9 @@
 
 const fs = require('fs');
 const rel2abs = require('../files/rel2abs');
+const sep = require('path').sep;
 
+// _filename is taken as hidden file
 function wc(dir, showHidden) {
   let p = rel2abs(dir);
   console.log(p);
@@ -37,9 +39,7 @@ function wc(dir, showHidden) {
   }
 
   function read(dirName) {
-    console.log(dirName);
     let list = fs.readdirSync(dirName);
-    console.log(list);
 
     for (let i = 0; i < list.length; i++) {
       let path = dirName + '/' + list[i];
@@ -84,7 +84,7 @@ function wc(dir, showHidden) {
   }
 
   read(dir);
-  console.log(res);
+
   return res;
 }
 
@@ -93,7 +93,5 @@ if (typeof module !== 'undefined' && module.parent) {
 } else {
   // test cases go here
 
-  // wc('../../biologymeetweb');
-  // wc('./');
-  wc('./wc.js');
+  console.log(wc('../..'));
 }

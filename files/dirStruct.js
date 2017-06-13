@@ -60,7 +60,6 @@ function dirStruct(dir) {
     let c = fs.statSync(dir + '/' + l[i]);
     if (c.isFile()) {
       res.files.push(l[i]);
-      continue;
     } else {
       res.subDir.push(readDir(dir + '/' + l[i]));
     }
@@ -75,6 +74,9 @@ function dirStruct(dir) {
   return res;
 }
 
-console.log(dirStruct('../web'));
-
-// console.log(dirStruct('.'));
+if (typeof module !== 'undefined' && module.parent) {
+  module.exports = dirStruct;
+} else {
+  // test cases go here
+  // console.log(dirStruct('.'));
+}
