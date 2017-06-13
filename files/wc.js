@@ -4,22 +4,21 @@
 'use strict';
 
 const fs = require('fs');
+const rel2abs = require('../files/rel2abs');
 
 function wc(dir, showHidden) {
-  if (dir.length > 2 && dir.slice(0, 2) === './') {
-    dir = dir.slice(2);
-  }
+  let p = rel2abs(dir);
+  console.log(p);
 
-  let p = __dirname;
-  if (dir.slice(0, 2) === '..') {
-    let s = dir.split('..');
-    let t = s.length - 1;
-    let r = s[t];
-    p = p.split('/').slice(0, -t).join('/') + r;
-  } else if (dir === '.' || dir === './') {
-    // pass
-  } else {
-    p = p + dir;
+  let t = fs.statSync(dir);
+  if (t.isFile()) {
+    let x = fs.readFileSync(dir, 'utf8');
+    return {
+      path: p,
+      lines: x.split('\n').length,
+      words: x.replace(/\s/g, '').length,
+      chars: x.length
+    }
   }
 
   let res = {
@@ -95,5 +94,6 @@ if (typeof module !== 'undefined' && module.parent) {
   // test cases go here
 
   // wc('../../biologymeetweb');
-  wc('./');
+  // wc('./');
+  wc('./wc.js');
 }
