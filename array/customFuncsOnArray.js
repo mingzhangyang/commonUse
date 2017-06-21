@@ -24,9 +24,30 @@ const customFuncsOnArray = (function () {
     return res;
   }
 
+  function split(arr, ratio) {
+    if (typeof ratio === 'undefined') {
+      console.log('The second parameter ratio is not provided, a default value 0.5 will be taken');
+      ratio = 0.5;
+    }
+    if (typeof ratio === 'number' && ratio > 1) {
+      throw '0 < ratio < 1 expected';
+    }
+    let c = arr.slice();
+    let sp = [];
+    let n = Math.floor(arr.length * ratio);
+
+    while (sp.length < n) {
+      let i = Math.floor(Math.random() * c.length);
+      sp.push(c.splice(i, 1)[0]);
+    }
+
+    return [sp, c];
+  }
+
   return {
     map: map,
-    filter: filter
+    filter: filter,
+    split: split
   }
 })();
 
