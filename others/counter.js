@@ -97,5 +97,5 @@ AA`;
   console.log(c);
   console.log(c.stat);
   console.log(c.mostCommon(2));
-
+  console.log(Counter.prototype);
 }
