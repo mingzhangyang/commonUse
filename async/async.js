@@ -14,6 +14,33 @@ function async(listOfTask, worker, cb) {
   });
 }
 
+// below is redundant, why not use synchronous function instead?
+function asyncInOrder(listOfTask, worker, cb) {
+  // worker should be a wrapper function which is able to add custom
+  // callback to asynchronous function wrapped in
+  function rc() {
+    if (_idx > listOfTask.length - 1) {
+      return;
+    }
+    let p = new Promise(function (resolve, reject) {
+      worker(listOfTask[_idx++], function () {
+        resolve();
+      });
+    });
+    p.then(function () {
+      if (_idx === listOfTask.length) {
+        cb();
+        return;
+      }
+      rc();
+    })
+  }
+
+  let _idx = 0;
+
+  rc();
+}
+
 
 if (typeof module !== 'undefined' && module.parent) {
   module.exports = async;
@@ -21,4 +48,18 @@ if (typeof module !== 'undefined' && module.parent) {
   console.log('async is running in the browser');
 } else {
   // test cases go here
+
+  let list = ['JavaScript', 'Python', 'C', 'C++'];
+  let worker = function (task, func) {
+    setTimeout(function () {
+      console.log(task);
+      func();
+    }, 2000);
+  };
+
+  asyncInOrder(list, worker, function () {
+    console.log('Done');
+  });
+
+
 }
