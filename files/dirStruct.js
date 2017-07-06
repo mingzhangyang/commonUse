@@ -55,13 +55,13 @@ function dirStruct(dir) {
     return obj;
   }
 
-  let l = fs.readdirSync(dir);
-  for (let i = 0; i < l.length; i++) {
-    let c = fs.statSync(dir + '/' + l[i]);
+  let ls = fs.readdirSync(dir);
+  for (let i = 0; i < ls.length; i++) {
+    let c = fs.statSync(dir + '/' + ls[i]);
     if (c.isFile()) {
-      res.files.push(l[i]);
+      res.files.push(ls[i]);
     } else {
-      res.subDir.push(readDir(dir + '/' + l[i]));
+      res.subDir.push(readDir(dir + '/' + ls[i]));
     }
   }
 
@@ -78,5 +78,5 @@ if (typeof module !== 'undefined' && module.parent) {
   module.exports = dirStruct;
 } else {
   // test cases go here
-  // console.log(dirStruct('.'));
+  console.log(dirStruct('.'));
 }
