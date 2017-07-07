@@ -248,7 +248,7 @@ function readCSV(path) {
 function _csv2json(path) {
   let stat = fs.statSync(path);
 
-  if (stat.size <= 50 * 1024 * 1024) {
+  if (stat.size <= 20 * 1024 * 1024) {
     let str = fs.readFileSync(path, 'utf8');
     let arr = str.split('\n');
     arr = filter(arr, d => d.length && d[0] !== '#');
@@ -447,7 +447,7 @@ if (typeof module !== 'undefined' && module.parent) {
   // _csv2json('/home/mingzhang/Data/GSM2354327/HT_MG-430_PM.na35.annot.csv');
   // console.log(readCSV('test.csv'));
   // sampleGenerator({
-  //   rows: 2000000
+  //   // rows: 800000
   // });
 
   // _csv2json('sample_csv.csv');
