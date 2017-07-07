@@ -25,19 +25,50 @@ const stats = (function () {
   }
 
   // generate a list of numbers
-  const range = function (n, m) {
-    if (typeof m === 'undefined') {
-      let result = [];
+  const range = function (n, m, step) {
+    let result = [];
+    if (typeof n !== 'number' || n <= 0) {
+      throw 'a number greater than 0 as the first parameter expected';
+    }
+    if (typeof m === 'undefined' && typeof step === 'undefined') {
       for (let i = 0; i < n; i++) {
         result.push(i);
       }
       return result;
-    } else {
+    }
+    if (typeof m !== 'number') {
+      throw 'a number as the second parameter expected';
+    }
+    if (typeof step === 'undefined') {
       let b = m > n ? n : m;
       let t = m > n ? m : n;
-      let result = [];
       for (let j = b; j < t; j++) {
         result.push(j);
+      }
+      return result;
+    }
+    if (typeof step !== 'number' || step === 0) {
+      throw 'a non-zero number as the third parameter expected';
+    }
+    if (step > 0) {
+      if (m < n) {
+        throw 'step value is greater than 0, but the stop value is smaller than start value';
+      }
+      let t = n;
+      while (t < m) {
+        result.push(t);
+        t += step;
+      }
+      return result;
+    }
+    if (step < 0) {
+      if (m > n) {
+        throw 'step value is smaller than 0, but the stop value is greater than the start value';
+      }
+      let t = n;
+      while (t > m) {
+        result.push(t);
+        t += step;
       }
       return result;
     }
@@ -112,6 +143,26 @@ const stats = (function () {
       unique: uniq,
       duplicate: dupl
     };
+  };
+
+  const split = function (arr, ratio) {
+    if (typeof ratio === 'undefined') {
+      console.log('The second parameter ratio is not provided, a default value 0.5 will be taken');
+      ratio = 0.5;
+    }
+    if (typeof ratio === 'number' && ratio > 1) {
+      throw '0 < ratio < 1 expected';
+    }
+    let c = arr.slice();
+    let sp = [];
+    let n = Math.floor(arr.length * ratio);
+
+    while (sp.length < n) {
+      let i = Math.floor(Math.random() * c.length);
+      sp.push(c.splice(i, 1)[0]);
+    }
+
+    return [sp, c];
   };
 
   const sum = function (arr) {
@@ -369,6 +420,7 @@ const stats = (function () {
     sample: sample,
     shuffle: shuffle,
     unique: findUnique,
+    split: split,
     arithmetic: arithmetic,
     variance: variance, // both population and sample variance
     sv: sv, // for the sample variance
@@ -506,12 +558,19 @@ if (typeof module !== 'undefined') {
     // let c = stats.ecdf(a);
     // console.log(c(4));
 
-    let A = [19.8, 20.4, 19.6, 17.8, 18.5, 18.9, 18.3, 18.9, 19.5, 22.0];
-    let B = [28.2, 26.6, 20.1, 23.3, 25.2, 22.1, 17.7, 27.6, 20.6, 13.7, 23.2, 17.5, 20.6, 18.0, 23.9, 21.6, 24.3, 20.4, 24.0, 13.2];
-    // console.log(stats.tstat(A, B));
-    console.log(stats.tTest(A, B));
-    console.log(stats.tTest(B, A));
+    // let A = [19.8, 20.4, 19.6, 17.8, 18.5, 18.9, 18.3, 18.9, 19.5, 22.0];
+    // let B = [28.2, 26.6, 20.1, 23.3, 25.2, 22.1, 17.7, 27.6, 20.6, 13.7, 23.2, 17.5, 20.6, 18.0, 23.9, 21.6, 24.3, 20.4, 24.0, 13.2];
+    // // console.log(stats.tstat(A, B));
+    // console.log(stats.tTest(A, B));
+    // console.log(stats.tTest(B, A));
 
+    // console.log(stats.range(5));
+    // console.log(stats.range(5, 10));
+    // console.log(stats.range(5, 10, 0.5));
+    // console.log(stats.range(5, -1, -0.2));
+    // console.log(stats.range(5, 10, 0.2));
+
+    console.log(stats.split(stats.range(20), 0.2));
 
 
 
