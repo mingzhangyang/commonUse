@@ -224,6 +224,26 @@ function mergeCSV(arrOfpaths, colName) {
   }).end(merge(list, colName));
 }
 
+function readCSV(path) {
+  let str = fs.readFileSync(path, 'utf8');
+  let arr = str.split('\n');
+  arr = filter(arr, d => d[0] !== '#');
+
+  let headers = map(arr[0].split(','), d => d.trim());
+  let res = new Array(arr.length - 1);
+
+  for (let i = 1; i < arr.length; i++) {
+    let obj = {};
+    let line = map(arr[i].split(','), d => d.trim());
+    for (let j = 0; j < headers.length; j++) {
+      obj[headers[j]] = line[j];
+    }
+    res[i - 1] = obj;
+  }
+
+  return res;
+}
+
 function _csv2json(path) {
   let stat = fs.statSync(path);
 
@@ -239,7 +259,7 @@ function _csv2json(path) {
       let obj = {};
       let line = map(arr[i].split(','), d => d.trim());
       for (let j = 0; j < headers.length; j++) {
-        obj[headers[i]] = line[i];
+        obj[headers[j]] = line[j];
       }
       res[i - 1] = obj;
     }
@@ -311,8 +331,9 @@ function filter(arr, f) {
 
 if (typeof module !== 'undefined' && module.parent) {
   module.exports = {
+    readCSV: readCSV,
     json2csv: json2csv,
-    csv2json: csv2json,
+    csv2json: _csv2json,
     addCols: addCols,
     insertCol: insertCol,
     selectCols: selectCols,
@@ -345,5 +366,6 @@ if (typeof module !== 'undefined' && module.parent) {
   // mergeCSV(['test.csv', 'test_modified.csv'], 'A');
 
   // _csv2json('/home/mingzhang/Data/GSM2354327/HT_MG-430_PM.na35.annot.csv');
+  console.log(readCSV('test.csv'));
 }
 
