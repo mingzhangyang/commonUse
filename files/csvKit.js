@@ -298,7 +298,7 @@ function _csv2json(path) {
             let to_write = tmp.slice(0, -1);
             json.write(JSON.stringify(to_write).slice(1, -1) + ',');
             tmp = tmp.slice(-1);
-            // this is to make sure that tmp is always pass an nonempty array to the callback function on 'close' event, which will remove the comma following the last object
+            // this is to make sure that an nonempty array is always pass to the callback function on 'close' event, which will remove the comma following the last object
           }
         }
       }
@@ -399,10 +399,10 @@ function sampleGenerator(opts) {
     }
   }
 
+  // remove the '\n' following the last row
   csv.end(tmp.join('').slice(0, -1), () => {
     console.log('File is created successfully');
   });
-
 }
 
 
