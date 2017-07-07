@@ -4,6 +4,8 @@
 'use strict';
 
 const fs = require('fs');
+// const path = require('path');
+const readline = require('readline');
 
 function json2csv(path) {
   let data = fs.readFileSync(path, 'utf8');
@@ -222,6 +224,90 @@ function mergeCSV(arrOfpaths, colName) {
   }).end(merge(list, colName));
 }
 
+function _csv2json(path) {
+  let stat = fs.statSync(path);
+
+  if (stat.size <= 50 * 1024 * 1024) {
+    let str = fs.readFileSync(path, 'utf8');
+    let arr = str.split('\n');
+    arr = filter(arr, d => d[0] !== '#');
+
+    let headers = map(arr[0].split(','), d => d.trim());
+    let res = new Array(arr.length - 1);
+
+    for (let i = 1; i < arr.length; i++) {
+      let obj = {};
+      let line = map(arr[i].split(','), d => d.trim());
+      for (let j = 0; j < headers.length; j++) {
+        obj[headers[i]] = line[i];
+      }
+      res[i - 1] = obj;
+    }
+    fs.createWriteStream(path + '.json', {
+      flag: 'w',
+      defaultEncoding: 'utf8'
+    }).end(JSON.stringify(res));
+  } else {
+    let headers = '';
+    let rl = readline.createInterface({
+      input: fs.createReadStream(path, 'utf8')
+    });
+
+    let tmp = [];
+    let num = 10000;
+    let json = fs.createWriteStream(path + '.json', {
+      flag: 'w+',
+      defaultEncoding: 'utf8'
+    });
+    json.write('[');
+
+    rl.on('line', function (line) {
+      if (line[0] !== '#') {
+        if (!headers) {
+          headers = map(line.split(','), d => d.trim());
+        } else {
+          let cur = map(line.split(','), d => d.trim());
+          let obj = {};
+          for (let i = 0; i < headers.length; i++) {
+            obj[headers[i]] = cur[i];
+          }
+          tmp.push(obj);
+          if (tmp.length === num) {
+            json.write(JSON.stringify(tmp).slice(1, -1) + ',');
+            tmp = [];
+          }
+        }
+      }
+    }).on('close', function () {
+      if (tmp.length) {
+        json.write(JSON.stringify(tmp).slice(1, -1));
+      }
+      json.end(']');
+    })
+  }
+
+}
+
+function map(arr, f) {
+  let res = new Array(arr.length);
+  for (let i = 0; i < res.length; i++) {
+    res[i] = f(arr[i], i);
+  }
+  return res;
+}
+
+function filter(arr, f) {
+  let res = [];
+  for (let i = 0; i < arr.length; i++) {
+    if (f(arr[i], i)) {
+      res.push(arr[i]);
+    }
+  }
+  return res;
+}
+
+
+
 
 if (typeof module !== 'undefined' && module.parent) {
   module.exports = {
@@ -256,6 +342,8 @@ if (typeof module !== 'undefined' && module.parent) {
   // });
   // selectCols('test.csv', ['A', 'B', 'E', 'F']);
   // removeCols('test.csv', ['F']);
-  mergeCSV(['test.csv', 'test_modified.csv'], 'A');
+  // mergeCSV(['test.csv', 'test_modified.csv'], 'A');
+
+  // _csv2json('/home/mingzhang/Data/GSM2354327/HT_MG-430_PM.na35.annot.csv');
 }
 
