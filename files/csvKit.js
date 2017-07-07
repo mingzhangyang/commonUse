@@ -6,6 +6,7 @@
 const fs = require('fs');
 // const path = require('path');
 const readline = require('readline');
+const randStr = require('../string/randStr');
 
 function json2csv(path) {
   let data = fs.readFileSync(path, 'utf8');
@@ -250,7 +251,7 @@ function _csv2json(path) {
   if (stat.size <= 50 * 1024 * 1024) {
     let str = fs.readFileSync(path, 'utf8');
     let arr = str.split('\n');
-    arr = filter(arr, d => d[0] !== '#');
+    arr = filter(arr, d => d.length && d[0] !== '#');
 
     let headers = map(arr[0].split(','), d => d.trim());
     let res = new Array(arr.length - 1);
@@ -267,6 +268,7 @@ function _csv2json(path) {
       flag: 'w',
       defaultEncoding: 'utf8'
     }).end(JSON.stringify(res));
+    console.log('File is created successfully');
   } else {
     let headers = '';
     let rl = readline.createInterface({
@@ -274,7 +276,7 @@ function _csv2json(path) {
     });
 
     let tmp = [];
-    let num = 10000;
+    let num = 100001;
     let json = fs.createWriteStream(path + '.json', {
       flag: 'w+',
       defaultEncoding: 'utf8'
@@ -282,7 +284,7 @@ function _csv2json(path) {
     json.write('[');
 
     rl.on('line', function (line) {
-      if (line[0] !== '#') {
+      if (line.length && line[0] !== '#') {
         if (!headers) {
           headers = map(line.split(','), d => d.trim());
         } else {
@@ -293,19 +295,19 @@ function _csv2json(path) {
           }
           tmp.push(obj);
           if (tmp.length === num) {
-            json.write(JSON.stringify(tmp).slice(1, -1) + ',');
-            tmp = [];
+            let to_write = tmp.slice(0, -1);
+            json.write(JSON.stringify(to_write).slice(1, -1) + ',');
+            tmp = tmp.slice(-1);
+            // this is to make sure that tmp is always pass an nonempty array to the callback function on 'close' event, which will remove the comma following the last object
           }
         }
       }
     }).on('close', function () {
-      if (tmp.length) {
-        json.write(JSON.stringify(tmp).slice(1, -1));
-      }
+      json.write(JSON.stringify(tmp).slice(1, -1));
       json.end(']');
+      console.log('File is created successfully');
     })
   }
-
 }
 
 function map(arr, f) {
@@ -327,6 +329,82 @@ function filter(arr, f) {
 }
 
 
+function sampleGenerator(opts) {
+  opts = opts || {};
+  let rows = opts.rows || 100;
+  let headers = opts.headers || [
+      {
+        name: 'id',
+        type: 'int'
+      }, {
+        name: 'value',
+        type: 'float'
+      }, {
+        name: 'positive',
+        type: 'bool'
+      }, {
+        name: 'date',
+        type: 'date'
+      }, {
+        name: 'comment',
+        type: 'string'
+      }
+    ];
+  let comments = opts.comments || '';
+  let fileName = opts.fileName || 'sample_csv.csv';
+
+  let csv = fs.createWriteStream(fileName, {
+    flag: 'w',
+    defaultEncoding: 'utf8'
+  });
+
+  if (comments) {
+    csv.write('#' + comments + '\n');
+  }
+
+  csv.write(map(headers, d => d.name).join(',') + '\n');
+
+  let tmp = [];
+  for (let i = 0; i < rows; i++) {
+    let line = '';
+    for (let j = 0; j < headers.length; j++) {
+      switch (headers[j].type) {
+        case 'int':
+          line += Math.floor(rows * Math.random()) + ',';
+          break;
+        case 'float':
+          line += Math.random() + ',';
+          break;
+        case 'string':
+          line += randStr() + ',';
+          break;
+        case 'bool':
+          line += (Math.random() > 0.5) + ',';
+          break;
+        case 'date':
+          let t = Date.now();
+          let r = Math.random();
+          t = r > 0.5 ? t + 8640000000 * r : t - 8640000000 * r;
+          line += (new Date(t)).toDateString() + ',';
+          break;
+        default:
+          throw 'type not recognized'
+      }
+    }
+    tmp.push(line.slice(0, -1) + '\n');
+    if (tmp.length === 100001) {
+      let to_write = tmp.slice(0, -1);
+      csv.write(to_write.join(''));
+      tmp = tmp.slice(-1);
+    }
+  }
+
+  csv.end(tmp.join('').slice(0, -1), () => {
+    console.log('File is created successfully');
+  });
+
+}
+
 
 
 if (typeof module !== 'undefined' && module.parent) {
@@ -334,6 +412,7 @@ if (typeof module !== 'undefined' && module.parent) {
     readCSV: readCSV,
     json2csv: json2csv,
     csv2json: _csv2json,
+    createSampleCSV: sampleGenerator,
     addCols: addCols,
     insertCol: insertCol,
     selectCols: selectCols,
@@ -366,6 +445,11 @@ if (typeof module !== 'undefined' && module.parent) {
   // mergeCSV(['test.csv', 'test_modified.csv'], 'A');
 
   // _csv2json('/home/mingzhang/Data/GSM2354327/HT_MG-430_PM.na35.annot.csv');
-  console.log(readCSV('test.csv'));
+  // console.log(readCSV('test.csv'));
+  // sampleGenerator({
+  //   rows: 2000000
+  // });
+
+  // _csv2json('sample_csv.csv');
 }
 
