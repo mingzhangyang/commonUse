@@ -1,5 +1,7 @@
 /**
  * Created by yangm11 on 7/11/2017.
+ * the getMoonIllumination function is extracted from https://github.com/mourner/suncalc
+ * Thank you Vladimir Agafonkin.
  */
 'use strict';
 
@@ -89,7 +91,7 @@ function getMoonIllumination(date) {
 
   return {
     fraction: (1 + cos(inc)) / 2,
-    phase: 0.5 + 0.5 * inc * (angle < 0 ? -1 : 1) / Math.PI,
+    phase: 0.5 + 0.5 * inc * (angle < 0 ? -1 : 1) / PI,
     angle: angle
   };
 }
@@ -136,15 +138,18 @@ function generator(rows) {
 }
 
 if (typeof module !== 'undefined' && module.parent) {
-  module.exports = getMoonIllumination;
+  module.exports = {
+    parseFile: parseFile,
+    getMoonIllumination: getMoonIllumination
+  };
+  console.log('getMoonIllumination exported');
 } else {
-  // test code go here
-  // console.log(getMoonIllumination());
 
+  // console.log(module.parent);
   let args = process.argv;
-  console.log(args);
+  // console.log(args);
 
-  if (args[2].slice(-4) === '.dat') {
+  if (args[2] && args[2].slice(-4) === '.dat') {
     console.log(args[2]);
     parseFile(args[2]);
   } else {
