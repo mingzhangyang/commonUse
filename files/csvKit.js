@@ -340,6 +340,9 @@ function sampleGenerator(opts) {
         name: 'value',
         type: 'float'
       }, {
+        name: 'class',
+        domain: ['A', 'B', 'C', 'D', 'E', 'F', 'G']
+      },{
         name: 'positive',
         type: 'bool'
       }, {
@@ -368,27 +371,35 @@ function sampleGenerator(opts) {
   for (let i = 0; i < rows; i++) {
     let line = '';
     for (let j = 0; j < headers.length; j++) {
-      switch (headers[j].type) {
-        case 'int':
-          line += Math.floor(rows * Math.random()) + ',';
-          break;
-        case 'float':
-          line += Math.random() + ',';
-          break;
-        case 'string':
-          line += randStr() + ',';
-          break;
-        case 'bool':
-          line += (Math.random() > 0.5) + ',';
-          break;
-        case 'date':
-          let t = Date.now();
-          let r = Math.random();
-          t = r > 0.5 ? t + 8640000000 * r : t - 8640000000 * r;
-          line += (new Date(t)).toDateString() + ',';
-          break;
-        default:
-          throw 'type not recognized'
+      if (headers[j].domain && Array.isArray(headers[j].domain)) {
+        line += headers[j].domain[Math.floor(headers[j].domain.length * Math.random())] + ',';
+      } else {
+        switch (headers[j].type) {
+          case 'int':
+            if (headers[j].domain) {
+
+            } else {
+              line += Math.floor(rows * Math.random()) + ',';
+            }
+            break;
+          case 'float':
+            line += Math.random() + ',';
+            break;
+          case 'string':
+            line += randStr() + ',';
+            break;
+          case 'bool':
+            line += (Math.random() > 0.5) + ',';
+            break;
+          case 'date':
+            let t = Date.now();
+            let r = Math.random();
+            t = r > 0.5 ? t + 8640000000 * r : t - 8640000000 * r;
+            line += (new Date(t)).toDateString() + ',';
+            break;
+          default:
+            throw 'type not recognized'
+        }
       }
     }
     tmp.push(line.slice(0, -1) + '\n');
@@ -447,7 +458,7 @@ if (typeof module !== 'undefined' && module.parent) {
   // _csv2json('/home/mingzhang/Data/GSM2354327/HT_MG-430_PM.na35.annot.csv');
   // console.log(readCSV('test.csv'));
   // sampleGenerator({
-  //   // rows: 800000
+  //   rows: 2000
   // });
 
   // _csv2json('sample_csv.csv');
