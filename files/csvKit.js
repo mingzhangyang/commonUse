@@ -462,5 +462,11 @@ if (typeof module !== 'undefined' && module.parent) {
   // });
 
   // _csv2json('sample_csv.csv');
+
+  let file = process.argv[2];
+  if (file && file.slice(-4) === '.csv') {
+    _csv2json(file);
+  }
+
 }
 
