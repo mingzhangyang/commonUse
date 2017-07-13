@@ -458,7 +458,7 @@ if (typeof module !== 'undefined' && module.parent) {
   // _csv2json('/home/mingzhang/Data/GSM2354327/HT_MG-430_PM.na35.annot.csv');
   // console.log(readCSV('test.csv'));
   // sampleGenerator({
-  //   rows: 2000
+  //   rows: 200000
   // });
 
   // _csv2json('sample_csv.csv');
