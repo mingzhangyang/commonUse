@@ -110,8 +110,10 @@ function parseFile(path) {
 
   rl.on('line', line => {
     line = line.trim();
+    let start = Date.now();
     let res = getMoonIllumination(new Date(line));
-    let str = line + res.fraction + ', ' + res.phase + ', ' + res.angle + '\n';
+    let lapse = Date.now() - start;
+    let str = line + res.fraction + ', ' + res.phase + ', ' + res.angle + ', ' + lapse +  '\n';
     console.log(str);
     tmp.push(str);
     if (tmp.length === 10000) {
