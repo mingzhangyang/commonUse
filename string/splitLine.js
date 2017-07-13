@@ -59,9 +59,14 @@ function splitLine(s) {
 // " A, 'B, C' D, E" is not allowed.
 // " A, 'B, C' , D, E" is OK.
 
-var s = '1, 2, "OK", ,"Hello World", "I am fine.", "A, B, C"';
-var a = splitLine(s);
-console.log(a);
-for (var i = 0; i < a.length; i++) {
-  console.log(a[i]);
+if (typeof module !== 'undefined' && module.parent) {
+  module.exports = splitLine;
+} else {
+  // test code go here
+  var s = '1, 2, "OK", ,"Hello World", "","I am fine.", "A, B, C"';
+  var a = splitLine(s);
+  console.log(a);
+  for (var i = 0; i < a.length; i++) {
+    console.log(a[i]);
+  }
 }
