@@ -36,10 +36,10 @@ function splitLine(s) {
         elem = '';
         continue;
       }
-      if (s[i] === ' ') {
-        continue;
-      }
-      if (s[i] === '"' || s[i] === "'") {
+      // if (s[i] === ' ') {
+      //   continue;
+      // }
+      if (s[i] === '"') { // only double quotes
         quo.open = true;
         quo.sign = s[i];
         continue;
@@ -69,4 +69,6 @@ if (typeof module !== 'undefined' && module.parent) {
   for (var i = 0; i < a.length; i++) {
     console.log(a[i]);
   }
+
+  console.log(splitLine("10,2,tRNA (cytidine(34)-2'-O)-methyltransferase TrmL catalyzes the methyl transfer from S-adenosyl-L-methionine to the ribose at the nucleotide 34 wobble position in the two leucyl isoacceptors tRNA(Leu)(CmAA) and tRNA(Leu)(cmnm5UmAA),tRNA (cytidine(34)-2'-O)-methyltransferase,SpoU_methylase,COG0219,1,1,published,17:04.8,17:04.8,curated"));
 }
