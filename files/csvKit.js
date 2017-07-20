@@ -7,6 +7,7 @@ const fs = require('fs');
 // const path = require('path');
 const readline = require('readline');
 const randStr = require('../string/randStr');
+const splitLine = require('../string/splitLine');
 
 function json2csv(path) {
   let data = fs.readFileSync(path, 'utf8');
@@ -245,31 +246,11 @@ function readCSV(path) {
   return res;
 }
 
+
 function _csv2json(path) {
-  let stat = fs.statSync(path);
+  let p = guessType(path);
 
-  if (stat.size <= 20 * 1024 * 1024) {
-    let str = fs.readFileSync(path, 'utf8');
-    let arr = str.split('\n');
-    arr = filter(arr, d => d.length && d[0] !== '#');
-
-    let headers = map(arr[0].split(','), d => d.trim());
-    let res = new Array(arr.length - 1);
-
-    for (let i = 1; i < arr.length; i++) {
-      let obj = {};
-      let line = map(arr[i].split(','), d => d.trim());
-      for (let j = 0; j < headers.length; j++) {
-        obj[headers[j]] = line[j];
-      }
-      res[i - 1] = obj;
-    }
-    fs.createWriteStream(path + '.json', {
-      flag: 'w',
-      defaultEncoding: 'utf8'
-    }).end(JSON.stringify(res));
-    console.log('File is created successfully');
-  } else {
+  p.then(types => {
     let headers = '';
     let rl = readline.createInterface({
       input: fs.createReadStream(path, 'utf8')
@@ -286,13 +267,16 @@ function _csv2json(path) {
     rl.on('line', function (line) {
       if (line.length && line[0] !== '#') {
         if (!headers) {
-          headers = map(line.split(','), d => d.trim());
+          // headers = map(line.split(','), d => d.trim());
+          headers = splitLine(line);
+          headers = map(headers, d => {
+            return d.replace(/ /g, '_');
+          });
+          // console.log(headers);
         } else {
-          let cur = map(line.split(','), d => d.trim());
-          let obj = {};
-          for (let i = 0; i < headers.length; i++) {
-            obj[headers[i]] = cur[i];
-          }
+          // let cur = map(line.split(','), d => d.trim());
+          let cur = splitLine(line);
+          let obj = join2json(headers, cur, types);
           tmp.push(obj);
           if (tmp.length === num) {
             let to_write = tmp.slice(0, -1);
@@ -304,10 +288,12 @@ function _csv2json(path) {
       }
     }).on('close', function () {
       json.write(JSON.stringify(tmp).slice(1, -1));
-      json.end(']');
-      console.log('File is created successfully');
-    })
-  }
+      json.end(']', 'utf8', () => {
+        console.log('File is created successfully');
+      });
+    });
+  });
+
 }
 
 function map(arr, f) {
@@ -326,6 +312,111 @@ function filter(arr, f) {
     }
   }
   return res;
+}
+
+function join2json (keys, values, types) {
+
+  function typeConverter(str, type) {
+    switch (type) {
+      case 'string':
+        return str;
+        break;
+      case 'number':
+        return Number(str);
+        break;
+      case 'boolean':
+        if (['true', 'True', 'TRUE'].includes(str)) {
+          return true;
+        } else if (['false', 'False', 'FALSE'].includes(str)) {
+          return false;
+        }
+        break;
+      case 'null':
+        return null;
+        break;
+      default:
+        throw 'unrecognized type';
+    }
+  }
+
+  let obj = {};
+
+  for (let i = 0; i < keys.length; i++) {
+    if (values[i] !== '') {
+      obj[keys[i]] = typeConverter(values[i], types[i]);
+    }
+  }
+
+  return obj;
+}
+
+function typeParser(str) {
+  if (['true', 'True', 'TRUE'].includes(str)) {
+    return 'boolean';
+  }
+
+  if (['false', 'False', 'FALSE'].includes(str)) {
+    return 'boolean';
+  }
+
+  if (['null', 'Null', 'NULL'].includes(str)) {
+    return 'null';
+  }
+
+  if (!(Number.isNaN(Number(str)))) {
+    return 'number';
+  }
+
+  return 'string';
+}
+
+function guessType(csvPath) {
+  return new Promise((resolve, reject) => {
+    let headers = '';
+    let types = new Array(50);
+    for (let i = 0; i < 50; i++) {
+      types[i] = [];
+    }
+
+    let currentLine = '';
+
+    let rl = readline.createInterface({
+      input: fs.createReadStream(csvPath, 'utf8')
+    });
+
+    rl.on('line', function (line) {
+      if (line.length && line[0] !== '#') {
+        if (!headers) {
+          // headers = map(line.split(','), d => d.trim());
+          headers = splitLine(line);
+        } else {
+          currentLine = splitLine(line);
+          for (let i = 0; i < currentLine.length; i++) {
+            let type = typeParser(currentLine[i]);
+            if (types[i].indexOf(type) === -1) {
+              types[i].push(type);
+            }
+          }
+        }
+      }
+    }).on('close', function () {
+      types = types.slice(0, headers.length);
+      // console.log(types);
+      types = map(types, arr => {
+        if (arr.includes('string')) {
+          return 'string';
+        }
+        if (arr.length > 1) {
+          return 'string';
+        }
+        return arr[0];
+      });
+
+      resolve(types);
+
+    });
+
+  });
 }
 
 
