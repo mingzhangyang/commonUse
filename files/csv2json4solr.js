@@ -7,7 +7,9 @@ const fs = require('fs');
 const readline = require('readline');
 const splitLine = require('../string/splitLine');
 
-function csv2json(path, cb) {
+function csv2json(path, cb, n) {
+  let start = Date.now();
+
   let p = new Promise((resolve, reject) => {
     let types = {};
     let headers = '';
@@ -16,17 +18,19 @@ function csv2json(path, cb) {
     });
 
     let tmp = [];
-    let num = 100001;
+    let count = 0;
+
+    let num = n ? n : 51;
+
     let json = fs.createWriteStream(path + '.json', {
       flag: 'w+',
       defaultEncoding: 'utf8'
     });
-    json.write('[');
+    json.write('[\n');
 
     rl.on('line', function (line) {
       if (line.length && line[0] !== '#') {
         if (!headers) {
-          // headers = map(line.split(','), d => d.trim());
           headers = splitLine(line);
           headers = map(headers, d => {
             return d.replace(/ /g, '_'); // this is to make the name can be used in solr functions like "unique(name_a)"
@@ -38,7 +42,6 @@ function csv2json(path, cb) {
           }
 
         } else {
-          // let cur = map(line.split(','), d => d.trim());
           let cur = splitLine(line);
 
           if (cur.length === headers.length) {
@@ -52,24 +55,33 @@ function csv2json(path, cb) {
                 }
               }
             }
-
             tmp.push(obj);
+
           } else {
             console.log('Possibly wrong @ line: ', cur[i]);
           }
 
           if (tmp.length === num) {
             let to_write = tmp.slice(0, -1);
-            json.write(JSON.stringify(to_write).slice(1, -1) + ',');
+            json.write(JSON.stringify(to_write).slice(1, -1) + ',\n');
+
+            count += 50;
+
             tmp = tmp.slice(-1);
             // this is to make sure that an nonempty array is always pass to the callback function on 'close' event, which will remove the comma following the last object
           }
+
         }
       }
     }).on('close', function () {
       json.write(JSON.stringify(tmp).slice(1, -1));
-      json.end(']', 'utf8', () => {
+
+      count += tmp.length;
+
+      json.end('\n]', 'utf8', () => {
         console.log('File is created successfully');
+        let timeUsed = (Date.now() - start) / 1000;
+        console.log('Time used: ' + timeUsed);
 
         for (let i = 0; i < headers.length; i++) {
           let t = types[headers[i]];
@@ -88,12 +100,13 @@ function csv2json(path, cb) {
             types[headers[i]] = 'string';
           }
         }
-
+        console.log('Number of lines: ' + count);
         console.log('Types: ');
         console.dir(types, {
           depth: null,
           colors: true
         });
+
         resolve(types);
       });
     });
@@ -139,15 +152,194 @@ function map(arr, f) {
   return res;
 }
 
+function filter(arr, f) {
+  let res = [];
+  for (let i = 0; i < arr.length; i++) {
+    if (f(arr[i], i)) {
+      res.push(arr[i]);
+    }
+  }
+  return res;
+}
+
+
+function _csv2json(path, cb) {
+  let start = Date.now();
+
+  let p = new Promise((resolve, reject) => {
+
+    let input = fs.createReadStream(path, 'utf8');
+    let output = fs.createWriteStream(path + '.json', {
+      flag: 'w',
+      defaultEncoding: 'utf8'
+    });
+    output.write('[\n');
+
+    let headers = '';
+    let rems = '';
+    let types = {};
+    let count = 0;
+
+    input.on('data', (str) => {
+      str = rems + str;
+      // console.log(str.length);
+      if (!headers) {
+        // console.log(str);
+        let i = str.length;
+        let n = 0;
+        for (i; i > 0; i--) {
+          if (str[i] === '\n') {
+            n += 1;
+          }
+          if (n === 2) {
+            break;
+          }
+        }
+        let s = str.slice(0, i);
+        rems = str.slice(i + 1);
+        // console.log(rems.length);
+
+        // console.log(s.length);
+        let arr = s.split('\n');
+        arr = filter(arr, d => d.length && d[0] !== '#');
+        arr = map(arr, d => d.trim());
+
+        headers = splitLine(arr[0]);
+        headers = map(headers, d => d.replace(/ /g, '_'));
+
+        // try {
+        //   headers = splitLine(arr[0]);
+        //   headers = map(headers, d => d.replace(/ /g, '_'));
+        //   // console.log(headers);
+        // } catch (err) {
+        //   // console.log(arr[0]);
+        //   console.error(err);
+        // }
+
+        for (let i = 0; i < headers.length; i++) {
+          types[headers[i]] = [];
+        }
+
+        parseLines(arr.slice(1), headers, output, types, ',\n');
+        count += arr.length - 1;
+
+      } else {
+        let i = str.length;
+        let n = 0;
+        for (i; i > 0; i--) {
+          if (str[i] === '\n') {
+            n += 1;
+          }
+          if (n === 2) {
+            break;
+          }
+        }
+        let s = str.slice(0, i);
+        rems = str.slice(i + 1);
+        // console.log(rems.length);
+
+        let arr = s.split('\n');
+        arr = filter(arr, d => d.length && d[0] !== '#');
+        arr = map(arr, d => d.trim());
+
+        parseLines(arr.slice(1), headers, output, types, ',\n');
+        count += arr.length;
+      }
+    }).on('end', () => {
+      rems = rems.split('\n').filter(d => d.length);
+      rems = map(rems, d => d.trim());
+      parseLines(rems, headers, output, types, '\n');
+      count += rems.length;
+      output.end(']', 'utf8', () => {
+        console.log('File is created successfully');
+        let timeUsed = (Date.now() - start) / 1000;
+        console.log('Time used: ' + timeUsed);
+
+        for (let i = 0; i < headers.length; i++) {
+          let t = types[headers[i]];
+          if (t.length === 1) {
+            types[headers[i]] = t[0];
+          }
+          if (t.length === 2) {
+            if (t.includes('int') && t.includes('float')) {
+              types[headers[i]] = 'float';
+            }
+            if (t.includes('string')) {
+              types[headers[i]] = 'string';
+            }
+          }
+          if (t.length > 2) {
+            types[headers[i]] = 'string';
+          }
+        }
+        console.log('Count:' + count);
+        console.log('Types: ');
+        console.dir(types, {
+          depth: null,
+          colors: true
+        });
+
+        resolve(types);
+      });
+
+    });
+
+  });
+
+
+  if (cb && typeof cb === 'function') {
+    return p.then(types => {
+      cb(types);
+    })
+  }
+  return p;
+
+}
+
+function parseLines(arr, colNames, writeStream, typesObject, suffix) {
+  for (let i = 0; i < arr.length; i++) {
+    let line;
+    // try {
+    //   line = splitLine(arr[i]);
+    // } catch (err) {
+    //   console.log(typeof arr[i]);
+    //   console.error(err);
+    // }
+
+    line = splitLine(arr[i]);
+
+    if (line.length === colNames.length) {
+      let obj = {};
+      for (let i = 0; i < colNames.length; i++) {
+        if (line[i]) {
+          obj[colNames[i]] = line[i];
+          let type = guessType(line[i]);
+          if (type && typesObject[colNames[i]].indexOf(type) === -1) {
+            typesObject[colNames[i]].push(type);
+          }
+        }
+      }
+      writeStream.write(JSON.stringify(obj) + suffix);
+    } else {
+      console.error('Error found @ line: ' + arr[i]);
+      console.log('Length of headers: ' + colNames.length);
+      console.log('Length of current line: ' + line.length);
+    }
+  }
+}
+
+
 if (typeof module !== 'undefined' && module.parent) {
   module.exports = csv2json;
 } else {
   let csv = process.argv[2];
+  let n = process.argv[3];
   if (csv) {
     if (csv.slice(-4) !== '.csv') {
       console.log('The input file is not ended with ".csv" !');
     } else {
-      csv2json(csv);
+      // csv2json(csv, false, +n);
+      _csv2json(csv, false);
     }
   }
 
@@ -157,4 +349,7 @@ if (typeof module !== 'undefined' && module.parent) {
   // console.log(guessType('5% DEXTROS'));
   // console.log(guessType('10% ALCOHO'));
   // console.log(guessType('09 ALBUTER'));
+
+
+
 }

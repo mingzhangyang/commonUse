@@ -44,10 +44,24 @@ const customFuncsOnArray = (function () {
     return [sp, c];
   }
 
+  function group(arr, cb) {
+    let res = {};
+    for (let i = 0; i < arr.length; i++) {
+      let p = cb(arr[i]);
+      if (typeof res[p] === 'undefined') {
+        res[p] = [arr[i]];
+      }
+      res[p].push(arr[i])
+    }
+    return res;
+  }
+
+
   return {
     map: map,
     filter: filter,
-    split: split
+    split: split,
+    group: group
   }
 })();
 
