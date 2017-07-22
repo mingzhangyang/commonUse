@@ -8,7 +8,7 @@ function splitLine(s) {
   var elem = '';
   var quo = {
     open: false,
-    seq: '',
+    // seq: '',
     sign: '',
     ready: false
   };
@@ -16,19 +16,20 @@ function splitLine(s) {
 
   for (var i = 0; i < s.length; i++) {
     if (quo.open) {
+      elem += s[i];
       if (s[i] === quo.sign) {
         quo.open = false;
         quo.ready = true;
-      } else {
-        quo.seq += s[i];
       }
     } else {
       if (s[i] === ',') {
         if (quo.ready) {
-          array.push(quo.seq);
-          quo.seq = '';
+          // array.push(elem + quo.seq);
+          array.push(elem);
+          // quo.seq = '';
           quo.sign = '';
           quo.ready = false;
+          elem = '';
           continue;
         }
 
@@ -41,18 +42,20 @@ function splitLine(s) {
       // }
       if (s[i] === '"') { // only double quotes
         quo.open = true;
-        quo.sign = s[i];
+        quo.sign = '"';
+        elem += '"';
         continue;
       }
       elem += s[i];
     }
   }
-  if (quo.seq) {
-    array.push(quo.seq);
-  }
-  if (elem) {
-    array.push(elem);
-  }
+  // if (quo.seq) {
+  //   array.push(quo.seq);
+  // }
+  // if (elem) {
+  //   array.push(elem);
+  // }
+  array.push(elem);
   return array;
 }
 
@@ -63,7 +66,7 @@ if (typeof module !== 'undefined' && module.parent) {
   module.exports = splitLine;
 } else {
   // test code go here
-  var s = '1, 2, "OK", ,"Hello World", "","I am fine.", "A, B, C"';
+  var s = '1, 2, "OK", ,test"Hello World", 567, "","I am fine.", "A, B, C"';
   var a = splitLine(s);
   console.log(a);
   for (var i = 0; i < a.length; i++) {

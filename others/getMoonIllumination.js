@@ -116,7 +116,7 @@ function parseFile(path) {
     let str = line + res.fraction + ', ' + res.phase + ', ' + res.angle + ', ' + lapse +  '\n';
     console.log(str);
     tmp.push(str);
-    if (tmp.length === 10000) {
+    if (tmp.length === 51) {
       output.write(tmp.slice(0, -1).join(''));
       tmp = tmp.slice(-1);
     }
