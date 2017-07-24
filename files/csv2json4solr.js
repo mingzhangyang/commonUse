@@ -165,9 +165,7 @@ function filter(arr, f) {
 
 function _csv2json(path, cb) {
   let start = Date.now();
-
   let p = new Promise((resolve, reject) => {
-
     let input = fs.createReadStream(path, 'utf8');
     let output = fs.createWriteStream(path + '.json', {
       flag: 'w',
@@ -181,70 +179,36 @@ function _csv2json(path, cb) {
 
     input.on('data', (str) => {
       str = rems + str;
-      // console.log(str.length);
-      if (!headers) {
-        // console.log(str);
-        let i = str.length - 1;
-        let n = 0;
-        for (i; i > 0; i--) {
-          if (str[i] === '\n') {
-            n += 1;
-          }
-          if (n === 2) {
-            break;
-          }
-        }
-        let s = str.slice(0, i);
-        rems = str.slice(i + 1);
-        // console.log(rems.length);
 
-        // console.log(s.length);
-        let arr = s.split('\n');
-        arr = filter(arr, d => d.length && d[0] !== '#');
-        arr = map(arr, d => d.trim());
+      let i = str.length - 1;
+      let n = 0;
+      for (i; i > 0; i--) {
+        if (str[i] === '\n') {
+          n += 1;
+        }
+        if (n === 2) {
+          break;
+        }
+      }
+      let s = str.slice(0, i);
+      rems = str.slice(i + 1);
+      let arr = s.split('\n');
+      arr = filter(arr, d => d.length && d[0] !== '#');
+      arr = map(arr, d => d.trim());
+
+      if (!headers) {
 
         headers = splitLine(arr[0]);
         headers = map(headers, d => d.replace(/ /g, '_'));
-
-        // try {
-        //   headers = splitLine(arr[0]);
-        //   headers = map(headers, d => d.replace(/ /g, '_'));
-        //   // console.log(headers);
-        // } catch (err) {
-        //   // console.log(arr[0]);
-        //   console.error(err);
-        // }
 
         for (let i = 0; i < headers.length; i++) {
           types[headers[i]] = [];
         }
 
-        // console.log('Before process: ' + arr.slice(1).length);
         parseLines(arr.slice(1), headers, output, types, ',\n');
 
-
       } else {
-        let i = str.length - 1;
-        let n = 0;
-        for (i; i > 0; i--) {
-          if (str[i] === '\n') {
-            n += 1;
-          }
-          if (n === 2) {
-            break;
-          }
-        }
-        let s = str.slice(0, i);
-        rems = str.slice(i + 1);
-        // console.log(rems.length);
-
-        let arr = s.split('\n');
-        arr = filter(arr, d => d.length && d[0] !== '#');
-        arr = map(arr, d => d.trim());
-
-        // console.log('Before process: ' + arr.length);
         parseLines(arr, headers, output, types, ',\n');
-
       }
     }).on('end', () => {
       rems = rems.split('\n').filter(d => d.length);
@@ -316,8 +280,6 @@ function parseLines(arr, colNames, writeStream, typesObject, suffix) {
       }
 
       writeStream.write(JSON.stringify(obj) + suffix, 'utf8');
-
-    // writeStream.write(arr[i] + suffix);
 
     } else {
       console.error('Error found @ line: ' + arr[i]);

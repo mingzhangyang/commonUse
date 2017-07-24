@@ -118,21 +118,21 @@ function perfTest(func, opts) {
 
 function append1() {
   let res = [];
-  for (let i = 0; i < 10000; i++) {
+  for (let i = 0; i < 100000; i++) {
     res.push(Math.random());
   }
 }
 
 function append2() {
   let res = [];
-  for (let i = 0; i < 10000; i++) {
+  for (let i = 0; i < 100000; i++) {
     res[i] = Math.random();
   }
 }
 
 function append3() {
-  let res = new Array(10000);
-  for (let i = 0; i < 10000; i++) {
+  let res = new Array(100000);
+  for (let i = 0; i < 100000; i++) {
     res[i] = Math.random();
   }
 }

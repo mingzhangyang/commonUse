@@ -7,45 +7,198 @@ const Transform = require('stream').Transform;
 const fs = require('fs');
 const Readable = require('stream').Readable;
 const Writable = require('stream').Writable;
+const splitLine = require('../string/splitLine');
 
-class MT extends Transform {
-  constructor(options) {
-    super(options);
+class CSVIIJSON extends Transform {
+  constructor(opts) {
+    super(opts);
+    this.START  = '[\n';
+    this.rems = '';
+    this.END = ']';
+    this.headers = '';
   }
-  _transform(data, enc, callback) { // data is Buffer
-    // console.log(data);
-    let DATA = data.toString().toUpperCase();
-    // console.log(DATA);
-    this.push(DATA);
-    callback();
+
+  _transform(data, enc, next) {
+    let str = data.toString();
+    str = this.rems + str;
+    let i = str.length - 1;
+    let flag = 0;
+    for (; i > 0; i--) {
+      if (str[i] === '\n') {
+        flag += 1;
+      }
+      if (flag === 2) {
+        break;
+      }
+    }
+    this.rems = str.slice(i + 1);
+    let arr = str.slice(0, i).split('\n').map(d => d.trim());
+    if (!this.headers) {
+      this.headers = splitLine(arr[0]);
+      this.push(this.START);
+      for (let j = 1; j < arr.length; j++) {
+        let obj = {};
+        let cur = splitLine(arr[j]);
+        for (let k = 0; k < cur.length; k++) {
+          obj[this.headers[k]] = cur[k];
+        }
+        this.push(JSON.stringify(obj) + ',\n');
+      }
+    } else {
+      for (let j = 0; j < arr.length; j++) {
+        let obj = {};
+        let cur = splitLine(arr[j]);
+        for (let k = 0; k < cur.length; k++) {
+          obj[this.headers[k]] = cur[k];
+        }
+        this.push(JSON.stringify(obj) + ',\n');
+      }
+    }
+    next(); // This is indispensable, otherwise will only invoke _transform only once.
+  }
+
+  _flush(cb) {
+    let obj = {};
+    let arr = splitLine(this.rems);
+    for (let k = 0; k < this.headers.length; k++) {
+      obj[this.headers[k]] = arr[k];
+    }
+    this.push(JSON.stringify(obj) + '\n');
+    this.push(this.END);
+    console.log('\nTransformation done!');
   }
 }
 
-function transformer(opts, mapFunc, medium) {
-  class MT extends Transform {
-    constructor(options) {
-      super(options);
-    }
-    _transform(chunk, enc, callback) { // data is Buffer
-      let s = chunk.toString();
-      this.push(mapFunc(s, medium));
-      callback();
-    }
+
+class TOUPPERCASE extends Transform {
+  constructor(opts) {
+    super(opts);
   }
-  return new MT(opts);
+  _transform(chunk, enc, next) {
+    this.push(chunk.toString().toUpperCase());
+    next();
+  }
+  _flush(cb) {
+    console.log('\nTransformation done!');
+    cb();
+  }
+}
+
+class CSVIITSV extends Transform {
+  constructor(opts) {
+    super(opts);
+    this.rems = '';
+  }
+  _transform(chunk, enc, next) {
+    let str = this.rems + chunk.toString();
+    let i = str.length - 1;
+    let n = 0;
+    for (; i > 0; i--) {
+      if (str[i] === '\n') {
+        n += 1;
+      }
+      if (n === 2) {
+        break;
+      }
+    }
+    this.rems = str.slice(i + 1);
+    let arr = (str.slice(0, i)).split('\n');
+    this.push(map(arr, line => splitLine(line).join('\t')).join('\n'));
+    next();
+  }
+  _flush(cb) {
+    let arr = splitLine(this.rems);
+    this.push(map(arr, line => splitLine(line).join('\t')).join('\n'));
+    console.log('\nTransformation done!');
+    cb();
+  }
+}
+
+class LINEBYLINE extends Transform {
+  constructor(opts) {
+    super(opts);
+    this.rems = '';
+    this.count = 0;
+  }
+  _transform(chunk, enc, next) {
+    let str = this.rems + chunk.toString();
+
+    let i = str.length - 1;
+    let n = 0;
+    for (; i > 0; i--) {
+      if (str[i] === '\n') {
+        n += 1;
+      }
+      if (n === 2) {
+        break;
+      }
+    }
+
+    this.rems = str.slice(i + 1);
+
+    let arr = str.slice(0, i).split('\n');
+    // arr = map(arr, line => line.trim());
+    for (let j = 0; j < arr.length; j++) {
+      this.push('# ' + (++this.count) + ': ' + arr[j] + '\n');
+    }
+    next();
+  }
+  _flush(cb) {
+    let arr = this.rems.split('\n');
+    this.push('# ' + (++this.count) + ': ' + arr[0] + '\n');
+    if (arr[1] === '') {
+      this.push('# ' + (++this.count) + ': ' + '\n');
+    } else {
+      this.push('# ' + (++this.count) + ': ' + arr[1] + '\n');
+    }
+    console.log('\nTransformation done!');
+    console.log(this.rems.split('\n'));
+    cb();
+  }
+}
+
+
+function map(arr, func) {
+  let res = new Array(arr.length);
+  for (let i = 0; i < arr.length; i++) {
+    res[i] = func(arr[i], i);
+  }
+  return res;
 }
 
 if (typeof module !== 'undefined' && module.parent) {
-  module.exports = MT;
+  module.exports = {
+    csv2json: CSVIIJSON,
+    uppercase: TOUPPERCASE,
+    csv2tsv: CSVTIISV
+  };
 } else {
-  let source = process.argv[2];
 
-  let m = new MT();
-  m.setEncoding('utf8');
+
+  // let mt = new CSVIIJSON();
+  let source = process.argv[2];
+  let sourceStream = fs.createReadStream(source, 'utf8');
+  // let outputStream = fs.createWriteStream('mt.json', 'utf8');
+  // sourceStream.pipe(mt).pipe(outputStream);
+
+  // let mt = new TOUPPERCASE();
+  // process.stdin.pipe(mt).pipe(process.stdout);
+
+  // let mt = new CSVIITSV();
+  // sourceStream.pipe(mt).pipe(outputStream);
+  // process.stdin.pipe(mt).pipe(process.stdout);
+
+  let mt = new LINEBYLINE();
+  sourceStream.pipe(mt).pipe(process.stdout);
+
+  // console.log(splitLine('a,b, c, d, "e, f, g", OK').join('\t'));
+
+  // let m = new MT();
+  // m.setEncoding('utf8');
 
   // process.stdin.pipe(m).pipe(process.stdout);
 
-  let sourceStream = fs.createReadStream(source, 'utf8');
+
   // sourceStream.pipe(m).pipe(fs.createWriteStream('testingStream.csv', 'utf8'));
 
   // let rs = new Readable();
@@ -122,11 +275,11 @@ if (typeof module !== 'undefined' && module.parent) {
   //
   // process.stdin.pipe(ws);
 
-  let ws = new Writable();
-  ws._write = (chunk, enc, cb) => {
-    console.log(chunk.toString()[0]);
-    cb();
-  }
-
-  process.stdin.pipe(ws);
+  // let ws = new Writable();
+  // ws._write = (chunk, enc, cb) => {
+  //   console.log(chunk.toString()[0]);
+  //   cb();
+  // };
+  //
+  // process.stdin.pipe(ws);
 }

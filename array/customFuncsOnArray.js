@@ -47,7 +47,7 @@ const customFuncsOnArray = (function () {
   function group(arr, cb) {
     let res = {};
     for (let i = 0; i < arr.length; i++) {
-      let p = cb(arr[i]);
+      let p = cb(arr[i], i);
       if (typeof res[p] === 'undefined') {
         res[p] = [arr[i]];
       }

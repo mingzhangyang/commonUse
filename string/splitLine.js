@@ -4,7 +4,8 @@
 'use strict';
 
 
-function splitLine(s) {
+function splitLine(s, sep) {
+  sep = sep || ',';
   var elem = '';
   var quo = {
     open: false,
@@ -22,7 +23,7 @@ function splitLine(s) {
         quo.ready = true;
       }
     } else {
-      if (s[i] === ',') {
+      if (s[i] === sep) {
         if (quo.ready) {
           // array.push(elem + quo.seq);
           array.push(elem);
