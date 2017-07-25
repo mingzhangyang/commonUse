@@ -3,13 +3,13 @@
 class EventEmitter {
   constructor(name) {
     this.eventName = name;
-    this.target = [];
+    this.targets = [];
     
   }
 
   emit(msg) {
-    for (let i = 0; i < this.target.length; i++) {
-      this.target[i]._events[this.eventName] += msg;
+    for (let i = 0; i < this.targets.length; i++) {
+      this.targets[i]._events[this.eventName] = msg;
     }
   }
 }
@@ -26,15 +26,18 @@ class EventListener {
 
   on(eventName, eventEmitter, handler) {
     eventEmitter = eventEmitter || new EventEmitter();
-    eventEmitter.target.push(this);
+    if (eventEmitter.targets.indexOf(this) === -1) {
+      eventEmitter.targets.push(this);
+    }
     let that = this;
     Object.defineProperty(this._events, eventName, {
       configurable: true,
-    set: (v) => {
-      setTimeout(() => {
-        handler.call(that);
-      }, 0);
+      set: (v) => {
+        setTimeout(() => {
+          handler.call(that);
+        }, 0);
       }
     });
+    return eventEmitter;
   }
 }
