@@ -180,19 +180,24 @@ function _csv2json(path, cb) {
     input.on('data', (str) => {
       str = rems + str;
 
-      let i = str.length - 1;
-      let n = 0;
-      for (i; i > 0; i--) {
-        if (str[i] === '\n') {
-          n += 1;
-        }
-        if (n === 2) {
-          break;
-        }
-      }
-      let s = str.slice(0, i);
-      rems = str.slice(i + 1);
-      let arr = s.split('\n');
+      // let i = str.length - 1;
+      // let n = 0;
+      // for (i; i > 0; i--) {
+      //   if (str[i] === '\n') {
+      //     n += 1;
+      //   }
+      //   if (n === 2) {
+      //     break;
+      //   }
+      // }
+      // let s = str.slice(0, i);
+      // rems = str.slice(i + 1);
+      // let arr = s.split('\n');
+
+      let arr = str.split('\n');
+      rems = arr[arr.length - 1];
+      arr = arr.slice(0, -1);
+
       arr = filter(arr, d => d.length && d[0] !== '#');
       arr = map(arr, d => d.trim());
 

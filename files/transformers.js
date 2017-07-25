@@ -91,18 +91,23 @@ class CSVIITSV extends Transform {
   }
   _transform(chunk, enc, next) {
     let str = this.rems + chunk.toString();
-    let i = str.length - 1;
-    let n = 0;
-    for (; i > 0; i--) {
-      if (str[i] === '\n') {
-        n += 1;
-      }
-      if (n === 2) {
-        break;
-      }
-    }
-    this.rems = str.slice(i + 1);
-    let arr = (str.slice(0, i)).split('\n');
+    // let i = str.length - 1;
+    // let n = 0;
+    // for (; i > 0; i--) {
+    //   if (str[i] === '\n') {
+    //     n += 1;
+    //   }
+    //   if (n === 2) {
+    //     break;
+    //   }
+    // }
+    // this.rems = str.slice(i + 1);
+    // let arr = (str.slice(0, i)).split('\n');
+
+    let arr = str.split('\n');
+    this.rems = arr[arr.length - 1];
+    arr = arr.slice(0, -1);
+
     this.push(map(arr, line => splitLine(line).join('\t')).join('\n'));
     next();
   }
@@ -123,36 +128,41 @@ class LINEBYLINE extends Transform {
   _transform(chunk, enc, next) {
     let str = this.rems + chunk.toString();
 
-    let i = str.length - 1;
-    let n = 0;
-    for (; i > 0; i--) {
-      if (str[i] === '\n') {
-        n += 1;
-      }
-      if (n === 2) {
-        break;
-      }
-    }
+    // let i = str.length - 1;
+    // let n = 0;
+    // for (; i > 0; i--) {
+    //   if (str[i] === '\n') {
+    //     n += 1;
+    //   }
+    //   if (n === 2) {
+    //     break;
+    //   }
+    // }
+    //
+    // this.rems = str.slice(i + 1);
+    //
+    // let arr = str.slice(0, i).split('\n');
 
-    this.rems = str.slice(i + 1);
+    let arr = str.split('\n');
+    this.rems = arr[arr.length - 1];
 
-    let arr = str.slice(0, i).split('\n');
-    // arr = map(arr, line => line.trim());
-    for (let j = 0; j < arr.length; j++) {
+    for (let j = 0; j < arr.length - 1; j++) {
       this.push('# ' + (++this.count) + ': ' + arr[j] + '\n');
     }
-    next();
+    next(); // THIS IS IMPORTANT!!!
   }
   _flush(cb) {
-    let arr = this.rems.split('\n');
-    this.push('# ' + (++this.count) + ': ' + arr[0] + '\n');
-    if (arr[1] === '') {
-      this.push('# ' + (++this.count) + ': ' + '\n');
-    } else {
-      this.push('# ' + (++this.count) + ': ' + arr[1] + '\n');
-    }
+    // let arr = this.rems.split('\n');
+    // this.push('# ' + (++this.count) + ': ' + arr[0] + '\n');
+    // if (arr[1] === '') {
+    //   this.push('# ' + (++this.count) + ': ' + '\n');
+    // } else {
+    //   this.push('# ' + (++this.count) + ': ' + arr[1] + '\n');
+    // }
+
+    this.push('# ' + (++this.count) + ': ' + this.rems);
+
     console.log('\nTransformation done!');
-    console.log(this.rems.split('\n'));
     cb();
   }
 }
@@ -170,16 +180,17 @@ if (typeof module !== 'undefined' && module.parent) {
   module.exports = {
     csv2json: CSVIIJSON,
     uppercase: TOUPPERCASE,
-    csv2tsv: CSVTIISV
+    csv2tsv: CSVIITSV,
+    lineByLine: LINEBYLINE
   };
 } else {
 
 
-  // let mt = new CSVIIJSON();
+  let mt = new CSVIIJSON();
   let source = process.argv[2];
   let sourceStream = fs.createReadStream(source, 'utf8');
-  // let outputStream = fs.createWriteStream('mt.json', 'utf8');
-  // sourceStream.pipe(mt).pipe(outputStream);
+  let outputStream = fs.createWriteStream('mt.json', 'utf8');
+  sourceStream.pipe(mt).pipe(outputStream);
 
   // let mt = new TOUPPERCASE();
   // process.stdin.pipe(mt).pipe(process.stdout);
@@ -188,8 +199,8 @@ if (typeof module !== 'undefined' && module.parent) {
   // sourceStream.pipe(mt).pipe(outputStream);
   // process.stdin.pipe(mt).pipe(process.stdout);
 
-  let mt = new LINEBYLINE();
-  sourceStream.pipe(mt).pipe(process.stdout);
+  // let mt = new LINEBYLINE();
+  // sourceStream.pipe(mt).pipe(process.stdout);
 
   // console.log(splitLine('a,b, c, d, "e, f, g", OK').join('\t'));
 
