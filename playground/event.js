@@ -27,10 +27,13 @@ class EventListener {
   on(eventName, eventEmitter, handler) {
     eventEmitter = eventEmitter || new EventEmitter();
     eventEmitter.target.push(this);
+    let that = this;
     Object.defineProperty(this._events, eventName, {
       configurable: true,
     set: (v) => {
-      setTimeout(handler, 0);
+      setTimeout(() => {
+        handler.call(that);
+      }, 0);
       }
     });
   }
