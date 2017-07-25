@@ -7,9 +7,9 @@ class EventEmitter {
     
   }
 
-  emit() {
+  emit(msg) {
     for (let i = 0; i < this.target.length; i++) {
-      this.target[i]._events[this.eventName] += 1;
+      this.target[i]._events[this.eventName] += msg;
     }
   }
 }
