@@ -38,12 +38,47 @@ class Commander {
     }
   }
 
-  order(command) {
-    if (typeof this.targets[command] === 'undefined') {
-      throw 'Recruit a soldier with the command first...';
+  layoff(soldier, command) {
+    if (!(soldier instanceof Soldier)) {
+      throw 'A soldier is expected as the first parameter ...';
     }
-    for (let i = 0; i < this.targets[command].length; i++) {
-      this.targets[command][i]._commands[command].exec = 1;
+    if (typeof command === 'undefined') {
+      let commands = Object.keys(this.targets);
+      for (let i = 0; i < commands.length; i++) {
+        let list = this.targets[commands[i]];
+        if (list.includes(soldier)) {
+          let i = list.indexOf(soldier);
+          list.splice(i, 1);
+        }
+      }
+      return;
+    }
+    if (command) {
+      if (this.commands.indexOf(command) === -1) {
+        throw 'The command not registered under this commander ...';
+      }
+      let k = this.commands.indexOf(command);
+      this.commands.splice(k, 1);
+      let list = this.targets[command];
+      let i = list.indexOf(soldier);
+      return list.splice(i, 1);
+    }
+  }
+
+  order(command, soldier) {
+    if (typeof this.targets[command] === 'undefined' || soldier === 'All') {
+      throw 'Recruit a soldier with the new command first ...';
+    }
+    if (typeof soldier === 'undefined') {
+      for (let i = 0; i < this.targets[command].length; i++) {
+        this.targets[command][i]._commands[command].exec = 1;
+      }
+    }
+    if (soldier instanceof Soldier) {
+      if (this.targets[command].indexOf(soldier) === -1) {
+        throw 'The command not attached on the soldier ...';
+      }
+      soldier._commands[command].exec = 1;
     }
   }
 }
@@ -69,7 +104,7 @@ class Soldier {
       throw 'A Commander instance is required as the second parameter ...';
     }
     if (commander.commands.indexOf(command) === -1) {
-      throw 'No such command found for this commander. Please recruit this soldier with this command first ...';
+      throw 'No such command found for this commander. Please recruit this soldier with this command ...';
     }
     if (this.commanders.indexOf(commander) === -1) {
       this.commanders.push(commander);

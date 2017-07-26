@@ -194,10 +194,6 @@ function _csv2json(path, cb) {
       rems = str.slice(i + 1);
       let arr = s.split('\n');
 
-      // let arr = str.split('\n');
-      // rems = arr[arr.length - 1];
-      // arr = arr.slice(0, -1);
-
       arr = filter(arr, d => d.length && d[0] !== '#');
       arr = map(arr, d => d.trim());
 
