@@ -21,6 +21,9 @@ class Commander {
   }
 
   recruit(command, soldier) {
+    if (typeof soldier === 'undefined') {
+      soldier = new Soldier();
+    }
     if (!(soldier instanceof Soldier)) {
       throw 'A Soldier instance as the second parameter is required ...';
     }
@@ -36,6 +39,7 @@ class Commander {
     if (typeof soldier._commands[command] === 'undefined') {
       console.log('Soldier recruited. Please attach a function to the soldier with this command!');
     }
+    return soldier;
   }
 
   layoff(soldier, command) {
@@ -57,8 +61,6 @@ class Commander {
       if (this.commands.indexOf(command) === -1) {
         throw 'The command not registered under this commander ...';
       }
-      let k = this.commands.indexOf(command);
-      this.commands.splice(k, 1);
       let list = this.targets[command];
       let i = list.indexOf(soldier);
       return list.splice(i, 1);
@@ -66,7 +68,7 @@ class Commander {
   }
 
   order(command, soldier) {
-    if (typeof this.targets[command] === 'undefined' || soldier === 'All') {
+    if (typeof this.targets[command] === 'undefined' || soldier === 'All' || this.targets[command].length === 0) {
       throw 'Recruit a soldier with the new command first ...';
     }
     if (typeof soldier === 'undefined') {
