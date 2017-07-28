@@ -10,10 +10,22 @@ function toBinary(n) {
   if (n === 1) {
     return [1];
   }
-  let i = 0;
-  while (Math.pow(2, i) < n && Math.pow(2, i + 1) <= n) {
+  if (n === 2) {
+    return [1, 0];
+  }
+  if (n === 3) {
+    return [1, 1];
+  }
+  // let i = 0;
+  // while (Math.pow(2, i) < n && Math.pow(2, i + 1) <= n) {
+  //   i++;
+  // }
+
+  let i = 1;
+  while ((1 << i) < n && (1 << (i + 1)) <= n) {
     i++;
   }
+
   let arr = new Array(i + 1);
   arr[0] = 1;
 
