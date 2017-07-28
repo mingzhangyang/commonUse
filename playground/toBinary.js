@@ -46,9 +46,35 @@ function toBinary(n) {
   return arr;
 }
 
+
+function _toBinary(n) {
+  if (n === 0) {
+    return [0];
+  }
+  if (n === 1) {
+    return [1];
+  }
+  let i = 1;
+  while (i) {
+    if ((1 << i) <= n && ((1 << (i + 1)) > n)) {
+      break;
+    }
+    i++;
+  }
+  let res = new Array(i + 1);
+  for (let j = 0; j < i + 1; j++) {
+    res[j] = (n >> j) & 1;
+  }
+  res.reverse();
+  return res;
+}
+
+
+
 for (let i = 0; i < 20; i++) {
   console.log(i + ' : ' + toBinary(i));
 }
 
 console.log(toBinary(125).join(''));
+console.log(_toBinary(125).join(''));
 console.log((125).toString(2));
