@@ -157,5 +157,4 @@ if (typeof module !== 'undefined' && module.parent) {
   } else {
     console.log('Please provide the path to file to be parsed!');
   }
-
 }
