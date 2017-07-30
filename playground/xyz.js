@@ -102,9 +102,10 @@ class YZ extends Transform {
   _flush(cb) {
     if (this.tmp) {
       this.push(transform(this.tmp).slice(0, -1));
-      console.log('Transform done.');
-      console.log('Total number of lines transformed: ' + this.countLine);
+      this.countLine += 1;
     }
+    console.log('Transformation done.');
+    console.log('Total number of lines transformed: ' + this.countLine);
   }
 }
 
