@@ -341,6 +341,7 @@ class CSV2JSON extends Transform {
     arr = filter(arr, d => d.length && d[0] !== '#');
     arr = map(arr, d => d.trim());
 
+    let toBeWritten = '';
     if (!this.headers) {
       this.push(this.start);
       this.headers = splitLine(arr[0]);
@@ -348,25 +349,25 @@ class CSV2JSON extends Transform {
         this.fieldTypes[this.headers[i]] = [];
       }
 
-      let toBeWritten = '';
-
       for (let j = 1; j < arr.length; j++) {
         toBeWritten += parseOneLine(arr[j], this.headers, this.fieldTypes);
       }
-      let fragments = bin(toBeWritten, 15888);
-      for (let k = 0; k < fragments.length; k++) {
-        this.push(fragments[k]);
-      }
+
     } else {
-      let toBeWritten = '';
       for (let j = 0; j < arr.length; j++) {
         toBeWritten += parseOneLine(arr[j], this.headers, this.fieldTypes);
       }
-      let fragments = bin(toBeWritten, 15888);
-      for (let k = 0; k < fragments.length; k++) {
-        this.push(fragments[k]);
-      }
     }
+    // let fragments = bin(toBeWritten, 15888);
+    // console.log(fragments.length);
+    // for (let k = 0; k < fragments.length; k++) {
+    //   this.push(fragments[k]);
+    // }
+
+    if (toBeWritten) {
+      this.push(toBeWritten);
+    }
+
     next();
   }
 
@@ -377,6 +378,7 @@ class CSV2JSON extends Transform {
     for (let j = 0; j < arr.length; j++) {
       lastOne += parseOneLine(arr[j], this.headers, this.fieldTypes);
     }
+    console.log(lastOne);
     this.push(lastOne.slice(0, -2) + this.end);
     console.log(this.fieldTypes);
     cb();
@@ -392,7 +394,7 @@ function _csv2json_(path) {
   // let trans = new CSVIIJSON();
   // input.pipe(trans).pipe(output);
   let transform = new CSV2JSON();
-  input.pipe(transform).pipe(process.stdout);
+  input.pipe(transform).pipe(output);
   // output.on('finish', () => {
   //   console.log('Done!');
   //   console.log(transform.fieldTypes);

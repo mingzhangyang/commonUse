@@ -56,17 +56,18 @@ class CSVIIJSON extends Transform {
         // this.push(JSON.stringify(obj) + ',\n');
         toBeWritten += JSON.stringify(obj) + ',\n';
       }
-      let fragments = bin(toBeWritten, 15888);
-      for (let h = 0; h < fragments.length; h++) {
-        this.push(fragments[h]);
-      }
+      // let fragments = bin(toBeWritten, 15888);
+      // for (let h = 0; h < fragments.length; h++) {
+      //   this.push(fragments[h]);
+      // }
+      this.push(toBeWritten); // It seems to be possible to push a string that longer than highWaterMark
     }
     next(); // This is indispensable, otherwise will only invoke _transform only once.
   }
 
   _flush(cb) {
     let obj = {};
-    let arr = splitLine(this.rems);
+    let arr = splitLine(this.rems.trim());
     for (let k = 0; k < this.headers.length; k++) {
       obj[this.headers[k]] = arr[k];
     }
