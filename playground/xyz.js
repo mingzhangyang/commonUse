@@ -48,12 +48,12 @@ function read(path) {
   });
   let start = Date.now();
   let countLine = 0;
-  let tmp = new Array(50);
+  let tmp = new Array(100);
   let i = 0;
   rl.on('line', (line) => {
     countLine += 1;
     tmp[i++] = transform(line);
-    if (tmp[49]) {
+    if (tmp[99]) {
       out.write(tmp.join(''));
       tmp.fill(undefined);
       i = 0;
