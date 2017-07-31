@@ -8,6 +8,7 @@ const fs = require('fs');
 const Readable = require('stream').Readable;
 const Writable = require('stream').Writable;
 const splitLine = require('../string/splitLine');
+const bin = require('../string/bin');
 
 class CSVIIJSON extends Transform {
   constructor(opts) {
@@ -45,13 +46,19 @@ class CSVIIJSON extends Transform {
         this.push(JSON.stringify(obj) + ',\n');
       }
     } else {
+      let toBeWritten = '';
       for (let j = 0; j < arr.length; j++) {
         let obj = {};
         let cur = splitLine(arr[j]);
         for (let k = 0; k < cur.length; k++) {
           obj[this.headers[k]] = cur[k];
         }
-        this.push(JSON.stringify(obj) + ',\n');
+        // this.push(JSON.stringify(obj) + ',\n');
+        toBeWritten += JSON.stringify(obj) + ',\n';
+      }
+      let fragments = bin(toBeWritten, 15888);
+      for (let h = 0; h < fragments.length; h++) {
+        this.push(fragments[h]);
       }
     }
     next(); // This is indispensable, otherwise will only invoke _transform only once.
@@ -66,6 +73,7 @@ class CSVIIJSON extends Transform {
     this.push(JSON.stringify(obj) + '\n');
     this.push(this.END);
     console.log('\nTransformation done!');
+    cb();
   }
 }
 

@@ -528,81 +528,77 @@ function pt(t, v) {
   return p;
 }
 
-// ###############################################################################
+//############################################################################
+
+function main() {
+  // let a = [1, 6, 4, 3, 7, 2, 8, 3, 5, 9, 10, 5, 5];
+  // console.log(a.length);
+  // console.log(stats.median(a));
+  // console.log(stats.mean(a));
+  // console.log(a.slice().sort((a, b) => a - b));
+  // console.log(a.filter((d) => d < 5));
+  // console.log(a.filter((d) => d > 5));
+  // console.log(stats.max(a));
+  // console.log(stats.min(a));
+  // console.log(stats.sum(a));
+  // console.log(stats.shuffle(a));
+  // console.log(stats.arithmetic((d1, d2) => d1*d1 + d2*d2, a, 5));
+  // console.log(stats.arithmetic('^', a, 3));
+  // console.log(stats.variance(a));
+  // console.log(stats.unique(a));
+
+  // let a = stats.range(1, 11);
+  // let c = stats.ecdf(a);
+  // console.log(c(4));
+
+  // let A = [19.8, 20.4, 19.6, 17.8, 18.5, 18.9, 18.3, 18.9, 19.5, 22.0];
+  // let B = [28.2, 26.6, 20.1, 23.3, 25.2, 22.1, 17.7, 27.6, 20.6, 13.7, 23.2, 17.5, 20.6, 18.0, 23.9, 21.6, 24.3, 20.4, 24.0, 13.2];
+  // // console.log(stats.tstat(A, B));
+  // console.log(stats.tTest(A, B));
+  // console.log(stats.tTest(B, A));
+
+  // console.log(stats.range(5));
+  // console.log(stats.range(5, 10));
+  // console.log(stats.range(5, 10, 0.5));
+  // console.log(stats.range(5, -1, -0.2));
+  // console.log(stats.range(5, 10, 0.2));
+
+  console.log(stats.split(stats.range(20), 0.2));
+
+  // let x = [1, 2, 3, 4, 5];
+  // let y = [10, 23, 31, 38, 49];
+  //
+  // console.log(stats.cov(x, y));
+  // console.log(stats.cor(x, y));
+
+  // console.log(stats.quantile([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]));
+
+  // console.log(stats.pnorm(2));
+  // console.log(stats.qnorm(0.95));
+
+  // const request = require('request');
+  // const fs = require('fs');
+  // let url = 'https://raw.githubusercontent.com/genomicsclass/dagdata/master/inst/extdata/femaleControlsPopulation.csv';
+  // request(url).pipe(fs.createWriteStream('femaleControlPopulation.csv'));
+  // let csv = fs.readFileSync('femaleControlPopulation.csv', 'utf8');
+  // csv = csv.split('\n');
+  // csv = csv.slice(1).map((d) => +d.trim());
+  // // console.log(csv);
+  // let start = Date.now();
+  // let nu = [];
+  // for (let i = 0; i < 10000; i++) {
+  //   nu.push(stats.mean(stats.sample(csv, 12)) - stats.mean(stats.sample(csv, 12)));
+  // }
+  // console.log(mean(nu));
+  // console.log(Date.now() - start);
+}
 
 if (typeof module !== 'undefined') {
   if (module.parent) {
     module.exports = stats;
 
   } else { // testing codes go here
-
-    // import * from 'tdArray'
-
-    // let a = [1, 6, 4, 3, 7, 2, 8, 3, 5, 9, 10, 5, 5];
-    // console.log(a.length);
-    // console.log(stats.median(a));
-    // console.log(stats.mean(a));
-    // console.log(a.slice().sort((a, b) => a - b));
-    // console.log(a.filter((d) => d < 5));
-    // console.log(a.filter((d) => d > 5));
-    // console.log(stats.max(a));
-    // console.log(stats.min(a));
-    // console.log(stats.sum(a));
-    // console.log(stats.shuffle(a));
-    // console.log(stats.arithmetic((d1, d2) => d1*d1 + d2*d2, a, 5));
-    // console.log(stats.arithmetic('^', a, 3));
-    // console.log(stats.variance(a));
-    // console.log(stats.unique(a));
-
-    // let a = stats.range(1, 11);
-    // let c = stats.ecdf(a);
-    // console.log(c(4));
-
-    // let A = [19.8, 20.4, 19.6, 17.8, 18.5, 18.9, 18.3, 18.9, 19.5, 22.0];
-    // let B = [28.2, 26.6, 20.1, 23.3, 25.2, 22.1, 17.7, 27.6, 20.6, 13.7, 23.2, 17.5, 20.6, 18.0, 23.9, 21.6, 24.3, 20.4, 24.0, 13.2];
-    // // console.log(stats.tstat(A, B));
-    // console.log(stats.tTest(A, B));
-    // console.log(stats.tTest(B, A));
-
-    // console.log(stats.range(5));
-    // console.log(stats.range(5, 10));
-    // console.log(stats.range(5, 10, 0.5));
-    // console.log(stats.range(5, -1, -0.2));
-    // console.log(stats.range(5, 10, 0.2));
-
-    console.log(stats.split(stats.range(20), 0.2));
-
-
-
-    // let x = [1, 2, 3, 4, 5];
-    // let y = [10, 23, 31, 38, 49];
-    //
-    // console.log(stats.cov(x, y));
-    // console.log(stats.cor(x, y));
-
-    // console.log(stats.quantile([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]));
-
-    // console.log(stats.pnorm(2));
-    // console.log(stats.qnorm(0.95));
-
-
-    // const request = require('request');
-    // const fs = require('fs');
-    // let url = 'https://raw.githubusercontent.com/genomicsclass/dagdata/master/inst/extdata/femaleControlsPopulation.csv';
-    // request(url).pipe(fs.createWriteStream('femaleControlPopulation.csv'));
-    // let csv = fs.readFileSync('femaleControlPopulation.csv', 'utf8');
-    // csv = csv.split('\n');
-    // csv = csv.slice(1).map((d) => +d.trim());
-    // // console.log(csv);
-    // let start = Date.now();
-    // let nu = [];
-    // for (let i = 0; i < 10000; i++) {
-    //   nu.push(stats.mean(stats.sample(csv, 12)) - stats.mean(stats.sample(csv, 12)));
-    // }
-    // console.log(mean(nu));
-    // console.log(Date.now() - start);
-
-
+    main();
   }
 
 } else if (typeof window !== 'undefined') {

@@ -56,15 +56,46 @@ const customFuncsOnArray = (function () {
     return res;
   }
 
+  function bin(arr, binSize, sort=true) {
+    let cp;
+    if (sort) {
+      cp = arr.slice().sort((a, b) => a - b);
+    } else {
+      cp = arr.slice();
+    }
+    let res = [];
+    let i = 0;
+    while (true) {
+      res.push(cp.slice(i, i + binSize));
+      i += binSize;
+      if (i > cp.length - 1) {
+        break;
+      }
+    }
+    return res;
+  }
+
 
   return {
     map: map,
     filter: filter,
     split: split,
-    group: group
+    group: group,
+    bin: bin
   }
 })();
 
+function main() {
+  let bin = customFuncsOnArray.bin;
+  let arr = [1, 6, 3, 9, 4, 2, 5, 8, 3, 9, 5, 10, 12];
+  console.log(bin(arr, 2, false));
+  console.log(bin(arr, 3));
+  console.log(bin(arr, 4, false));
+  console.log(bin(arr, 6));
+}
+
 if (typeof module !== 'undefined' && module.parent) {
   module.exports = customFuncsOnArray;
+} else {
+  main();
 }

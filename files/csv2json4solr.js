@@ -6,6 +6,9 @@
 const fs = require('fs');
 const readline = require('readline');
 const splitLine = require('../string/splitLine');
+const Transform = require('stream').Transform;
+const bin = require('../string/bin');
+const CSVIIJSON = require('./transformers').csv2json;
 
 function csv2json(path, cb, n) {
   let start = Date.now();
@@ -100,7 +103,7 @@ function csv2json(path, cb, n) {
             types[headers[i]] = 'string';
           }
         }
-        console.log('Number of lines: ' + count);
+        console.log('Number of records: ' + count);
         console.log('Types: ');
         console.dir(types, {
           depth: null,
@@ -162,6 +165,7 @@ function filter(arr, f) {
   return res;
 }
 
+//*********************************************************************
 
 function _csv2json(path, cb) {
   let start = Date.now();
@@ -290,10 +294,113 @@ function parseLines(arr, colNames, writeStream, typesObject, suffix) {
   }
 }
 
+//**********************************************************************
 
-if (typeof module !== 'undefined' && module.parent) {
-  module.exports = csv2json;
-} else {
+function parseOneLine(line, colNames, typeObj) {
+  let arr = splitLine(line);
+  let obj = {};
+  if (arr.length !== colNames.length) {
+    throw 'Not match @ ' + line;
+  }
+  for (let i = 0; i < colNames.length; i++) {
+    if (arr[i]) {
+      obj[colNames[i]] = arr[i];
+      let type = guessType(arr[i]);
+      if (type && typeObj[colNames[i]].indexOf(type) === -1) {
+        typeObj[colNames[i]].push(type);
+      }
+    }
+  }
+  return JSON.stringify(obj) + ',\n';
+}
+
+class CSV2JSON extends Transform {
+  constructor(opts) {
+    super(opts);
+    this.start = '[\n';
+    this.end = '\n]';
+    this.tmp = '';
+    this.headers = '';
+    this.fieldTypes = {};
+  }
+
+  _transform(data, enc, next) {
+    let str = this.tmp + data.toString();
+    let i = str.length - 1;
+    let flag = 0;
+    for (; i > 0; i--) {
+      if (str[i] === '\n') {
+        flag += 1;
+      }
+      if (flag === 2) {
+        break;
+      }
+    }
+    this.tmp = str.slice(i + 1);
+    let arr = str.slice(0, i).split('\n');
+    arr = filter(arr, d => d.length && d[0] !== '#');
+    arr = map(arr, d => d.trim());
+
+    if (!this.headers) {
+      this.push(this.start);
+      this.headers = splitLine(arr[0]);
+      for (let i = 0; i < this.headers.length; i++) {
+        this.fieldTypes[this.headers[i]] = [];
+      }
+
+      let toBeWritten = '';
+
+      for (let j = 1; j < arr.length; j++) {
+        toBeWritten += parseOneLine(arr[j], this.headers, this.fieldTypes);
+      }
+      let fragments = bin(toBeWritten, 15888);
+      for (let k = 0; k < fragments.length; k++) {
+        this.push(fragments[k]);
+      }
+    } else {
+      let toBeWritten = '';
+      for (let j = 0; j < arr.length; j++) {
+        toBeWritten += parseOneLine(arr[j], this.headers, this.fieldTypes);
+      }
+      let fragments = bin(toBeWritten, 15888);
+      for (let k = 0; k < fragments.length; k++) {
+        this.push(fragments[k]);
+      }
+    }
+    next();
+  }
+
+  _flush(cb) {
+    console.log('flushing...');
+    let arr = map(this.tmp.split('\n'), d => d.trim());
+    let lastOne = '';
+    for (let j = 0; j < arr.length; j++) {
+      lastOne += parseOneLine(arr[j], this.headers, this.fieldTypes);
+    }
+    this.push(lastOne.slice(0, -2) + this.end);
+    console.log(this.fieldTypes);
+    cb();
+  }
+}
+
+function _csv2json_(path) {
+  let input = fs.createReadStream(path, 'binary');
+  let output = fs.createWriteStream('trans.json', {
+    flag: 'w',
+    defaultEncoding: 'binary'
+  });
+  // let trans = new CSVIIJSON();
+  // input.pipe(trans).pipe(output);
+  let transform = new CSV2JSON();
+  input.pipe(transform).pipe(process.stdout);
+  // output.on('finish', () => {
+  //   console.log('Done!');
+  //   console.log(transform.fieldTypes);
+  // });
+}
+
+
+function main() {
   let csv = process.argv[2];
   let n = process.argv[3];
   if (csv) {
@@ -301,7 +408,8 @@ if (typeof module !== 'undefined' && module.parent) {
       console.log('The input file is not ended with ".csv" !');
     } else {
       // csv2json(csv, false, +n);
-      _csv2json(csv, false);
+      // _csv2json(csv, false);
+      _csv2json_(csv);
     }
   }
 
@@ -315,5 +423,10 @@ if (typeof module !== 'undefined' && module.parent) {
 
   // console.log(splitLine('a, b, c,'));
   // console.log('a, b, c,'.split(','));
+}
 
+if (typeof module !== 'undefined' && module.parent) {
+  module.exports = csv2json;
+} else {
+  main();
 }
