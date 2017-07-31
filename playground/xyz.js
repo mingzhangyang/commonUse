@@ -20,6 +20,14 @@ function filter(arr, cb) {
   return res;
 }
 
+function map(arr, cb) {
+  let res = new Array(arr.length);
+  for (let i = 0; i < arr.length; i++) {
+    res[i] = cb(arr[i]);
+  }
+  return res;
+}
+
 function transform(line) {
   // console.log(line);
   // let arr = line.split(' ').filter(d => d.trim());
@@ -93,9 +101,15 @@ class YZ extends Transform {
     this.tmp = str.slice(i + 1);
     let arr = str.slice(0, i).split('\n');
     this.countLine += arr.length;
-    for (let i = 0; i < arr.length; i++) {
-      this.push(transform(arr[i]));
-    }
+    // for (let i = 0; i < arr.length; i++) {
+    //   this.push(transform(arr[i]));
+    // }
+
+    let k = arr.length % 2 === 0 ? arr.length * 0.5 : (arr.length + 1) * 0.5;
+    arr = map(arr, d => transform(d));
+    this.push(arr.slice(0, k).join(''));
+    this.push(arr.slice(k).join(''));
+
     next();
   }
 
