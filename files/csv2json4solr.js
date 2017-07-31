@@ -317,8 +317,8 @@ function parseOneLine(line, colNames, typeObj) {
 class CSV2JSON extends Transform {
   constructor(opts) {
     super(opts);
-    this.start = '[\n';
-    this.end = '\n]';
+    this.pre = '[\n';
+    this.suf = '\n]'; // I used 'this.end' before. It is a bug. Because 'end' is a built-in method that will be invoked at the very last step of '_transform'. If 'this.end' is overwritten, '_transform' will fail at its last step, '_flush' will not be invoked!
     this.tmp = '';
     this.headers = '';
     this.fieldTypes = {};
@@ -343,8 +343,8 @@ class CSV2JSON extends Transform {
 
     let toBeWritten = '';
     if (!this.headers) {
-      this.push(this.start);
-      this.headers = splitLine(arr[0]);
+      this.push(this.pre);
+      this.headers = map(splitLine(arr[0]), d => d.replace(/ /g, '_'));
       for (let i = 0; i < this.headers.length; i++) {
         this.fieldTypes[this.headers[i]] = [];
       }
@@ -372,15 +372,13 @@ class CSV2JSON extends Transform {
   }
 
   _flush(cb) {
-    console.log('flushing...');
-    let arr = map(this.tmp.split('\n'), d => d.trim());
+    let arr = map(this.tmp.trim().split('\n'), d => d.trim());
     let lastOne = '';
     for (let j = 0; j < arr.length; j++) {
       lastOne += parseOneLine(arr[j], this.headers, this.fieldTypes);
     }
-    console.log(lastOne);
-    this.push(lastOne.slice(0, -2) + this.end);
-    console.log(this.fieldTypes);
+    this.push(lastOne.slice(0, -2) + this.suf);
+    // console.log(this.fieldTypes);
     cb();
   }
 }
@@ -391,14 +389,38 @@ function _csv2json_(path) {
     flag: 'w',
     defaultEncoding: 'binary'
   });
-  // let trans = new CSVIIJSON();
-  // input.pipe(trans).pipe(output);
+
   let transform = new CSV2JSON();
   input.pipe(transform).pipe(output);
-  // output.on('finish', () => {
-  //   console.log('Done!');
-  //   console.log(transform.fieldTypes);
-  // });
+  output.on('finish', () => {
+    console.log('Done!');
+
+    let headers = transform.headers;
+    let types = transform.fieldTypes;
+    for (let i = 0; i < headers.length; i++) {
+      let t = types[headers[i]];
+      if (t.length === 1) {
+        types[headers[i]] = t[0];
+      }
+      if (t.length === 2) {
+        if (t.includes('int') && t.includes('float')) {
+          types[headers[i]] = 'float';
+        }
+        if (t.includes('string')) {
+          types[headers[i]] = 'string';
+        }
+      }
+      if (t.length > 2) {
+        types[headers[i]] = 'string';
+      }
+    }
+
+    console.log('Types: ');
+    console.dir(types, {
+      depth: null,
+      colors: true
+    });
+  });
 }
 
 

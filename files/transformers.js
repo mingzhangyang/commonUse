@@ -34,6 +34,7 @@ class CSVIIJSON extends Transform {
     }
     this.rems = str.slice(i + 1);
     let arr = str.slice(0, i).split('\n').map(d => d.trim());
+    arr = filter(arr, d => d.length && d[0] !== '#');
     if (!this.headers) {
       this.headers = splitLine(arr[0]);
       this.push(this.START);
