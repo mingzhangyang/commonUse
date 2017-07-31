@@ -143,5 +143,5 @@ function _read(path) {
 
 
 let file = process.argv[2];
-read(file);
-// _read(file);
+// read(file);
+_read(file);
