@@ -32,7 +32,7 @@ function transform(line) {
 
   let phi = longtitude < 0 ? (360 + longtitude) / 180 * PI : longtitude / 180 * PI;
   let theta = (90 - latitude) / 180 * PI;
-  let r = elevation / 2 + moonRadius;
+  let r = elevation * 0.0005 + moonRadius;
 
   let x = r * sin(theta) * cos(phi);
   let y = r * sin(theta) * sin(phi);
