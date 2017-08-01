@@ -431,9 +431,9 @@ function main() {
     if (csv.slice(-4) !== '.csv') {
       console.log('The input file is not ended with ".csv" !');
     } else {
-      // csv2json(csv, false, +n);
+      csv2json(csv, false, +n);
       // _csv2json(csv, false);
-      _csv2json_(csv);
+      // _csv2json_(csv);
     }
   }
 

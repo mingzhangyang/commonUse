@@ -408,6 +408,64 @@ const stats = (function () {
     return -(Math.sqrt(2) * ierfc(2 * x));
   };
 
+  const factorial = function (n)  {
+    if (typeof n !== 'number' || n < 0 || n % 1 !== 0) {
+      throw 'A natural number expected...';
+    }
+    if (!stats.cache) {
+      stats.cache = {};
+    }
+    if (!stats.cache.factorial) {
+      stats.cache.factorial = {};
+    }
+    if (n === 0) {
+      return 0;
+    }
+    if (n === 1) {
+      return 1;
+    }
+    if (n === 2) {
+      return 2;
+    }
+    if (stats.cache.factorial[n]) {
+      return stats.cache.factorial[n];
+    }
+    stats.cache.factorial[n] = factorial(n -1) * n;
+    return stats.cache.factorial[n];
+  };
+
+  const combination = function (n, k) {
+    if (typeof n !== 'number' || n < 0 || n % 1 !== 0) {
+      throw 'A natural number expected...';
+    }
+    if (typeof k !== 'number' || k < 0 || k % 1 !== 0) {
+      throw 'A natural number expected...';
+    }
+    if (k > n) {
+      throw 'Correct usage: stats.combination(n, k), k should not be larger than n...';
+    }
+    if (!stats.cache) {
+      stats.cache = {};
+    }
+    if (!stats.cache.combination) {
+      stats.cache.combination = {};
+    }
+    if (!stats.cache.combination[n]) {
+      stats.cache.combination[n] = {};
+    }
+    if (k === 1) {
+      return n;
+    }
+    if (k === 2) {
+      return n * (n -1) / 2;
+    }
+    if (stats.cache.combination[n][k]) {
+      return stats.cache.combination[n][k];
+    }
+    stats.cache.combination[n][k] = combination(n, k - 1) * (n - k + 1) / k;
+    return stats.cache.combination[n][k];
+  };
+
 
   return {
     str2Array: str2Array,
@@ -433,7 +491,9 @@ const stats = (function () {
     cor: cor,
     quantile: quantile,
     pnorm: pnorm,
-    qnorm: qnorm
+    qnorm: qnorm,
+    factorial: factorial,
+    combination: combination
   }
 })();
 
@@ -563,7 +623,26 @@ function main() {
   // console.log(stats.range(5, -1, -0.2));
   // console.log(stats.range(5, 10, 0.2));
 
-  console.log(stats.split(stats.range(20), 0.2));
+  // console.log(stats.split(stats.range(20), 0.2));
+
+  // console.log(stats.cache);
+
+  console.log(stats.factorial(5));
+  console.log(stats.factorial(10));
+  console.log(stats.factorial(15));
+  console.log(stats.factorial(20));
+  console.log(stats.factorial(25));
+
+  // console.log(stats.cache);
+
+  console.log(stats.combination(6, 1));
+  console.log(stats.combination(6, 2));
+  console.log(stats.combination(6, 3));
+  console.log(stats.combination(6, 4));
+  console.log(stats.combination(6, 5));
+  console.log(stats.combination(6, 6));
+
+  console.log(stats.cache);
 
   // let x = [1, 2, 3, 4, 5];
   // let y = [10, 23, 31, 38, 49];
