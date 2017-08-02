@@ -3,28 +3,40 @@
  */
 'use strict';
 
-function hash1(s) {
-  let hash = 0;
-  let i, char, len;
-  if (s.length === 0) return hash;
-  for (i = 0, len = s.length; i < len; i++) {
-    char = s.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash |= 0; // Convert to 32bit integer
-  }
-  return hash;
-}
+// function hash1(s) {
+//   let hash = 0;
+//   let i, char, len;
+//   if (s.length === 0) return hash;
+//   for (i = 0, len = s.length; i < len; i++) {
+//     char = s.charCodeAt(i);
+//     hash = ((hash << 5) - hash) + char;
+//     hash |= 0; // Convert to 32bit integer
+//   }
+//   return hash;
+// }
 
-function hash2(s) {
-  var hash = 0, i = 0, len = s.length;
+// Java version
+function hashCode(s) {
+  let hash = 0, i = 0, len = s.length;
   while ( i < len ) {
     hash  = ((hash << 5) - hash + s.charCodeAt(i++)) << 0;
   }
   return hash;
 }
 
+function sdbmCode(str) {
+  let hash = 0, i = 0, len = str.length;
+  for (; i < len; i++) {
+    let char = str.charCodeAt(i);
+    hash = char + (hash << 6) + (hash << 16) - hash;
+  }
+  return hash;
+}
+
 // console.log(hash1('Hello world'));
-// console.log(hash2('Hello world'));
+console.log(hash2('Hello world'));
+console.log(sdbmCode('Hello world'));
+
 
 function perfTest(n, str) {
   let start = Date.now();

@@ -116,27 +116,35 @@ function perfTest(func, opts) {
   return res;
 }
 
-function append1() {
-  let res = [];
-  for (let i = 0; i < 100000; i++) {
-    res.push(Math.random());
+function main() {
+  function append1() {
+    let res = [];
+    for (let i = 0; i < 100000; i++) {
+      res.push(Math.random());
+    }
   }
+
+  function append2() {
+    let res = [];
+    for (let i = 0; i < 100000; i++) {
+      res[i] = Math.random();
+    }
+  }
+
+  function append3() {
+    let res = new Array(100000);
+    for (let i = 0; i < 100000; i++) {
+      res[i] = Math.random();
+    }
+  }
+
+  console.log(perfTest(append1));
+  console.log(perfTest(append2));
+  console.log(perfTest(append3));
 }
 
-function append2() {
-  let res = [];
-  for (let i = 0; i < 100000; i++) {
-    res[i] = Math.random();
-  }
+if (typeof module !== 'undefined' && module.parent) {
+  module.exports = perfTest;
+} else {
+  main();
 }
-
-function append3() {
-  let res = new Array(100000);
-  for (let i = 0; i < 100000; i++) {
-    res[i] = Math.random();
-  }
-}
-
-console.log(perfTest(append1));
-console.log(perfTest(append2));
-console.log(perfTest(append3));
