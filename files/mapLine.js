@@ -27,7 +27,10 @@ function mapLine(path, func) {
 
   let i = 0;
   rl.on('line', line => {
-    output.write(func(line, i++) + os.EOL);
+    let toWrite = func(line, i++);
+    if (toWrite) {
+      output.write(toWrite + os.EOL);
+    }
   });
 
   rl.on('close', () => {
