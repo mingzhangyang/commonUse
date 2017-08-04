@@ -53,14 +53,10 @@ function owBind(objA, objB) {
       return this._value;
     },
     set: function (v) {
-      objA.object._value = v;
       this._value = v;
     }
   });
-  Object.defineProperty(objA.object, '_value', {
-    value: objA.object[objA.propertyName],
-    writable: true
-  });
+
   Object.defineProperty(objA.object, objA.propertyName, {
     get: function () {
       return objB.object._value;
@@ -114,6 +110,8 @@ if (typeof module !== 'undefined' && module.parent) {
     owBind: owBind,
     twBind: twBind
   }
+} else if (typeof window !== 'undefined') {
+  console.log('binding.js imported!');
 } else {
   main();
 }
