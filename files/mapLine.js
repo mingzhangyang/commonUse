@@ -15,7 +15,14 @@ let mapOptions = {
       return str[0].toUpperCase() + str.slice(1, -1);
     }
     return '';
+  },
+  'tidy': str => {
+    if (str.trim() === '') {
+      return null;
+    }
+    return str;
   }
+
 };
 
 /**
