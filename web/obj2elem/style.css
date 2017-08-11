@@ -1,0 +1,22 @@
+body {
+    padding-left: 100px;
+    background-color: #dbdbdb;
+}
+div {
+    padding-left: 20px;
+    padding-bottom: 2px;
+    padding-top: 2px;
+}
+input {
+    /*display: block;*/
+    margin-left: 20px;
+    background-color: transparent;
+    border: transparent;
+    width: 30em;
+}
+input:focus {
+    background-color: #ffc520;
+}
+::-webkit-input-placeholder { /* WebKit, Blink, Edge */
+    color:    forestgreen;
+}
