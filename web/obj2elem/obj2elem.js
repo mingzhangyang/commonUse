@@ -6,6 +6,9 @@
 function obj2elems(obj, parentNode, tagName = 'div') {
   parentNode = parentNode || document.body;
   let div = document.createElement('div');
+  if (parentNode.grouped) {
+    div.classList.add('border-left-show');
+  }
   let subParent = parentNode.appendChild(div);
   let keys = Object.keys(obj);
   for (let i = 0; i < keys.length; i++) {
@@ -38,6 +41,7 @@ function array2elems(array, parentNode, tagName = 'div') {
         if (Array.isArray(cur)) {
           array2elems(cur, subParent, tagName);
         } else {
+          subParent.grouped = true;
           obj2elems(cur, subParent, tagName);
         }
         break;
@@ -51,6 +55,7 @@ function array2elems(array, parentNode, tagName = 'div') {
 
 function value2element(v, parentNode, tagName = 'input') {
   parentNode = parentNode || document.body;
+  // parentNode.classList.add('border-left-show');
   let child = document.createElement(tagName);
   child.placeholder = v;
   parentNode.appendChild(child);
