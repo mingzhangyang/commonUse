@@ -3,12 +3,10 @@
  */
 'use strict';
 
-
 function flattenObj(obj, result, path) {
-
-  var props = Object.keys(obj);
-  for (var i = 0; i < props.length; i++) {
-    var p = path + (props[i] + '/');
+  let props = Object.keys(obj);
+  for (let i = 0; i < props.length; i++) {
+    let p = path + (props[i] + '/');
     if (Object.prototype.toString.call(obj[props[i]]) === '[object Object]') {
       flattenObj(obj[props[i]], result, p);
       continue;
@@ -18,14 +16,12 @@ function flattenObj(obj, result, path) {
       continue;
     }
     result[p] = obj[props[i]];
-
   }
 }
 
 function flattenArr(arr, result, path) {
-
-  for (var i = 0; i < arr.length; i++) {
-    var p = path + (i + '/');
+  for (let i = 0; i < arr.length; i++) {
+    let p = path + (i + '/');
     if (Object.prototype.toString.call(arr[i]) === '[object Object]') {
       flattenObj(arr[i], result, p);
       continue;
@@ -58,7 +54,7 @@ if (typeof module !== 'undefined' && module.parent) {
 } else if (typeof window !== 'undefined') {
   console.log('flatten module running in the browser');
 } else {
-  var a = [
+  let a = [
     {
       "Name":"family with sequence similarity 161 member A",
       "EntrezGeneID":84140,
@@ -78,11 +74,11 @@ if (typeof module !== 'undefined' && module.parent) {
           "LinkTitle":"OMIM"
         },
         {
-          "LinkURL":"https://www.ncbi.nlm.nih.gov/variation/view/?chr=2&q=FAM161A&assm=GRCh37&from=62051982&to=62081277",
+          "LinkURL":"https://www.ncbi.nlm.nih.gov/letiation/view/?chr=2&q=FAM161A&assm=GRCh37&from=62051982&to=62081277",
           "LinkTitle":"Variation Viewer"
         },
         {
-          "LinkURL":"https://www.ncbi.nlm.nih.gov/variation/view/?chr=2&q=FAM161A&assm=GRCh38&from=61800240&to=61856074",
+          "LinkURL":"https://www.ncbi.nlm.nih.gov/letiation/view/?chr=2&q=FAM161A&assm=GRCh38&from=61800240&to=61856074",
           "LinkTitle":"Variation Viewer"
         }
       ]
