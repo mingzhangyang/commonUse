@@ -3,6 +3,8 @@
  */
 'use strict';
 
+// add click handler to expand-collapse-handler class
+
 let ics = document.getElementsByClassName('expand-collapse-handler');
 
 for (let i = 0; i < ics.length; i++) {
@@ -19,5 +21,17 @@ for (let i = 0; i < ics.length; i++) {
       this.classList.add('fa-plus-square-o');
       elem.style.display = 'none';
     }
+  });
+}
+
+// add change handler to input elements
+
+let inps = document.getElementsByTagName('input');
+
+for (let i = 0; i < inps.length; i++) {
+  let inp = inps[i];
+  inp.addEventListener('change', function () {
+    let pnd = this.parentNode._boundData;
+    pnd.object[pnd.prop] = this.value;
   });
 }

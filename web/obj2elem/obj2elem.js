@@ -26,6 +26,10 @@ function obj2elems(obj, parentNode, tagName = 'div') {
         break;
       default:
         child.textContent = (keys[i] + ': ');
+        child._boundData = {
+          object: obj,
+          prop: keys[i]
+        };
         value2element(cur, child, 'input');
     }
   }
@@ -49,6 +53,10 @@ function array2elems(array, parentNode, tagName = 'div') {
       default:
         let child = document.createElement('div');
         subParent.append(child);
+        child._boundData = {
+          object: array,
+          prop: i
+        };
         value2element(cur, child, 'input');
     }
   }
