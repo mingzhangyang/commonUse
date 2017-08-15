@@ -14,10 +14,10 @@ function obj2elems(obj, parentNode, tagName = 'div') {
   for (let i = 0; i < keys.length; i++) {
     let cur = obj[keys[i]];
     let child = document.createElement('div');
-    child.textContent = (keys[i] + ': ');
     subParent.append(child);
     switch (typeof cur) {
       case 'object':
+        child.innerHTML = '<i class="expand-collapse-handler fa fa-minus-square-o">&nbsp;</i>' + '<span>' + (keys[i] + ': ') + '</span>';
         if (Array.isArray(cur)) {
           array2elems(cur, child, tagName);
         } else {
@@ -25,6 +25,7 @@ function obj2elems(obj, parentNode, tagName = 'div') {
         }
         break;
       default:
+        child.textContent = (keys[i] + ': ');
         value2element(cur, child, 'input');
     }
   }
