@@ -18,6 +18,7 @@ function obj2elems(obj, parentNode, tagName = 'div') {
     switch (typeof cur) {
       case 'object':
         child.innerHTML = '<i class="expand-collapse-handler fa fa-minus-square-o">&nbsp;</i>' + '<span>' + (keys[i] + ': ') + '</span>';
+        child.innerHTML += '<span class="control-panel">&#8198;&#8198;<i class="fa fa-plus"></i>&#8198;&#8198;&#8198;&#8198;<i class="fa fa-times"></i></span>';
         // if (Array.isArray(cur)) {
         //   array2elems(cur, child, tagName);
         // } else {
