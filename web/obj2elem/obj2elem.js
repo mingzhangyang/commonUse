@@ -6,18 +6,25 @@
 function obj2elems(obj, parentNode, tagName = 'div') {
   parentNode = parentNode || document.body;
   let div = document.createElement('div');
+  div.classList.add('obj2elem-div');
   // if (parentNode.grouped) {
   //   div.classList.add('border-left-show');
   // }
   let subParent = parentNode.appendChild(div);
+  subParent.classList.add('obj2elem-div');
+  subParent._pairedObject = obj;
   let keys = Object.keys(obj);
   for (let i = 0; i < keys.length; i++) {
     let cur = obj[keys[i]];
-    let child = document.createElement('div');
-    subParent.append(child);
+    let child = subParent.appendChild(document.createElement('div'));
+    child.classList.add('obj2elem-div');
+    child._boundData = {
+      object: obj,
+      prop: keys[i]
+    };
     switch (typeof cur) {
       case 'object':
-        child.innerHTML = '<i class="expand-collapse-handler fa fa-minus-square-o">&nbsp;</i>' + '<span>' + (keys[i] + ': ') + '</span>';
+        child.innerHTML = '<i class="expand-collapse-handler fa fa-minus-square-o">&nbsp;</i>' + '<span class="prop-name">' + (keys[i] + ': ') + '</span>';
         child.innerHTML += '<span class="control-panel">&#8198;&#8198;<i class="fa fa-plus"></i>&#8198;&#8198;&#8198;&#8198;<i class="fa fa-times"></i></span>';
         // if (Array.isArray(cur)) {
         //   array2elems(cur, child, tagName);
@@ -27,12 +34,13 @@ function obj2elems(obj, parentNode, tagName = 'div') {
         obj2elems(cur, child, tagName);
         break;
       default:
-        child.textContent = (keys[i] + ': ');
-        child._boundData = {
-          object: obj,
-          prop: keys[i]
-        };
+        // child.textContent = (keys[i] + ': ');
+        child.innerHTML = '<span class="prop-name">' + keys[i] + ':</span>';
         value2element(cur, child, 'input');
+        let ps = document.createElement('span');
+        ps.classList.add('control-panel');
+        ps.innerHTML = '&#8198;&#8198;<i class="fa fa-times"></i>';
+        child.appendChild(ps);
     }
   }
 }
@@ -69,6 +77,8 @@ function value2element(v, parentNode, tagName = 'input') {
   // parentNode.classList.add('border-left-show');
   let child = document.createElement(tagName);
   child.classList.add('terminus-value');
-  child.placeholder = v;
+  // child.type = 'text';
+  // child.placeholder = v;
+  child.value = v;
   parentNode.appendChild(child);
 }
