@@ -26,7 +26,7 @@ for (let i = 0; i < ics.length; i++) {
 
 // add change handler to input elements
 
-let inps = document.getElementsByTagName('input');
+let inps = document.getElementsByClassName('terminus-value');
 
 for (let i = 0; i < inps.length; i++) {
   let inp = inps[i];
