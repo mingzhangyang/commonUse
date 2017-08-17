@@ -3,10 +3,7 @@ body {
     background-color: #dbdbdb;
 }
 .obj2elem-div {
-    padding-left: 20px;
-    padding-bottom: 2px;
-    padding-top: 2px;
-    /*border-left: solid 2px blue;*/
+    padding: 2px 20px;
 }
 /*.border-left-show {*/
 /*border-left: solid 3px teal;*/
@@ -17,7 +14,7 @@ body {
 /*border-left: solid 4px #f66;*/
 /*background-color: #d4d4d4;*/
 /*}*/
-.collapsed {
+.hidden-nodes {
     display: none;
 }
 .control-panel {
@@ -54,12 +51,15 @@ input:focus {
     padding-top: 15px;
     width: 600px;
 }
-#name, #value {
+#_name, #_value {
     background-color: white;
     border: 1px gainsboro solid;
     padding: 3px 5px;
-    margin-right: 20px;
-    margin-left: 10px;
+    margin: 5px 20px 10px 10px;
+}
+.input-description {
+    display: inline-block;
+    width: 48px;
 }
 #confirm-panel {
     margin: 15px 0;
@@ -89,9 +89,12 @@ input:focus {
 #cancel-button:hover {
     background-color: #e7e7e7;
 }
-#spacing-item {
-    width: 100px;
+.new-node-created {
+    border-left: solid 4px #f66;
+    -webkit-transition: border-left 5s; /* For Safari 3.1 to 6.0 */
+    transition: border-left 5s;
 }
+
 
 /*::-webkit-input-placeholder { !* WebKit, Blink, Edge *!*/
 /*color:    forestgreen;*/

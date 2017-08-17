@@ -18,16 +18,16 @@ function expand_collapase_handler(node) {
         this.classList.remove('fa-plus-square-o');
         this.classList.add('fa-minus-square-o');
         // elem.style.display = 'block';
-        elem.classList.remove('collapsed');
+        elem.classList.remove('hidden-nodes');
       } else {
         this.classList.remove('fa-minus-square-o');
         this.classList.add('fa-plus-square-o');
         // elem.style.display = 'none';
-        elem.classList.add('collapsed');
+        elem.classList.add('hidden-nodes');
       }
     });
   }
-};
+}
 
 expand_collapase_handler();
 
@@ -56,15 +56,13 @@ function control_icon_handler(node) {
 
   let pluses = node.getElementsByClassName('fa-plus');
 
-  let insertedTemplate = '<div id="input-panel" class="obj2elem-div"><div>Name:<input name="name" id="name">Value:<input name="value" id="value"></div><div id="confirm-panel"><input id="add-button" type="button" value="Add"><span>&#8198;&#8198;</span><input id="cancel-button" type="button" value="Cancel"></div></div>';
+  let insertedTemplate = '<div id="input-panel" class="obj2elem-div"><div><span class="input-description">Name:</span><input name="_name" id="_name"><span class="input-description">Value:</span><input name="_value" id="_value"></div><div id="confirm-panel"><input id="add-button" type="button" value="Add"><span>&#8198;&#8198;</span><input id="cancel-button" type="button" value="Cancel"></div></div>';
 
   for (let i = 0; i < pluses.length; i++) {
     let plus = pluses[i];
     plus.addEventListener('click', function () {
-      let p = document.getElementById('input-panel');
-      if (p !== null) {
-        p.parentNode.removeChild(p);
-      }
+      delete_input_panel();
+
       let cNode = this.parentNode.parentNode;
       let ref = cNode.lastChild.firstChild;
       let div = cNode.lastChild.insertBefore(document.createElement('div'), ref);
@@ -72,23 +70,45 @@ function control_icon_handler(node) {
 
       let data = cNode._boundData;
       if (Array.isArray(data.object[data.prop])) {
-        document.getElementById('name').value = data.object[data.prop].length;
+        document.getElementById('_name').value = data.object[data.prop].length;
       }
 
       let cancelButton = document.getElementById('cancel-button');
       cancelButton.addEventListener('click', function () {
-        let p = document.getElementById('input-panel');
-        p.parentNode.remove(p);
+        delete_input_panel();
       });
       let addButton = document.getElementById('add-button');
       addButton.addEventListener('click', function () {
-        let prop = document.getElementById('name');
-        let val = document.getElementById('value');
+        let prop = document.getElementById('_name').value;
+        let val = document.getElementById('_value').value;
 
-        // let user input value or JSON string in the input box
-        // if user input a value, ...
-        // if user input a JSON string, ...
+        let o;
+        try {
+          o = JSON.parse(val);
+        } catch (err) {
+          // nothing needed to do
+        }
 
+        if (!o) {
+          // if user input a value, ...
+          cNode.lastChild._pairedObject[prop] = val;
+        } else {
+          // if user input a JSON string, ...
+          cNode.lastChild._pairedObject[prop] = o;
+        }
+
+        let obj = cNode.lastChild._pairedObject;
+        cNode.removeChild(cNode.lastChild);
+
+        updateNode(obj, cNode);
+        delete_input_panel();
+
+        let newNode = cNode.lastChild.lastChild;
+        newNode.classList.add('new-node-created');
+        newNode.scrollIntoView(false);
+        setTimeout(function () {
+          newNode.classList.remove('new-node-created');
+        }, 2000);
 
       });
     });
@@ -119,8 +139,25 @@ function control_icon_handler(node) {
       }
     });
   }
-
-
 }
 
 control_icon_handler();
+
+
+// function for update node
+
+function updateNode(obj, node) {
+  obj2elems(obj, node);
+  expand_collapase_handler(node);
+  value_modification_handler(node);
+  control_icon_handler(node);
+}
+
+// function for delete input-panel
+
+function delete_input_panel() {
+  let p = document.getElementById('input-panel');
+  if (p !== null) {
+    p.parentNode.remove(p);
+  }
+}
