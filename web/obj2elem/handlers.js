@@ -48,30 +48,62 @@
 (function () {
   let pluses = document.getElementsByClassName('fa-plus');
 
-  let insertedTemplate = '<div class="obj2elem-div"><div>Name:<input name="name" id="name">Value:<input name="value" id="value"></div><div id="confirm-panel"><input id="add-icon" type="button" value="Add"><span>&#8198;&#8198;</span><input id="cancel-icon" type="button" value="Cancel"></div></div>';
+  let insertedTemplate = '<div id="input-panel" class="obj2elem-div"><div>Name:<input name="name" id="name">Value:<input name="value" id="value"></div><div id="confirm-panel"><input id="add-button" type="button" value="Add"><span>&#8198;&#8198;</span><input id="cancel-button" type="button" value="Cancel"></div></div>';
 
   for (let i = 0; i < pluses.length; i++) {
     let plus = pluses[i];
     plus.addEventListener('click', function () {
+      let p = document.getElementById('input-panel');
+      if (p !== null) {
+        p.parentNode.removeChild(p);
+      }
       let cNode = this.parentNode.parentNode;
       let ref = cNode.lastChild.firstChild;
       let div = cNode.lastChild.insertBefore(document.createElement('div'), ref);
       div.innerHTML = insertedTemplate;
-      // let _1 = document.createElement('input');
-      // let _2 = document.createElement('input');
-      // _1.classList.add('prop-name');
-      // _1.value = 'prop-name';
-      // _2.classList.add('terminus-value');
-      // _2.value = 'value';
-      // let span = document.createElement('span');
-      // span.textContent = ':';
-      // div.appendChild(_1);
-      // div.appendChild(span);
-      // div.appendChild(_2);
+
+      let data = cNode._boundData;
+      if (Array.isArray(data.object[data.prop])) {
+        document.getElementById('name').value = data.object[data.prop].length;
+      }
+
+      let cancelButton = document.getElementById('cancel-button');
+      cancelButton.addEventListener('click', function () {
+        let p = document.getElementById('input-panel');
+        p.parentNode.remove(p);
+      });
+      let addButton = document.getElementById('add-button');
+      addButton.addEventListener('click', function () {
+        let prop = document.getElementById('name');
+        let val = document.getElementById('value');
+
+        // code here
+
+
+      });
     });
   }
 
   let minuses = document.getElementsByClassName('fa-times');
+  for (let i = 0; i < minuses.length; i++) {
+    let minus = minuses[i];
+    minus.addEventListener('click', function () {
+      let cNode = this.parentNode.parentNode;
+      let data = cNode._boundData;
+      if (Array.isArray(data.object)) {
+        data.object.splice(data.prop, 1);
+
+        // code here
+
+
+      } else {
+        delete data.object[data.prop];
+        cNode.parentNode.removeChild(cNode);
+      }
+
+
+    });
+  }
 
 
 })();
