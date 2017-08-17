@@ -5,8 +5,9 @@
 
 // add click handler to expand-collapse-handler class
 
-(function () {
-  let ics = document.getElementsByClassName('expand-collapse-handler');
+function expand_collapase_handler(node) {
+  node = node || document;
+  let ics = node.getElementsByClassName('expand-collapse-handler');
 
   for (let i = 0; i < ics.length; i++) {
     let ic =ics[i];
@@ -26,12 +27,15 @@
       }
     });
   }
-})();
+};
+
+expand_collapase_handler();
 
 // add change handler to input elements
 
-(function () {
-  let inps = document.getElementsByClassName('terminus-value');
+function value_modification_handler(node) {
+  node = node || document;
+  let inps = node.getElementsByClassName('terminus-value');
 
   for (let i = 0; i < inps.length; i++) {
     let inp = inps[i];
@@ -41,12 +45,16 @@
       pnd.object[pnd.prop] = this.value;
     });
   }
-})();
+}
+
+value_modification_handler();
 
 // add 'add' and 'remove' handler to icons
 
-(function () {
-  let pluses = document.getElementsByClassName('fa-plus');
+function control_icon_handler(node) {
+  node = node || document;
+
+  let pluses = node.getElementsByClassName('fa-plus');
 
   let insertedTemplate = '<div id="input-panel" class="obj2elem-div"><div>Name:<input name="name" id="name">Value:<input name="value" id="value"></div><div id="confirm-panel"><input id="add-button" type="button" value="Add"><span>&#8198;&#8198;</span><input id="cancel-button" type="button" value="Cancel"></div></div>';
 
@@ -77,12 +85,16 @@
         let prop = document.getElementById('name');
         let val = document.getElementById('value');
 
+        // let user input value or JSON string in the input box
+        // if user input a value, ...
+        // if user input a JSON string, ...
+
 
       });
     });
   }
 
-  let minuses = document.getElementsByClassName('fa-times');
+  let minuses = node.getElementsByClassName('fa-times');
   for (let i = 0; i < minuses.length; i++) {
     let minus = minuses[i];
     minus.addEventListener('click', function () {
@@ -95,7 +107,7 @@
           let propName = sibs[j].getElementsByClassName('prop-name')[0];
           let idx = +propName.textContent.split(':')[0];
           if (idx > +(data.prop)) {
-            console.log(propName);
+            // console.log(propName);
             propName.textContent = idx - 1 + ':';
             sibs[j]._boundData.prop -= 1; // This is important!!!
           }
@@ -109,4 +121,6 @@
   }
 
 
-})();
+}
+
+control_icon_handler();
