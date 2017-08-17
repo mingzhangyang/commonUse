@@ -77,8 +77,6 @@
         let prop = document.getElementById('name');
         let val = document.getElementById('value');
 
-        // code here
-
 
       });
     });
@@ -92,16 +90,21 @@
       let data = cNode._boundData;
       if (Array.isArray(data.object)) {
         data.object.splice(data.prop, 1);
-
-        // code here
-
-
+        let sibs = cNode.parentNode.childNodes;
+        for (let j = 0; j < sibs.length; j++) {
+          let propName = sibs[j].getElementsByClassName('prop-name')[0];
+          let idx = +propName.textContent.split(':')[0];
+          if (idx > +(data.prop)) {
+            console.log(propName);
+            propName.textContent = idx - 1 + ':';
+            sibs[j]._boundData.prop -= 1; // This is important!!!
+          }
+        }
+        cNode.parentNode.removeChild(cNode);
       } else {
         delete data.object[data.prop];
         cNode.parentNode.removeChild(cNode);
       }
-
-
     });
   }
 
