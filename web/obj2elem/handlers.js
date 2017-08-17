@@ -71,6 +71,7 @@ function control_icon_handler(node) {
       let data = cNode._boundData;
       if (Array.isArray(data.object[data.prop])) {
         document.getElementById('_name').value = data.object[data.prop].length;
+        document.getElementById('_name').readOnly = true;
       }
 
       let cancelButton = document.getElementById('cancel-button');
