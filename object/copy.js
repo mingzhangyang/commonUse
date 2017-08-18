@@ -3,7 +3,7 @@
  */
 'use strict';
 
-// Note: default mode set to be swallow copy
+// Note: default mode set to be shallow copy
 // You can specify the second parameter to set 'semi-deep copy' mode
 // 'semi-deep' means only the enumerable and own property of an object will be
 // deep copied, the non-enumerable or properties from prototype chain are

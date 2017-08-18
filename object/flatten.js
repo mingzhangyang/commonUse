@@ -49,11 +49,27 @@ function flatten(elem, result, path) {
   return result;
 }
 
-if (typeof module !== 'undefined' && module.parent) {
-  module.exports = flatten;
-} else if (typeof window !== 'undefined') {
-  console.log('flatten module running in the browser');
-} else {
+function _flatten_(obj) {
+  if (typeof obj !== 'object') {
+    throw 'An object expected...';
+  }
+  let res = {};
+  function worker(o, path) {
+    let keys = Object.keys(o);
+    for (let i = 0; i < keys.length; i++) {
+      let cur = o[keys[i]];
+      if (typeof cur !== 'object' || cur === null) {
+        res[path + '/' + keys[i]] = cur;
+        continue;
+      }
+      worker(cur, path + '/' + keys[i]);
+    }
+  }
+  worker(obj, '');
+  return res;
+}
+
+function main() {
   let a = [
     {
       "Name":"family with sequence similarity 161 member A",
@@ -94,7 +110,25 @@ if (typeof module !== 'undefined' && module.parent) {
   ];
 
 
-  console.log(flatten(a));
+  let b = {
+    x: 2,
+    y: [1, 2, 3],
+    z: {m: 0, n: 2, p: {
+      a: 'Hello',
+      b: [10, 12]
+    }}
+  };
+  // console.log(flatten(a));
+  // console.log(_flatten_(b));
+  console.log(_flatten_(a));
+}
+
+if (typeof module !== 'undefined' && module.parent) {
+  module.exports = _flatten_;
+} else if (typeof window !== 'undefined') {
+  console.log('flatten module running in the browser');
+} else {
+  main();
 }
 
 
