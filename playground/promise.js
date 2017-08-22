@@ -24,7 +24,7 @@ function g(n) {
 
 // g(5);
 
-function bar() {
+function bar(n) {
   let cmdObj = {
     current: 0,
     state: 'pending',
@@ -33,15 +33,15 @@ function bar() {
   };
 
   function baz(i) {
-    if (i < 5) {
-      new Promise(function (resolve, reject) {
+    if (i < n) {
+      return new Promise(function (resolve, reject) {
         setTimeout(function () {
           console.log(cmdObj);
           console.log(i);
           cmdObj.current = i  + 1;
           cmdObj.state = 'resolved';
           cmdObj.value = i * i;
-          if (cmdObj.current < 5) {
+          if (cmdObj.current < n) {
             cmdObj.next = true;
           }
           if (cmdObj.next) {
@@ -50,7 +50,9 @@ function bar() {
             resolve('Done');
           }
         }, 2000);
-      }).then(baz(i + 1));
+      }).then(j => {
+        baz(j);
+      });
     } else {
       return undefined;
     }
@@ -59,4 +61,4 @@ function bar() {
   baz(0);
 }
 
-bar();
+bar(6);
