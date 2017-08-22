@@ -46,13 +46,14 @@ function wc(dir, showHidden) {
       let cur = fs.statSync(path);
 
       if(list[i][0] === '.' || list[i][0] === '_') {
-        if (list[i][1] === '.' && list[i][0] === '.') {
-          res.hiddenDirectories.push(path);
-        } else {
-          res.hiddenFiles.push(path);
-        }
         if (!showHidden) {
           continue;
+        } else {
+          if (list[i][1] === '.' && list[i][0] === '.') {
+            res.hiddenDirectories.push(path);
+          } else {
+            res.hiddenFiles.push(path);
+          }
         }
       }
 
