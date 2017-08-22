@@ -78,5 +78,5 @@ if (typeof module !== 'undefined' && module.parent) {
   module.exports = dirStruct;
 } else {
   // test cases go here
-  console.log(dirStruct('.'));
+  console.log(dirStruct('..'));
 }
