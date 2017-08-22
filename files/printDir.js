@@ -59,7 +59,14 @@ function printDir(directory) {
 }
 
 
-
-printDir('../');
+function main() {
+  printDir('../');
 // console.log(fs.readdirSync('..'));
 // console.log(fs.statSync('..'));
+}
+
+if (typeof module !== 'undefined' && module.parent) {
+  module.exports = printDir;
+} else {
+  main();
+}
