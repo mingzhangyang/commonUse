@@ -32,7 +32,7 @@ function merge(a, b) {
   return merged;
 }
 
-function _merge(a, b) {
+function new_merge(a, b) {
   let i = 0;
   let j = 0;
   var merged = [];
@@ -57,7 +57,7 @@ var x = [1, 4, 7, 9, 13, 24, 30, 37, 43];
 var y = [2, 3, 6, 7, 12, 16, 19, 25, 37];
 
 console.log(merge(x, y));
-console.log(_merge(x, y));
+console.log(new_merge(x, y));
 
 function mergeByRecursion(a, b) {
   var result = [];
@@ -93,7 +93,7 @@ function mergeByRecursion(a, b) {
   return result;
 }
 
-function _mergeByRecursion(a, b) {
+function new_mergeByRecursion(a, b) {
   let merged = [];
 
   function worker(x, y) {
@@ -116,4 +116,4 @@ function _mergeByRecursion(a, b) {
 
 
 console.log(mergeByRecursion(x, y));
-console.log(_mergeByRecursion(x, y));
+console.log(new_mergeByRecursion(x, y));
