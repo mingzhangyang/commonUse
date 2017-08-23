@@ -43,7 +43,7 @@ function reSplit(list) {
     if (p2.length === 0) {
       return reSplit(list.slice(1)).concat(list[0]);
     } else {
-      return reSplit(p1).concat(p2);
+      return reSplit(p1).concat(reSplit(p2));
     }
 
   }
