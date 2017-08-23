@@ -78,3 +78,4 @@ for (let i = 0; i < 20; i++) {
 console.log(toBinary(125).join(''));
 console.log(_toBinary(125).join(''));
 console.log((125).toString(2));
+
