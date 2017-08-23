@@ -32,10 +32,32 @@ function merge(a, b) {
   return merged;
 }
 
+function _merge(a, b) {
+  let i = 0;
+  let j = 0;
+  var merged = [];
+
+  while (i < a.length) {
+    while (a[i] >= b[j] && j < b.length) {
+      merged.push(b[j]);
+      j++;
+    }
+    merged.push(a[i]);
+    i++;
+  }
+
+  if (j < b.length - 1) {
+    merged = merged.concat(b.slice(j));
+  }
+
+  return merged;
+}
+
 var x = [1, 4, 7, 9, 13, 24, 30, 37, 43];
 var y = [2, 3, 6, 7, 12, 16, 19, 25, 37];
 
 console.log(merge(x, y));
+console.log(_merge(x, y));
 
 function mergeByRecursion(a, b) {
   var result = [];
@@ -71,4 +93,27 @@ function mergeByRecursion(a, b) {
   return result;
 }
 
+function _mergeByRecursion(a, b) {
+  let merged = [];
+
+  function worker(x, y) {
+    if (y.length === 0) {
+      merged = merged.concat(x);
+      return;
+    }
+    let i = 0;
+    while (x[i] <= y[0]) {
+      merged.push(x[i]);
+      i++;
+    }
+    worker(y, x.slice(i));
+  }
+
+  worker(a, b);
+
+  return merged;
+}
+
+
 console.log(mergeByRecursion(x, y));
+console.log(_mergeByRecursion(x, y));
