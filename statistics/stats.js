@@ -430,7 +430,7 @@ const stats = (function () {
     if (stats.cache.factorial[n]) {
       return stats.cache.factorial[n];
     }
-    stats.cache.factorial[n] = factorial(n -1) * n;
+    stats.cache.factorial[n] = factorial(n - 1) * n;
     return stats.cache.factorial[n];
   };
 
