@@ -81,4 +81,8 @@ if (typeof module !== 'undefined' && module.parent) {
   let t = new BinaryTree(s);
   console.dir(t._entry, {depth: null});
   console.log(t.toSortedList());
+
+  s = 'EFGDCBAABCDEFGH';
+  t = new BinaryTree(s);
+  console.dir(t._entry, {depth: null});
 }
