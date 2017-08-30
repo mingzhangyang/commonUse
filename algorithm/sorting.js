@@ -53,7 +53,5 @@ function reSplit(list) {
 // console.log(reSplit(a));
 
 function tree(list) {
-
+  // see BinaryTree.js
 }
-
-tree(a);
