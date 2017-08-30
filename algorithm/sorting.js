@@ -49,4 +49,11 @@ function reSplit(list) {
   }
 }
 
-console.log(reSplit(a));
+
+// console.log(reSplit(a));
+
+function tree(list) {
+
+}
+
+tree(a);
