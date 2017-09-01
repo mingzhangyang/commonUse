@@ -23,8 +23,9 @@
 const fs = require('fs');
 const path = require('path');
 
-function splitLargeJSON(srcPath, size) {
-  var src = fs.createReadStream(srcPath, 'utf8');
+function splitLargeJSON(srcPath, size, enc) {
+  enc = enc || 'binary';
+  var src = fs.createReadStream(srcPath, enc);
   src.count = 0;
   src.part = 1;
   src.size = size || 1024 * 1024 * 200;
@@ -32,7 +33,7 @@ function splitLargeJSON(srcPath, size) {
   var filePath = path.parse(srcPath);
   var subFilePath = filePath.name + '_part_' + src.part + '.json';
 
-  var subFile = fs.createWriteStream(subFilePath, {flags: 'w+', defaultEncoding: 'utf8'});
+  var subFile = fs.createWriteStream(subFilePath, {flags: 'w+', defaultEncoding: enc});
   src.on('data', function (chunk) {
     var s = chunk.replace(/\s+/g, '');
     // s = s.replace(/,,+/g, ',');
@@ -43,17 +44,17 @@ function splitLargeJSON(srcPath, size) {
       var idx = s.lastIndexOf('},{');
       if (idx !== -1) {
         var left = s.slice(0, idx + 1) + ']';
-        subFile.end(left, 'utf8');
+        subFile.end(left, enc);
         src.part += 1;
         subFilePath = filePath.name + '_part_' + src.part + '.json';
-        subFile = fs.createWriteStream(subFilePath, {flags: 'w+', defaultEncoding: 'utf8'});
+        subFile = fs.createWriteStream(subFilePath, {flags: 'w+', defaultEncoding: enc});
         subFile.write('[' + s.slice(idx + 2));
         src.count = 0;
       } else {
-        subFile.write(s, 'utf8');
+        subFile.write(s, enc);
       }
     } else {
-      subFile.write(s, 'utf8');
+      subFile.write(s, enc);
     }
   }).on('end', function () {
     console.log('Done!');
