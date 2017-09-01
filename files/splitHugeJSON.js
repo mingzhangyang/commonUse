@@ -23,6 +23,11 @@
 const fs = require('fs');
 const path = require('path');
 
+/**
+ * @param srcPath: path to the JSON file
+ * @param size in bytes
+ * @param enc: encoding, e.g. "binary" (default), "utf8"
+ */
 function splitLargeJSON(srcPath, size, enc) {
   enc = enc || 'binary';
   var src = fs.createReadStream(srcPath, enc);
@@ -34,6 +39,8 @@ function splitLargeJSON(srcPath, size, enc) {
   var subFilePath = filePath.name + '_part_' + src.part + '.json';
 
   var subFile = fs.createWriteStream(subFilePath, {flags: 'w+', defaultEncoding: enc});
+
+  console.log('work in progress ...');
   src.on('data', function (chunk) {
     var s = chunk.replace(/\s+/g, '');
     // s = s.replace(/,,+/g, ',');
@@ -64,8 +71,11 @@ function splitLargeJSON(srcPath, size, enc) {
   });
 }
 
-if (module.parent) {
+if (typeof module !== 'undefined' && module.parent) {
   module.exports = splitLargeJSON;
 } else {
-  console.log('Done!');
+  let file = process.argv[2];
+  let size = +(process.argv[3]);
+  let enc = process.argv[4];
+  splitLargeJSON(file, size, enc);
 }
