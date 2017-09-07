@@ -15,7 +15,7 @@ class CSVIIJSON extends Transform {
     super(opts);
     this.START  = '[\n';
     this.rems = '';
-    this.END = ']';
+    this.END = ']'; // it is very risky here. if use 'this.end' , the built-in 'end' method will be overwritten.
     this.headers = '';
   }
 
