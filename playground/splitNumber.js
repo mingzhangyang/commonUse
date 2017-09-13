@@ -5,21 +5,19 @@
 
 // idea from Lucky Money distribution in WeChat
 
-function splitNumber(sum, num) {
+function splitNumber(sum, num, opts) {
+  opts = opts || {};
+  opts.low = opts.low || 0.05;
+  opts.high = opts.high || 0.55;
+  let d = opts.high - opts.low;
   let res = [];
-  let s = sum * 100;
-  let a = 0;
+  let rem = sum * 100;
   for (let i = 0; i < num - 1; i++) {
-    let t = Math.floor(Math.random() * s);
-    s -= t;
-    // if (s < 0) {
-    //   t = t - (0 - s);
-    //   s = 0;
-    // }
-    a += t;
+    let t = Math.floor((opts.low + Math.random() * d) * rem);
+    rem -= t;
     res.push(t / 100);
   }
-  res.push((sum * 100 - a) / 100);
+  res.push(rem / 100);
   return res;
 }
 
@@ -42,6 +40,7 @@ if (typeof module !== 'undefined' && module.parent) {
       console.log(splitNumber(s, n));
     }
   } else {
-    console.log((splitNumber(10, 8)));
+    console.log((splitNumber(1, 8)));
+    console.log(sum(splitNumber(1, 8)));
   }
 }
