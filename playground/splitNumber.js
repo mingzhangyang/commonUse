@@ -12,10 +12,10 @@ function splitNumber(sum, num) {
   for (let i = 0; i < num - 1; i++) {
     let t = Math.floor(Math.random() * s);
     s -= t;
-    if (s < 0) {
-      t = t - (0 - s);
-      s = 0;
-    }
+    // if (s < 0) {
+    //   t = t - (0 - s);
+    //   s = 0;
+    // }
     a += t;
     res.push(t / 100);
   }
@@ -42,6 +42,6 @@ if (typeof module !== 'undefined' && module.parent) {
       console.log(splitNumber(s, n));
     }
   } else {
-    console.log((splitNumber(1, 8)));
+    console.log((splitNumber(10, 8)));
   }
 }
