@@ -31,20 +31,20 @@ function tanh(arr) {
     return res;
 }
 function oneHot(arr) {
-    var max = -Infinity;
-    for (var i = 0; i < arr.length; i++) {
-        if (max < arr[i]) {
-            max = arr[i];
-        }
-    }
-    var res = [];
-    for (var i = 0; i < arr.length; i++) {
-        var r = new Array(max + 1);
-        r.fill(0);
-        r[arr[i]] = 1;
-        res.push(r);
-    }
-    return res;
+    // let max = -Infinity;
+    // for (let i = 0; i < arr.length; i++) {
+    //     if (max < arr[i]) {
+    //         max = arr[i];
+    //     }
+    // }
+    // let res: number[][] = [];
+    // for (let i = 0; i < arr.length; i++) {
+    //     let r: number[] = new Array(max + 1);
+    //     r.fill(0);
+    //     r[arr[i]] = 1;
+    //     res.push(r);
+    // }
+    // return res;
 }
 function crossEntropy(arr1, arr2) {
     if (arr1.length !== arr2.length) {
@@ -58,3 +58,4 @@ function crossEntropy(arr1, arr2) {
 }
 console.log(softMax([3, 1, 0.2]));
 console.log(softMax([1, 2, 3]));
+console.log(oneHot([1, 2, 3]));

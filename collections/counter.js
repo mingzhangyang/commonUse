@@ -11,27 +11,30 @@ class Counter {
     this.elements = Array.from(it);
   }
 
-  get stat() {
+  stat(cb) {
     if (typeof this._stat !== 'undefined') {
       return this._stat;
     }
+    cb = cb || (d => d);
     let res = {};
     for (let i = 0; i < this.elements.length; i++) {
-      if (res[this.elements[i]] === undefined) {
-        res[this.elements[i]] = 1;
+      let t = cb(this.elements[i]);
+      if (res[t] === undefined) {
+        res[t] = 1;
       } else {
-        res[this.elements[i]] += 1;
+        res[t] += 1;
       }
     }
     this._stat = res;
     return res;
   }
 
-  mostCommon(n) {
+  mostCommon(n, cb) {
     if (typeof n !== 'number') {
       throw 'a number expected';
     }
-    let obj = this.stat;
+    cb = cb || (d => d);
+    let obj = this.stat(cb);
     let keys = Object.keys(obj);
     let res = [];
     for (let i = 0; i < keys.length; i++) {
@@ -95,7 +98,15 @@ AA`;
 
   let c = new Counter(mlh1);
   console.log(c);
-  console.log(c.stat);
+  console.log(c.stat(d => {
+    if (d === 'A' || d === 'T') {
+      return 'AT';
+    } else if (d === 'G' || d === 'C') {
+      return 'GC';
+    } else {
+      return 'others';
+    }
+  }));
   console.log(c.mostCommon(2));
   console.log(Counter.prototype);
 }

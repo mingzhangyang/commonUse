@@ -4,15 +4,15 @@
 'use strict';
 
 const customFuncsOnArray = (function () {
-  function map(a, f) {
+  const map = function (a, f) {
     let res = [];
     for (let i = 0; i < a.length; i++) {
       res.push(f(a[i], i));
     }
     return res;
-  }
+  };
 
-  function filter(a, f) {
+  const filter = function (a, f) {
     let res = [];
     let t;
     for (let i = 0; i < a.length; i++) {
@@ -22,9 +22,9 @@ const customFuncsOnArray = (function () {
       }
     }
     return res;
-  }
+  };
 
-  function split(arr, ratio) {
+  const split = function (arr, ratio) {
     if (typeof ratio === 'undefined') {
       console.log('The second parameter ratio is not provided, a default value 0.5 will be taken');
       ratio = 0.5;
@@ -42,9 +42,9 @@ const customFuncsOnArray = (function () {
     }
 
     return [sp, c];
-  }
+  };
 
-  function group(arr, cb) {
+  const group = function (arr, cb) {
     let res = {};
     for (let i = 0; i < arr.length; i++) {
       let p = cb(arr[i], i);
@@ -54,9 +54,9 @@ const customFuncsOnArray = (function () {
       res[p].push(arr[i])
     }
     return res;
-  }
+  };
 
-  function bin(arr, binSize, sort=true) {
+  const bin = function (arr, binSize, sort=true) {
     let cp;
     if (sort) {
       cp = arr.slice().sort((a, b) => a - b);
@@ -73,9 +73,9 @@ const customFuncsOnArray = (function () {
       }
     }
     return res;
-  }
+  };
 
-  function min(arr, func) {
+  const min = function (arr, func) {
     let m = Infinity;
     let i = 0;
     if (typeof func === 'undefined') {
@@ -88,16 +88,17 @@ const customFuncsOnArray = (function () {
     }
     if (typeof func === 'function') {
       for (i; i < arr.length; i++) {
-        if (m > func(arr[i])) {
-          m = func(arr[i], i);
+        let t = func(arr[i], i);
+        if (m > t) {
+          m = t;
         }
       }
       return m;
     }
     throw 'If the second parameter is provided, it should be a function.';
-  }
+  };
 
-  function max(arr, func) {
+  const max = function (arr, func) {
     let m = -Infinity;
     let i = 0;
     if (typeof func === 'undefined') {
@@ -110,16 +111,17 @@ const customFuncsOnArray = (function () {
     }
     if (typeof func === 'function') {
       for (i; i < arr.length; i++) {
-        if (m < func(arr[i])) {
-          m = func(arr[i], i);
+        let t = func(arr[i], i);
+        if (m < t) {
+          m = t;
         }
       }
       return m;
     }
     throw 'If the second parameter is provided, it should be a function.';
-  }
+  };
 
-  function sum(arr, func) {
+  const sum = function (arr, func) {
     let s = 0;
     let i = 0;
     if (typeof func === 'undefined') {
@@ -135,7 +137,53 @@ const customFuncsOnArray = (function () {
       return s;
     }
     throw 'If the second parameter is provided, it should be a function.';
-  }
+  };
+
+  const argmax = function (arr) {
+    let m = -Infinity;
+    let idx = 0;
+    for (let i = 0; i < arr.length; i++) {
+      if (arr[i] > m) {
+        m = arr[i];
+        idx = i;
+      }
+    }
+    return idx;
+  };
+
+  const argmin = function (arr) {
+    let m = +Infinity;
+    let idx = 0;
+    for (let i = 0; i < arr.length; i++) {
+      if (arr[i] < m) {
+        m = arr[i];
+        idx = i;
+      }
+    }
+    return idx;
+  };
+
+  const distanceL1 = function (arr1, arr2) {
+    if (arr1.length !== arr2.length) {
+      throw 'Two arrays with the same length are expected ...';
+    }
+    let res = 0;
+    for (let i = 0; i < arr1.length; i++) {
+      res += Math.abs(arr1[i] - arr2[i]);
+    }
+    return res;
+  };
+
+  const distanceL2 = function (arr1, arr2) {
+    if (arr1.length !== arr2.length) {
+      throw 'Two arrays with the same length are expected ...';
+    }
+    let res = 0;
+    for (let i = 0; i < arr1.length; i++) {
+      res += Math.pow((arr1[i] - arr2[i]), 2);
+    }
+    return Math.sqrt(res);
+  };
 
 
   return {
@@ -146,7 +194,11 @@ const customFuncsOnArray = (function () {
     bin: bin,
     max: max,
     min: min,
-    sum: sum
+    sum: sum,
+    argmax: argmax,
+    argmin: argmin,
+    distanceL1: distanceL1,
+    distanceL2: distanceL2
   }
 })();
 
@@ -157,6 +209,8 @@ function main() {
   console.log(bin(arr, 3));
   console.log(bin(arr, 4, false));
   console.log(bin(arr, 6));
+  console.log(customFuncsOnArray.argmax(arr));
+  console.log(customFuncsOnArray.argmin(arr));
 }
 
 if (typeof module !== 'undefined' && module.parent) {
