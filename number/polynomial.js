@@ -326,10 +326,10 @@ let q = new PolynomialUnit({
   degrees: [-2, 2, 3],
   coefficient: 5
 });
-// console.log(p.toString());
-// console.log(q.toString());
-// console.log(p.multiply(q).toString());
-// console.log(p.pow(3).toString());
+console.log(p.toString());
+console.log(q.toString());
+console.log(p.multiply(q).toString());
+console.log(p.pow(3).toString());
 
 let m = new Polynomial(p, q);
 // console.log(m);
