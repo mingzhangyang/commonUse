@@ -21,6 +21,23 @@ function softMax(arr: number[]) {
     return res;
 }
 
+function relu(arr: number[]) {
+    let res: number[] = [];
+    for (let i = 0; i < arr.length; i++) {
+        res.push(arr[i] > 0 ? arr[i] : 0);
+    }
+    return res;
+}
+
+function tanh(arr: number[]) {
+    let res: number[] = [];
+    for (let i = 0; i < arr.length; i++) {
+        let t: number = Math.pow(Math.E, 2 * arr[i]);
+        res.push((t - 1) / (t + 1));
+    }
+    return res;
+}
+
 function oneHot(arr: number[]) {
     let max = -Infinity;
     for (let i = 0; i < arr.length; i++) {

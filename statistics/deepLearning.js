@@ -15,6 +15,21 @@ function softMax(arr) {
     }
     return res;
 }
+function relu(arr) {
+    var res = [];
+    for (var i = 0; i < arr.length; i++) {
+        res.push(arr[i] > 0 ? arr[i] : 0);
+    }
+    return res;
+}
+function tanh(arr) {
+    var res = [];
+    for (var i = 0; i < arr.length; i++) {
+        var t = Math.pow(Math.E, 2 * arr[i]);
+        res.push((t - 1) / (t + 1));
+    }
+    return res;
+}
 function oneHot(arr) {
     var max = -Infinity;
     for (var i = 0; i < arr.length; i++) {

@@ -75,13 +75,78 @@ const customFuncsOnArray = (function () {
     return res;
   }
 
+  function min(arr, func) {
+    let m = Infinity;
+    let i = 0;
+    if (typeof func === 'undefined') {
+      for (i; i < arr.length; i++) {
+        if (m > arr[i]) {
+          m = arr[i];
+        }
+      }
+      return m;
+    }
+    if (typeof func === 'function') {
+      for (i; i < arr.length; i++) {
+        if (m > func(arr[i])) {
+          m = func(arr[i], i);
+        }
+      }
+      return m;
+    }
+    throw 'If the second parameter is provided, it should be a function.';
+  }
+
+  function max(arr, func) {
+    let m = -Infinity;
+    let i = 0;
+    if (typeof func === 'undefined') {
+      for (i; i < arr.length; i++) {
+        if (m < arr[i]) {
+          m = arr[i];
+        }
+      }
+      return m;
+    }
+    if (typeof func === 'function') {
+      for (i; i < arr.length; i++) {
+        if (m < func(arr[i])) {
+          m = func(arr[i], i);
+        }
+      }
+      return m;
+    }
+    throw 'If the second parameter is provided, it should be a function.';
+  }
+
+  function sum(arr, func) {
+    let s = 0;
+    let i = 0;
+    if (typeof func === 'undefined') {
+      for (i; i < arr.length; i++) {
+        s += arr[i];
+      }
+      return s;
+    }
+    if (typeof func === 'function') {
+      for (i; i < arr.length; i++) {
+        s += func(arr[i], i);
+      }
+      return s;
+    }
+    throw 'If the second parameter is provided, it should be a function.';
+  }
+
 
   return {
     map: map,
     filter: filter,
     split: split,
     group: group,
-    bin: bin
+    bin: bin,
+    max: max,
+    min: min,
+    sum: sum
   }
 })();
 
