@@ -185,6 +185,56 @@ const customFuncsOnArray = (function () {
     return Math.sqrt(res);
   };
 
+  const uniq = function (arr) {
+    return [...(new Set(arr))];
+  };
+
+  const count = function (arr, elem) {
+    let res = 0;
+    for (let i = 0; i < arr.length; i++) {
+      if (arr[i] === elem) {
+        res += 0;
+      }
+    }
+    return res;
+  };
+
+  const accuracy = function (arr1, arr2) {
+    if (arr1.length !== arr2.length) {
+      throw 'Two arrays with the same length are expected ...';
+    }
+    let n = 0;
+    for (let i = 0; i < arr1.length; i++) {
+      if (arr1[i] === arr2[i]) {
+        n += 1;
+      }
+    }
+    return n / arr1.length;
+  };
+
+  const _split = function (arr, ratio) {
+    ratio = ratio || 0.5;
+    let n = Math.floor(arr.length * ratio);
+    let res = {
+      selected: [],
+      remaining: []
+    };
+    let u = [];
+    while (res.selected.length < n) {
+      let i = Math.floor(Math.random() * arr.length);
+      if (u.indexOf(i) === -1) {
+        u.push(i);
+        res.selected.push(arr[i]);
+      }
+    }
+    for (let j = 0; j < arr.length; j++) {
+      if (u.indexOf(j) === -1) {
+        res.remaining.push(arr[j]);
+      }
+    }
+    return res;
+  };
+
 
   return {
     map: map,
@@ -198,7 +248,10 @@ const customFuncsOnArray = (function () {
     argmax: argmax,
     argmin: argmin,
     distanceL1: distanceL1,
-    distanceL2: distanceL2
+    distanceL2: distanceL2,
+    uniq: uniq,
+    count: count,
+    _split: _split
   }
 })();
 
@@ -211,6 +264,8 @@ function main() {
   console.log(bin(arr, 6));
   console.log(customFuncsOnArray.argmax(arr));
   console.log(customFuncsOnArray.argmin(arr));
+  console.log(customFuncsOnArray.split(arr));
+  console.log(customFuncsOnArray._split(arr));
 }
 
 if (typeof module !== 'undefined' && module.parent) {
