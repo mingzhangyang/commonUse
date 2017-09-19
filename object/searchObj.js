@@ -5,7 +5,7 @@
 
 const flatten = require('./flatten');
 
-function searchObj(obj, pat, opts) {
+function searchStr(obj, pat, opts) {
   if (!(pat instanceof RegExp)) {
     opts = opts || 'ig';
     pat = new RegExp(pat, opts);
@@ -33,6 +33,24 @@ function searchObj(obj, pat, opts) {
 }
 
 
+function searchObj(obj, v) {
+  let res = [];
+  let keys = Object.keys(obj);
+  for (let i = 0; i < keys.length; i++) {
+    if (obj[keys[i]] === v) {
+      res.push('/' + keys[i]);
+    }
+    if (typeof obj[keys[i]] === 'object') {
+      let ans = searchObj(obj[keys[i]], v);
+      if (ans.length > 0) {
+        res = res.concat(ans.map(d => '/' + keys[i] + d));
+      }
+    }
+  }
+  return res;
+}
+
+
 
 function main() {
   let a = [1, 2, 3, 'abc', 'xyz', 'ABC', 'FLag', 'atcg', {
@@ -43,20 +61,21 @@ function main() {
     b: 4
   }];
   let obj = {
-    a: a,
+    a: [a, 'a'],
     b: [1, 2, 3],
     c: 'xyz',
     d: {
       a: 10
     }
   };
-  console.log(flatten(obj));
-  console.log(searchObj(obj, 'a'));
+  // console.log(flatten(obj));
+  console.log(searchStr(obj, 1));
+  console.log(searchObj(obj, 1));
 }
 
 if (typeof module !== 'undefined' && module.parent) {
   module.exports = {
-    searchObj: searchObj
+    searchStr: searchStr
   }
 } else if (typeof window !== 'undefined') {
   console.log('searchObj.js imported into browser');
