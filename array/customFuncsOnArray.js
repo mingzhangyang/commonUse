@@ -26,7 +26,8 @@ const customFuncsOnArray = (function () {
 
   const split = function (arr, ratio) {
     if (typeof ratio === 'undefined') {
-      console.log('The second parameter ratio is not provided, a default value 0.5 will be taken');
+      console.log('The second parameter ratio is not provided, a default' +
+        ' value 0.5 will be taken.');
       ratio = 0.5;
     }
     if (typeof ratio === 'number' && ratio > 1) {
@@ -251,7 +252,8 @@ const customFuncsOnArray = (function () {
     distanceL2: distanceL2,
     uniq: uniq,
     count: count,
-    _split: _split
+    _split: _split,
+    accuracy: accuracy
   }
 })();
 

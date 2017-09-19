@@ -6,12 +6,14 @@
 /*
  *  In the codes below, range takes the format [a, b].
  *  Range starts from 1 not 0.
- *  And range is inclusive, which means range[0] and range[1] are both includes.
+ *  And range is inclusive, which means range[start] and range[end] are both
+  *  includes.
  */
 
 const fs = require('fs');
 const Transform = require('stream').Transform;
 
+// The code below is for replacing a substring through transform stream
 class RepTran extends Transform {
   constructor(range, str, opts) {
     super(opts);
@@ -72,6 +74,7 @@ class FileStream {
       this.sourceFilePath = path;
       this.enc = enc || 'binary';
     } else {
+      console.log(path);
       throw 'Path not exist ...';
     }
   }
