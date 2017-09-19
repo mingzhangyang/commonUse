@@ -75,7 +75,8 @@ function main() {
 
 if (typeof module !== 'undefined' && module.parent) {
   module.exports = {
-    searchStr: searchStr
+    searchStr: searchStr,
+    searchObj: searchObj
   }
 } else if (typeof window !== 'undefined') {
   console.log('searchObj.js imported into browser');
