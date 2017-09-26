@@ -34,7 +34,10 @@ function longestSubstr(arr) {
   } else if (st.values.length === st.maxLen) {
     st.candidates.push(st.values.slice());
   }
-  return st;
+  return {
+    maxLength: st.maxLen,
+    candidates: st.candidates
+  };
 }
 
 
