@@ -48,4 +48,5 @@ if (typeof module !== 'undefined' && module.parent) {
   let a = [1, 2, 4, 2, 1, 3, 5, 7, 2, 6, 3, 5, 7, 8, 9, 2, 3, 1, 5, 7, 8, 10, 11];
   console.log(a.length);
   console.log(longestSubstr(a));
+  console.log(longestSubstr([2, 2, 2, 2, 2, 2]))
 }
