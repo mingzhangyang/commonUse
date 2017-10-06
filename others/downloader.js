@@ -15,11 +15,9 @@ function parseFile(path, cb) {
     input: fs.createReadStream(path, 'utf8')
   });
   rl.on('line', line => {
-    if (line[0] === '#') {
-      let url = line.slice(1).trim();
-      if (validUrl.isUri(url)) {
-        urls.push(url);
-      }
+    let url = line.trim();
+    if (validUrl.isUri(url)) {
+      urls.push(url);
     }
   }).on('close', () => {
     console.log(urls.length + ' urls found in the file.');
