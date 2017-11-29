@@ -49,7 +49,9 @@ function removeDuplicate(arr) {
 // var t = makeChanges(30, [5, 10, 25, 50]);
 // console.log(t);
 
-for (var j = 0; j < 100; j++) {
-  var t = makeChanges(j, [1, 3, 5]);
-  console.log('For number ' + j + ':\n', t);
-}
+// for (var j = 0; j < 100; j++) {
+//   var t = makeChanges(j, [1, 3, 5]);
+//   console.log('For number ' + j + ':\n', t);
+// }
+
+console.log(makeChanges(30, [1, 3, 5]).length);
