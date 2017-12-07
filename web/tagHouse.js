@@ -51,7 +51,7 @@ function tagHouse(obj) {
       console.log('Child should be array, object, string, or number.')
   }
 
-  if (['input', 'img', 'a', 'hr', 'meta', 'link'].includes(obj.type)) {
+  if (['input', 'img', 'hr', 'meta', 'link'].includes(obj.type)) {
     return res;
   }
   return res + '</' + obj.type + '>';
