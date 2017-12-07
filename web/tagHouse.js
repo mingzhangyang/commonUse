@@ -9,9 +9,15 @@
  * @returns {string}
  */
 function tagHouse(obj) {
+  if (typeof obj === 'string') {
+    return obj;
+  }
   if (!(obj.type)) {
     console.log('No type field found in the object');
     return '';
+  }
+  if (obj.type === 'textContent') {
+    return obj.content;
   }
   let res = '<' + obj.type;
   let props = Object.keys(obj);
@@ -35,11 +41,7 @@ function tagHouse(obj) {
       }
       break;
     case '[object Object]':
-      if (children.type === 'textContent') {
-        res += children.content;
-      } else {
-        res += tagHouse(children);
-      }
+      res += tagHouse(children);
       break;
     case '[object String]':
       res += children;
@@ -48,7 +50,8 @@ function tagHouse(obj) {
       res += children;
       break;
     default:
-      console.log('Child should be array, object, string, or number.')
+      // console.log(children);
+      // console.log('Child should be array, object, string, or number.')
   }
 
   if (['input', 'img', 'hr', 'meta', 'link'].includes(obj.type)) {
@@ -59,17 +62,49 @@ function tagHouse(obj) {
 
 if (typeof module !== 'undefined' && module.parent) {
 
-} else {
+} else if (typeof window === 'undefined') {
   // test code go here
-  let d = {
+  let colorSelector = {
     type: 'div',
-    id: 'testid',
-    class: 'testclass',
-    child: {
-      type: 'textContent',
-      content: 'This is a test'
-    }
+    child: [
+      {
+        type: 'a',
+        href: 'html/colorSelector.html',
+        target: '_blank',
+        child: {
+          type: 'img',
+          class: 'left-edge',
+          src: 'images/colorSelector.PNG',
+          width: 150,
+          height: 150
+        }
+      }, {
+        type: 'strong',
+        child: {
+          type: 'textContent',
+          content: 'Color Selector:'
+        }
+      }, {
+        type: 'textContent',
+        content: 'A tool for selecting your favorite colors and get the RGBA' +
+        ' code. There are three ways to go through colors: 1) adjust the red,' +
+        ' green, blue, and opacity parameters by sliding; 2) directly input' +
+        ' the rgba code to check the color; 3) click the "I am feeling good"' +
+        ' button to generate a color randomly. Once a color catches your eyes,' +
+        ' you can save it and compare with others that interests you by' +
+        ' clicking the "Save & Compare button". Hope this tool will help you' +
+        ' find the right colors for you! <a href="html/colorSelector.html"' +
+        ' target="_blank"><strong>Check it here</strong></a>.'
+      }
+    ]
   };
 
-  console.log(tagHouse(d));
+  console.log(tagHouse(colorSelector));
+
+  let t = {
+    type: 'div',
+    child: 'Hello World'
+  };
+
+  console.log(tagHouse(t));
 }
