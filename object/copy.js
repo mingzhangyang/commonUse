@@ -29,6 +29,10 @@ function copy(obj, opt) {
           res.push(c);
           continue;
         }
+        if (c === null) {
+          res.push(c);
+          continue;
+        }
         res.push(dc(c));
       }
       return res;
@@ -36,13 +40,17 @@ function copy(obj, opt) {
 
     let keys = Object.keys(o);
     let result = {};
-    for (let i = 0; i < keys.length; i++) {
-      let c = o[keys[i]];
+    for (let prop of keys) {
+      let c = o[prop];
       if (typeof c !== 'object') {
-        result[keys[i]] = c;
+        result[prop] = c;
         continue;
       }
-      result[keys[i]] = dc(c);
+      if (c === null) {
+        result[prop] = c;
+        continue;
+      }
+      result[prop] = dc(c);
     }
     return result;
   }
@@ -52,7 +60,7 @@ function copy(obj, opt) {
   if (typeof opt === 'string' && dcp.includes(opt)) {
     return dc(obj);
   }
-  if (opt.deepcopy || opt.deepCopy || opt.deep) {
+  if (typeof opt === 'object' && opt !== null && (opt['deepcopy'] || opt['deepCopy'] || opt['deep'])) {
     return dc(obj);
   }
 
