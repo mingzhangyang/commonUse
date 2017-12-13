@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+</body>
+<script src="tagHouse.js"></script>
+<script>
+  let colorSelector = {
+    type: 'div',
+    child: [
+      {
+        type: 'a',
+        href: 'html/colorSelector.html',
+        target: '_blank',
+        child: {
+          type: 'img',
+          class: 'left-edge',
+          src: 'images/colorSelector.PNG',
+          width: 150,
+          height: 150
+        }
+      }, {
+        type: 'strong',
+        child: {
+          type: 'textContent',
+          content: 'Color Selector:'
+        }
+      }, {
+        type: 'textContent',
+        content: 'A tool for selecting your favorite colors and get the RGBA' +
+        ' code. There are three ways to go through colors: 1) adjust the red,' +
+        ' green, blue, and opacity parameters by sliding; 2) directly input' +
+        ' the rgba code to check the color; 3) click the "I am feeling good"' +
+        ' button to generate a color randomly. Once a color catches your eyes,' +
+        ' you can save it and compare with others that interests you by' +
+        ' clicking the "Save & Compare button". Hope this tool will help you' +
+        ' find the right colors for you!'
+      }
+    ]
+  };
+  document.body.appendChild(tagHouse(colorSelector));
+</script>
+</html>
