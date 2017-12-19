@@ -69,13 +69,41 @@ function _toBinary(n) {
   return res;
 }
 
+function __toBinary(n) {
+  if (n === 0) {
+    return '0';
+  }
+  if (n === 1) {
+    return '1';
+  }
+  let i = 0;
+  while ((1 << i) <= n) {
+    i++;
+  }
+  let res = [];
+  let k = i - 1;
+  while (k > -1) {
+    let v = (1 << k);
+    if (v <= n) {
+      res.push(1);
+      n -= v;
+    } else {
+      res.push(0);
+    }
+    k--;
+  }
+  return res.join();
+}
+
 
 
 for (let i = 0; i < 20; i++) {
-  console.log(i + ' : ' + toBinary(i));
+  console.log(i + ' : ', __toBinary(i));
 }
 
-console.log(toBinary(125).join(''));
-console.log(_toBinary(125).join(''));
-console.log((125).toString(2));
+// console.log(toBinary(125).join(''));
+// console.log(_toBinary(125).join(''));
+// console.log((125).toString(2));
+
+// console.log(__toBinary(2));
 
