@@ -8,13 +8,18 @@ function bindElementToSubject(elem, attr, event, subject, prop) {
     let symb = Symbol('__bindingData');
     window[symb] = {};
     window[symb]._boundData = elem[attr];
-    // elem.addEventListener(event, () => {
-    //   window[symb]._boundData = elem[attr];
-    // });
+
     Object.defineProperty(window[symb], '_boundData', {
       configurable: false,
       enumerable: true,
-      get: () => elem[attr]
+      get: () => elem[attr],
+      set: v => {
+        // console.log('set to ' + v);
+      }
+    });
+
+    elem.addEventListener(event, () => {
+      window[symb]._boundData = elem[attr];
     });
     // console.log(res);
     // console.log(window[symb]);
@@ -46,13 +51,9 @@ function twoWayBinding(elem, attr, event, subject, prop) {
     console.log('The object returned.');
     return window[symb];
   }
-  Object.defineProperty(subject, prop, {
-    configurable: false,
-    enumerable: true,
-    get: () => elem[attr],
-    set: v => {
-      elem[attr] = v;
-    }
+
+  elem.addEventListener(event, () => {
+    subject[prop] = elem[attr];
   });
   return subject;
 }
