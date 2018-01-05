@@ -4,48 +4,106 @@
     <meta charset="UTF-8">
     <title>Title</title>
     <script src="binding.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.7/angular.min.js"></script>
+    <style>
+        body {
+            padding: 50px;
+        }
+        .cell {
+            width: 500px;
+            height: 50px;
+            background-color: #00d6b2;
+            margin: 10px;
+            /*padding-left: 30px;*/
+            display: flex;
+            align-items: center;
+        }
+        div {
+            margin: 10px;
+        }
+        input {
+            height: 20px;
+            padding: 5px;
+        }
+        .input-cell input {
+            background-color: #00d6b2;
+            border: 2px solid wheat;
+        }
+    </style>
 </head>
 <body>
 <div id="test-div">
     <input type="text" value="Hello World" id="test-input">
     <label for="test-input" id="test-label">Hello World</label>
 </div>
+<div ng-app="testAngular">
+    <div ng-controller="repeatController">
+        <div ng-repeat="a in arr">
+            <my-tag index="{{$index}}" class="input-cell"></my-tag>
+        </div>
+    </div>
+</div>
 </body>
 <script src="tagHouse.js"></script>
 <script>
-  let colorSelector = {
-    type: 'div',
-    child: [
-      {
-        type: 'a',
-        href: 'html/colorSelector.html',
-        target: '_blank',
-        child: {
-          type: 'img',
-          class: 'left-edge',
-          src: 'images/colorSelector.PNG',
-          width: 150,
-          height: 150
-        }
-      }, {
-        type: 'strong',
-        child: {
-          type: 'textContent',
-          content: 'Color Selector:'
-        }
-      }, {
-        type: 'textContent',
-        content: 'A tool for selecting your favorite colors and get the RGBA' +
-        ' code. There are three ways to go through colors: 1) adjust the red,' +
-        ' green, blue, and opacity parameters by sliding; 2) directly input' +
-        ' the rgba code to check the color; 3) click the "I am feeling good"' +
-        ' button to generate a color randomly. Once a color catches your eyes,' +
-        ' you can save it and compare with others that interests you by' +
-        ' clicking the "Save & Compare button". Hope this tool will help you' +
-        ' find the right colors for you!'
-      }
-    ]
-  };
-  document.body.appendChild(tagHouse(colorSelector));
+    let arr = [{
+      username: 'Ann',
+      gender: 'Female',
+      prop: 'x',
+      value: 300
+    }, {
+      username: 'Brad',
+      gender: 'Male',
+      prop: 'y',
+      value: 400
+    }, {
+      username: 'Chris',
+      gender: 'Male',
+      prop: 'z',
+      value: 500
+    }];
+    let app = angular.module('testAngular', []);
+    app.controller('repeatController', function($scope) {
+      $scope.arr = arr;
+    });
+    app.directive('myTag', function () {
+      return {
+        restrict: 'E',
+        scope: {
+          arr: '='
+        },
+        link: function (scope, element, attrs) {
+          scope.d = arr[+attrs.index];
+          // console.log('linked');
+          // console.log(scope.value);
+          Object.defineProperty(scope, 'username', {
+            configurable: true,
+            get: () => scope.d.username,
+            set: v => {
+              scope.d.username = v;
+            }
+          });
+          Object.defineProperty(scope, 'gender', {
+            configurable: true,
+            get: () => scope.d.gender,
+            set: v => {
+              scope.d.gender = v;
+            }
+          });
+          Object.defineProperty(scope, 'value', {
+            configurable: true,
+            get: () => scope.d.value,
+            set: v => {
+              scope.d.value = v;
+            }
+          });
+        },
+        template: '<div>' +
+          '<div>Username: <input type="text" ng-model="username"></div>' +
+          '<div>Gender: <input type="text" ng-model="gender"></div>' +
+          '<div>Value: <input type="text" ng-model="value"></div>' +
+          '</div>'
+      };
+    });
 </script>
 </html>
