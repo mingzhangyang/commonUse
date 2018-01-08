@@ -36,11 +36,12 @@
     <input type="text" value="Hello World" id="test-input">
     <label for="test-input" id="test-label">Hello World</label>
 </div>
-<div ng-app="testAngular">
-    <div ng-controller="repeatController">
-        <div ng-repeat="a in arr">
-            <my-tag index="{{$index}}" class="input-cell"></my-tag>
-        </div>
+<div ng-app="testAngular" ng-controller="repeatController">
+    <div ng-repeat="a in arr track by $index">
+    <!--<div ng-repeat="a in arr">-->
+            <!--<my-tag index="{{$index}}" class="input-cell"></my-tag>-->
+        <!--</div>-->
+        <my-tag data="a" index="{{$index}}"></my-tag>
     </div>
 </div>
 </body>
@@ -70,38 +71,42 @@
       return {
         restrict: 'E',
         scope: {
-          arr: '='
+          d: '=data'
         },
         link: function (scope, element, attrs) {
-          scope.d = arr[+attrs.index];
-          // console.log('linked');
-          // console.log(scope.value);
-          Object.defineProperty(scope, 'username', {
-            configurable: true,
-            get: () => scope.d.username,
-            set: v => {
-              scope.d.username = v;
-            }
-          });
-          Object.defineProperty(scope, 'gender', {
-            configurable: true,
-            get: () => scope.d.gender,
-            set: v => {
-              scope.d.gender = v;
-            }
-          });
-          Object.defineProperty(scope, 'value', {
-            configurable: true,
-            get: () => scope.d.value,
-            set: v => {
-              scope.d.value = v;
-            }
-          });
+          // scope.d = arr[+attrs.index];
+          // // console.log('linked');
+          // // console.log(scope.value);
+          // Object.defineProperty(scope, 'username', {
+          //   configurable: true,
+          //   get: () => scope.d.username,
+          //   set: v => {
+          //     scope.d.username = v;
+          //   }
+          // });
+          // Object.defineProperty(scope, 'gender', {
+          //   configurable: true,
+          //   get: () => scope.d.gender,
+          //   set: v => {
+          //     scope.d.gender = v;
+          //   }
+          // });
+          // Object.defineProperty(scope, 'value', {
+          //   configurable: true,
+          //   get: () => scope.d.value,
+          //   set: v => {
+          //     scope.d.value = v;
+          //   }
+          // });
+          scope.username = scope.d.username;
+          scope.gender = scope.d.gender;
+          scope.value = scope.d.value;
         },
         template: '<div>' +
           '<div>Username: <input type="text" ng-model="username"></div>' +
           '<div>Gender: <input type="text" ng-model="gender"></div>' +
           '<div>Value: <input type="text" ng-model="value"></div>' +
+          '<div>All: {{d}}</div>' +
           '</div>'
       };
     });
