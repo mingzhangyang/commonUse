@@ -74,38 +74,12 @@
           d: '=data'
         },
         link: function (scope, element, attrs) {
-          // scope.d = arr[+attrs.index];
-          // // console.log('linked');
-          // // console.log(scope.value);
-          // Object.defineProperty(scope, 'username', {
-          //   configurable: true,
-          //   get: () => scope.d.username,
-          //   set: v => {
-          //     scope.d.username = v;
-          //   }
-          // });
-          // Object.defineProperty(scope, 'gender', {
-          //   configurable: true,
-          //   get: () => scope.d.gender,
-          //   set: v => {
-          //     scope.d.gender = v;
-          //   }
-          // });
-          // Object.defineProperty(scope, 'value', {
-          //   configurable: true,
-          //   get: () => scope.d.value,
-          //   set: v => {
-          //     scope.d.value = v;
-          //   }
-          // });
-          scope.username = scope.d.username;
-          scope.gender = scope.d.gender;
-          scope.value = scope.d.value;
         },
+        replace: true,
         template: '<div>' +
-          '<div>Username: <input type="text" ng-model="username"></div>' +
-          '<div>Gender: <input type="text" ng-model="gender"></div>' +
-          '<div>Value: <input type="text" ng-model="value"></div>' +
+          '<div>Username: <input type="text" ng-model="d.username"></div>' +
+          '<div>Gender: <input type="text" ng-model="d.gender"></div>' +
+          '<div>Value: <input type="text" ng-model="d.value"></div>' +
           '<div>All: {{d}}</div>' +
           '</div>'
       };
