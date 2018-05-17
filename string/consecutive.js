@@ -30,6 +30,36 @@ function extractSegment(a) {
   return list;
 }
 
+/**
+ * find all the segments with a specified n times of repeats in a give string
+ * @param s: the string to be searched
+ * @param n: the number of repeat times
+ */
+function findAllRepeats(s, n) {
+  let res = {};
+  let prop = '';
+  let w = '';
+  let idx = {};
+  for (let i = 0; i < s.length; i++) {
+    if (s[i] === w) {
+      prop += w;
+    } else {
+      idx.stop = i;
+      if (prop.length === n) {
+        if (res[prop] === undefined) {
+          res[prop] = [idx];
+        } else {
+          res[prop].push(idx);
+        }
+      }
+      prop = s[i];
+      w = s[i];
+      idx = {start: i}
+    }
+  }
+  return res;
+}
+
 if (typeof module !== 'undefined' && module.parent) {
 
 } else {
