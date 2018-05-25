@@ -61,7 +61,7 @@ function csv2json(path, cb, n) {
             tmp.push(obj);
 
           } else {
-            console.log('Possibly wrong @ line: ', cur[i]);
+            console.log('Possibly wrong @ line: ', cur);
           }
 
           if (tmp.length === num) {
