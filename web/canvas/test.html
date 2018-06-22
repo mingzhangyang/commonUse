@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="circle.js"></script>
+</head>
+<body>
+    <canvas id="canvas" width="800" height="800"></canvas>
+</body>
+<script>
+    let canvas = document.getElementById("canvas");
+    let ctx = canvas.getContext('2d');
+
+    let c = new Circle(ctx, [100, 100], 50, 1, {
+        lineWidth: 2,
+        strokeStyle: '#f66',
+        fillStyle: "green"
+    });
+    c.draw();
+</script>
+</html>
