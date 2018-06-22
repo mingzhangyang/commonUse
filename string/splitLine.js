@@ -112,4 +112,5 @@ if (typeof module !== 'undefined' && module.parent) {
     console.log(i, x.length, y.length, x.length === y.length);
   }
   console.log(splitLineB(test[test.length-1]));
+  console.log(typeof module);
 }
