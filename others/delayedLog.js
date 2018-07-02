@@ -12,12 +12,13 @@ function bar (x) {
   });
 }
 
-async function df() {
-  for (let i = 0; i < 5; i++) {
+async function df(n) {
+  for (let i = 0; i < n; i++) {
     await bar(i);
   }
 }
 
 if (typeof window !== 'undefined') {
-  df();
+  df(5);
 }
+df(10);
