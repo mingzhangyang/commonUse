@@ -110,7 +110,7 @@ class QueueByTwoStacks {
     this.outStack.pop();
   }
   _arrange() {
-    
+
   }
 }
 
