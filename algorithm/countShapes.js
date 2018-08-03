@@ -1,7 +1,7 @@
-export {detectShapes2};
+// export {detectShapes2};
 'use strict';
 
-let m = [
+let mat = [
   [0, 0, 0, 0, 0, 0],
   [0, 1, 1, 1, 1, 0],
   [0, 0, 1, 0, 1, 0],
@@ -133,4 +133,4 @@ function detectShapes2(m) {
   return shapes;
 }
 
-console.log(detectShapes2(m));
+// console.log(detectShapes2(mat));
