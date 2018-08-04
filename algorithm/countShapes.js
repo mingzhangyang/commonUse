@@ -89,39 +89,52 @@ function detectShapes2(m) {
       }
     }
   }
+  // console.log(allOnesMap);
   // iterate the array
   let uid = 0;
   for (let i = 0; i < allOnesArray.length; i++) {
     let key = allOnesArray[i];
     let r, c;
     [r, c] = key.split(',').map(d => +d);
-    let up, left, upright;
-    if (r > 0 && m[r-1][c] === 1) {
-      up = (r - 1) + ',' + c;
-      let id = allOnesMap.get(up);
-      if (id !== 0) {
-        allOnesMap.set(key, id);
-      }
+    // console.log(r, c);
+    // let up = (r-1) + ',' + c;
+    // let left = r + ',' + (c-1);
+    // console.log(key, up, left);
+    let id1 = allOnesMap.get((r-1) + ',' + c);
+    let id2 = allOnesMap.get(r + ',' + (c-1));
+
+    if ((!id1) && (!id2)) {
+      // id1 is undefined or 0; id2 is undefined or 0
+      allOnesMap.set(key, ++uid);
       continue;
     }
-    if (c > 0 && m[r][c-1] === 1) {
-      left = r + ',' + (c - 1);
-      let id = allOnesMap.get(left);
-      if (id !== 0) {
-        allOnesMap.set(key, id);
-        continue;
+
+    if (!id1 && id2) {
+      // id1 is undefined or 0; id2 is a non-zero integer
+      allOnesMap.set(key, id2);
+      continue;
+    }
+
+    if (id1 && !id2) {
+      // id1 is a non-zero integer; id2 is undefined or 0
+      allOnesMap.set(key, id1);
+      continue;
+    }
+
+    if (id1 && id2 && id1 === id2) {
+      // id1 and id2 are non-zero integer
+      allOnesMap.set(key, id1);
+    } else {
+      allOnesMap.set(key, id1);
+      // change the keys in the map with value of id2 to value of id1
+      for (let j = 0; j < i; j++) {
+        if (allOnesMap.get(allOnesArray[j]) === id2) {
+          allOnesMap.set(allOnesArray[j], id1);
+        }
       }
     }
-    if (r > 0 && c+1 < m[r-1].length && m[r][c+1] === 1 && m[r-1][c+1] === 1) {
-      upright = (r - 1) + ',' + (c + 1);
-      let id = allOnesMap.get(upright);
-      if (id !== 0) {
-        allOnesMap.set(key, id);
-        continue;
-      }
-    }
-    allOnesMap.set(key, ++uid);
   }
+  // console.log(allOnesMap);
   let shapes = {};
   for (let [k, v] of allOnesMap.entries()) {
     if (!shapes[v]) {
@@ -133,4 +146,4 @@ function detectShapes2(m) {
   return shapes;
 }
 
-// console.log(detectShapes2(mat));
+console.log(detectShapes2(mat));
