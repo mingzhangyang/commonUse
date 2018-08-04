@@ -96,10 +96,6 @@ function detectShapes2(m) {
     let key = allOnesArray[i];
     let r, c;
     [r, c] = key.split(',').map(d => +d);
-    // console.log(r, c);
-    // let up = (r-1) + ',' + c;
-    // let left = r + ',' + (c-1);
-    // console.log(key, up, left);
     let id1 = allOnesMap.get((r-1) + ',' + c);
     let id2 = allOnesMap.get(r + ',' + (c-1));
 
@@ -125,6 +121,8 @@ function detectShapes2(m) {
       // id1 and id2 are non-zero integer
       allOnesMap.set(key, id1);
     } else {
+      // deal with where id1 !== id2, the up, left and the current should be
+      // of the same value (they are connected, therefore are one object)
       allOnesMap.set(key, id1);
       // change the keys in the map with value of id2 to value of id1
       for (let j = 0; j < i; j++) {
@@ -134,7 +132,7 @@ function detectShapes2(m) {
       }
     }
   }
-  // console.log(allOnesMap);
+
   let shapes = {};
   for (let [k, v] of allOnesMap.entries()) {
     if (!shapes[v]) {
