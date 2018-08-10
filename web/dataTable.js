@@ -189,6 +189,10 @@ class DataTable {
     if (!table) {
       throw new Error('failed to locate the table');
     }
+    let pager = document.getElementById(this._targetId + '-pager-section');
+    let selects = pager.getElementsByTagName('select');
+
+    // add event listener to up/down sort controls
     table.addEventListener('click', function (evt) {
       if (evt.target.classList.contains('data-table-up-control')) {
         let col = evt.target._colName;
@@ -197,10 +201,12 @@ class DataTable {
         let col = evt.target._colName;
         that.sort(col, true);
       }
+      that._pageNumber = 1;
+      selects[1].value = 1;
       that.updateTableView();
     });
-    let pager = document.getElementById(this._targetId + '-pager-section');
-    let selects = pager.getElementsByTagName('select');
+
+    // add event listener to pager elements
     selects[0].addEventListener('change', function () {
       // update table view
       that.setRowsPerPage(+this.value);

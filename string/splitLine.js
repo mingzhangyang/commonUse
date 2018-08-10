@@ -94,7 +94,7 @@ function splitLineB(s, sep) {
 
 if (typeof module !== 'undefined' && module.parent) {
   module.exports = splitLineB;
-} else {
+} else if (typeof module !== 'undefined' && !module.parent) {
   // test code go here
   let test = [
       'a, b, c, d',
@@ -113,4 +113,6 @@ if (typeof module !== 'undefined' && module.parent) {
   }
   console.log(splitLineB(test[test.length-1]));
   console.log(typeof module);
+} else if (typeof window !== 'undefined') {
+  export {splitLineB}
 }
