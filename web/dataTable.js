@@ -180,6 +180,7 @@ class DataTable {
 
     // add the df to div
     div.appendChild(container);
+    this.updateTableView();
     this.attachListeners();
   }
   attachListeners() {
