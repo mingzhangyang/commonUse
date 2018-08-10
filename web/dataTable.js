@@ -4,7 +4,7 @@
 'use strict';
 
 class DataTable {
-  constructor(arr) {
+  constructor(arr, targetId) {
     if (!Array.isArray(arr)) {
       throw new Error('an array of objects expected');
     }
@@ -15,6 +15,9 @@ class DataTable {
       throw new Error('Data Table only works in browser');
     }
     this._data = arr;
+    this._targetId = targetId;
+    this._rowsPerPage = 10;
+    this._pageNumber = 1;
   }
   setColumnNames(names) {
     if (typeof names === 'undefined') {
@@ -32,20 +35,22 @@ class DataTable {
       throw new Error('an array of name strings expected');
     }
   }
-  // setPageNumber(n) {
-  //   if (typeof n !== 'number' || n < 0) {
-  //     throw new Error('a natural number expected');
-  //   }
-  //   this._pageNumber = n;
-  // }
-  // setRowsPerPage(n) {
-  //   if (typeof n !== 'number' || n < 0) {
-  //     throw new Error('a natural number expected');
-  //   }
-  //   this._rowsPerPage = n;
-  // }
 
-  convertToString(d) {
+  // page number starts from 1
+  setPageNumber(n) {
+    if (typeof n !== 'number' || n < 0) {
+      throw new Error('a natural number expected');
+    }
+    this._pageNumber = n;
+  }
+  setRowsPerPage(n) {
+    if (typeof n !== 'number' || n < 0) {
+      throw new Error('a natural number expected');
+    }
+    this._rowsPerPage = n;
+  }
+
+  static convertToString(d) {
     switch (typeof d) {
       case 'number':
         return d + '';
@@ -66,11 +71,31 @@ class DataTable {
     }
   }
 
-  generate(id) {
-    if (typeof id !== 'string' || !id) {
+  // if descending is omitted,
+  sort(col, descending) {
+    this._data.sort((x, y) => {
+      if (descending) {
+        return x[col] < y[col] ? 1 : -1;
+      } else {
+        return x[col] < y[col] ? -1 : 1;
+      }
+    });
+  }
+
+  updateDataToShow() {
+    let res = new Array(this._rowsPerPage);
+    let start = (this._pageNumber - 1) * this._rowsPerPage;
+    for (let i = 0; i < this._rowsPerPage; i++) {
+      res[i] = this._data[start+i];
+    }
+    this._dataToShow = res;
+  }
+
+  generate() {
+    if (typeof this._targetId !== 'string' || !this._targetId) {
       throw new Error('an element id expected');
     }
-    let table = document.getElementById(id);
+    let table = document.getElementById(this._targetId);
     while (table.lastChild) {
       table.removeChild(table.lastChild);
     }
@@ -84,10 +109,10 @@ class DataTable {
       head.appendChild(document.createElement('th')).innerText = name;
     }
     let tbody = df.appendChild(document.createElement('tbody'));
-    for (let row of this._data) {
+    for (let row of this._dataToShow) {
       let th = tbody.appendChild(document.createElement('tr'));
       for (let name of this._colNames) {
-        th.appendChild(document.createElement('td')).innerText = this.convertToString(row[name]);
+        th.appendChild(document.createElement('td')).innerText = DataTable.convertToString(row[name]);
       }
     }
     table.appendChild(df);
