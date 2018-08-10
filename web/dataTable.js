@@ -14,7 +14,8 @@ class DataTable {
     if (typeof window === 'undefined') {
       throw new Error('Data Table only works in browser');
     }
-    this._data = arr;
+    this._originalData = arr;
+    this._data = arr.slice();
     this._targetId = targetId;
     this._rowsPerPage = 10;
     this._pageNumber = 1;
