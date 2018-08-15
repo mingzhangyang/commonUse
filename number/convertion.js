@@ -64,9 +64,8 @@ function convert(units, n) {
     m = Math.floor(it / unit.value);
     if (m > 0) {
       res += `${m} ${unit.unit} `;
+      it %= unit.value;
     }
-    // it -= m * unit.value;
-    it %= unit.value;
   }
   if (res === '') {
     return `${0} ${units[units.length-1].unit}`;
