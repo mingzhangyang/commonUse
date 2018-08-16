@@ -62,6 +62,8 @@ function convert(units, n) {
   let m;
   for (let unit of units) {
     m = Math.floor(it / unit.value);
+    // m = Math.trunc(it / unit.value);
+    // m = ~~(it / unit.value);
     if (m > 0) {
       res += `${m} ${unit.unit} `;
       it %= unit.value;
