@@ -45,11 +45,16 @@ class colorObj {
 }
 
 
+if (typeof module !== 'undefined' && module.parent) {
+  // Node enviroment, required as module
+} else if (typeof window === 'object') {
+// Browser enviroment
+    } else {
+  // Node enviroment, run directly
+  // test code go here
+  console.log(hex2rgb('#00eeee'));
 
-
-console.log(hex2rgb('#00eeee'));
-
-let cc = `#00eeee 
+  let cc = `#00eeee 
 #8a2be2 
 #7fffd4 
 #6495ed 
@@ -92,10 +97,12 @@ let cc = `#00eeee
 #007ba7 
 #40e0d0`;
 
-let res = [];
+  let res = [];
 
-cc = cc.split('\n').map(d => d.trim());
-for (let i = 0; i < cc.length; i++) {
-  res.push(hex2rgb(cc[i]));
+  cc = cc.split('\n').map(d => d.trim());
+  for (let i = 0; i < cc.length; i++) {
+    res.push(hex2rgb(cc[i]));
+  }
+  console.log(res);
 }
-console.log(res);
+
