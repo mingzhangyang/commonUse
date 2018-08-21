@@ -18,6 +18,8 @@ function rgb2hex(r, g, b) {
 
 if (typeof module !== 'undefined' && module.parent) {
 
+} else if (typeof window === 'object') {
+
 } else {
   // test code go here
   console.log(rgb2hex(1, 2, 3));
