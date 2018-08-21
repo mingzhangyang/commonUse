@@ -6,11 +6,12 @@
 function rgb2hex(r, g, b) {
   let res = '#';
   for (let t of arguments) {
-    if (t < 0 || t > 255) {
-      throw 'Out of range. Please check your RGB code.';
+    if (typeof t === 'number' && t % 1 === 0 && t > -1 && t < 256) {
+      let th = Number(t).toString(16);
+      res += th.length === 1 ? `0${th}` : th;
+    } else {
+      throw 'Please check your RGB code.';
     }
-    let th = Number(t).toString(16);
-    res += th.length === 1 ? `0${th}` : th;
   }
   return res;
 }
