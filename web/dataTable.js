@@ -61,7 +61,11 @@ class DataTable {
   setCustomizedFactory(colName, func) {
     if (typeof colName !== 'string') {
       throw 'Failed to set customized factory function. The column name' +
-      ' should be a string.'
+      ' should be a string.';
+    }
+    if (typeof func !== 'function') {
+      throw 'Failed to set customized factory function. The second argument' +
+      ' is expected to be a function.';
     }
     this._customizedFactories[colName] = func;
   }
