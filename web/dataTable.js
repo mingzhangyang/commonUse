@@ -22,6 +22,7 @@ class DataTable {
     this._changePageByUser = true;
     this._customizedFactories = {};
     this._tableCaption = typeof caption === 'string' ? caption : '';
+    this._firstColumnAsRowNumber = true;
   }
 
   // reset source data after sorting or filtering
@@ -141,9 +142,16 @@ class DataTable {
       tBody.removeChild(tBody.lastChild);
     }
 
+    let startIndex = (this._pageNumber - 1) * this._rowsPerPage + 1;
     let df = document.createDocumentFragment();
-    for (let row of this._dataToShow) {
+    for (let i = 0; i < this._dataToShow.length; i++) {
+      let row = this._dataToShow[i];
       let tr = df.appendChild(document.createElement('tr'));
+      if (this._firstColumnAsRowNumber) {
+        let td = tr.appendChild(document.createElement('td'));
+        td.innerText = startIndex + i;
+        td.classList.add('table-row-index-column');
+      }
       for (let name of this._colNames) {
         if (this._customizedFactories[name]) {
           let v = this._customizedFactories[name](row[name]);
@@ -200,6 +208,11 @@ class DataTable {
     if (!this._colNames) {
       this.setColumnNames();
     }
+    if (this._firstColumnAsRowNumber) {
+      let firstCol = head.appendChild(document.createElement('th'));
+      firstCol.innerHTML = '#';
+      firstCol.classList.add('table-row-index-column');
+    }
     for (let name of this._colNames) {
       let th = head.appendChild(document.createElement('th'));
       th.appendChild(document.createTextNode(name));
@@ -220,6 +233,7 @@ class DataTable {
     // create page controller panel
     let pager = container.appendChild(document.createElement('div'));
     pager.id = this._targetId + '-pager-section';
+    pager.classList.add('table-page-control-container');
 
     // create number of rows per page selector
     let a = pager.appendChild(document.createElement('div'));
