@@ -4,7 +4,7 @@
 'use strict';
 
 class DataTable {
-  constructor(arr, targetId) {
+  constructor(arr, targetId, caption) {
     if (!Array.isArray(arr)) {
       throw new Error('an array of objects expected');
     }
@@ -20,7 +20,24 @@ class DataTable {
     this._rowsPerPage = 10;
     this._pageNumber = 1;
     this._changePageByUser = true;
+    this._customizedFactories = {};
+    this._tableCaption = typeof caption === 'string' ? caption : '';
   }
+
+  // reset source data after sorting or filtering
+  resetData() {
+    this._data = this._originalData.slice();
+    this.updateTableView();
+  }
+
+  // set table caption
+  setTableCaption(str) {
+    if (typeof str === 'string' && str.length > 0) {
+      this._tableCaption = str;
+    }
+  }
+
+  // set column names
   setColumnNames(names) {
     if (typeof names === 'undefined') {
       let res = new Set();
@@ -36,6 +53,17 @@ class DataTable {
     } else {
       throw new Error('an array of name strings expected');
     }
+  }
+
+  // factories to create customized elements
+  // the provided func should return an document element
+  // or innerHTML?
+  setCustomizedFactory(colName, func) {
+    if (typeof colName !== 'string') {
+      throw 'Failed to set customized factory function. The column name' +
+      ' should be a string.'
+    }
+    this._customizedFactories[colName] = func;
   }
 
   // page number starts from 1
@@ -84,7 +112,7 @@ class DataTable {
     });
   }
 
-  updateDataToShow() {
+  _updateDataToShow() {
     let res = [];
     let start = (this._pageNumber - 1) * this._rowsPerPage;
     for (let i = 0; i < this._rowsPerPage && start + i < this._data.length; i++) {
@@ -94,7 +122,7 @@ class DataTable {
   }
 
   updateTableView() {
-    this.updateDataToShow();
+    this._updateDataToShow();
     if (typeof this._targetId !== 'string' || !this._targetId) {
       throw new Error('an element id expected');
     }
@@ -102,38 +130,38 @@ class DataTable {
     if (!table) {
       throw new Error('failed to locate the table');
     }
-    while (table.lastChild) {
-      table.removeChild(table.lastChild);
+
+    // delete all the rows in tBody
+    let tBody = table.getElementsByTagName('tbody')[0];
+    while (tBody.lastChild) {
+      tBody.removeChild(tBody.lastChild);
     }
 
-    if (!this._colNames) {
-      this.setColumnNames();
-    }
     let df = document.createDocumentFragment();
-    let head = df.appendChild(document.createElement('thead'))
-    .appendChild(document.createElement('tr'));
-    for (let name of this._colNames) {
-      let th = head.appendChild(document.createElement('th'));
-      th.appendChild(document.createTextNode(name));
-      let control = th.appendChild(document.createElement('div'));
-      control.classList.add(this._targetId + '-control');
-      control._colName = name;
-      let up = control.appendChild(document.createElement('i'));
-      up.classList.add('data-table-up-control');
-      up._colName = name;
-      let down = control.appendChild(document.createElement('i'));
-      down.classList.add('data-table-down-control');
-      down._colName = name;
-    }
-    let tbody = df.appendChild(document.createElement('tbody'));
     for (let row of this._dataToShow) {
-      let th = tbody.appendChild(document.createElement('tr'));
+      let tr = df.appendChild(document.createElement('tr'));
       for (let name of this._colNames) {
-        th.appendChild(document.createElement('td')).innerText = DataTable.convertToString(row[name]);
+        if (this._customizedFactories[name]) {
+          let v = this._customizedFactories[name](row[name]);
+          switch (typeof v) {
+            case 'string':
+              tr.appendChild(document.createElement('td')).innerHTML = v;
+              break;
+            case 'object':
+              tr.appendChild(document.createElement('td')).appendChild(v);
+              break;
+            default:
+              tr.appendChild(document.createElement('td')).innerText = 'invalid customized factory function';
+          }
+        } else {
+          tr.appendChild(document.createElement('td')).innerText = DataTable.convertToString(row[name]);
+        }
       }
     }
-    table.appendChild(df);
+    tBody.appendChild(df);
   }
+
+  // generate all table related panels
   generate() {
     // replace the table with a div element
     let target = document.getElementById(this._targetId);
@@ -144,17 +172,52 @@ class DataTable {
 
     // create the contents of the new object
     let container = document.createDocumentFragment();
+
+    // create filter panel
     let filterSection = container.appendChild(document.createElement('div'));
     filterSection.id = this._targetId + '-filter-section';
 
+    // create visualization panel
     let vizSection = container.appendChild(document.createElement('div'));
     vizSection.id = this._targetId + '-visualization-section';
 
+    // create table panel
     let table = container.appendChild(document.createElement('table'));
     table.id = this._targetId + '-table-section';
 
+    // add caption to the table
+    table.appendChild(document.createElement('caption'))
+        .appendChild(document.createTextNode(this._tableCaption));
+
+    // create table header
+    // Since the header is supposed not to update, create it once
+    let head = table.appendChild(document.createElement('thead'))
+    .appendChild(document.createElement('tr'));
+    if (!this._colNames) {
+      this.setColumnNames();
+    }
+    for (let name of this._colNames) {
+      let th = head.appendChild(document.createElement('th'));
+      th.appendChild(document.createTextNode(name));
+      let control = th.appendChild(document.createElement('div'));
+      control.classList.add('table-sorting-control-container');
+      control._colName = name;
+      let up = control.appendChild(document.createElement('i'));
+      up.classList.add('table-sorting-control', 'table-sorting-up-control');
+      up._colName = name;
+      let down = control.appendChild(document.createElement('i'));
+      down.classList.add('table-sorting-control', 'table-sorting-down-control');
+      down._colName = name;
+    }
+
+    //create tBody
+    table.appendChild(document.createElement('tbody'));
+
+    // create page controller panel
     let pager = container.appendChild(document.createElement('div'));
     pager.id = this._targetId + '-pager-section';
+
+    // create number of rows per page selector
     let a = pager.appendChild(document.createElement('div'));
     a.appendChild(document.createElement('span'))
     .appendChild(document.createTextNode('Items per Page'));
@@ -166,6 +229,7 @@ class DataTable {
     }
     num.value = 10;
 
+    // create page selector
     let b = pager.appendChild(document.createElement('div'));
     b.appendChild(document.createElement('span'))
     .appendChild(document.createTextNode('Select Page'));
@@ -183,6 +247,8 @@ class DataTable {
     this.updateTableView();
     this.attachListeners();
   }
+
+  // attach event listeners to controller elements
   attachListeners() {
     let that = this;
     let table = document.getElementById(this._targetId + '-table-section');
@@ -193,20 +259,28 @@ class DataTable {
     let selects = pager.getElementsByTagName('select');
 
     // add event listener to up/down sort controls
+    let sortingControls = document.getElementsByClassName('table-sorting-control');
     table.addEventListener('click', function (evt) {
-      if (evt.target.classList.contains('data-table-up-control')) {
+      if (evt.target.classList.contains('table-sorting-control')) {
+        for (let ctrl of sortingControls) {
+          ctrl.classList.remove('table-sorting-control-active');
+        }
+      }
+      if (evt.target.classList.contains('table-sorting-up-control')) {
         let col = evt.target._colName;
         that.sort(col, false);
-      } else if (evt.target.classList.contains('data-table-down-control')) {
+        evt.target.classList.add('table-sorting-control-active');
+      } else if (evt.target.classList.contains('table-sorting-down-control')) {
         let col = evt.target._colName;
         that.sort(col, true);
+        evt.target.classList.add('table-sorting-control-active');
       }
       that._pageNumber = 1;
       selects[1].value = 1;
       that.updateTableView();
     });
 
-    // add event listener to pager elements
+    // add event listener to number of rows per page selector
     selects[0].addEventListener('change', function () {
       // update table view
       that.setRowsPerPage(+this.value);
@@ -228,6 +302,8 @@ class DataTable {
         that._changePageByUser = true;
       }, 1000);
     });
+
+    // add event listener to page selector
     selects[1].addEventListener('change', function () {
       if (that._changePageByUser) {
         that.setPageNumber(+this.value);
@@ -237,8 +313,4 @@ class DataTable {
   }
 }
 
-if (typeof module !== 'undefined' && module.parent) {
 
-} else {
-  // test code go here
-}
