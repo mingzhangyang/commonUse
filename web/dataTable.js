@@ -352,6 +352,15 @@ class DataTable {
 
     // add event listener to page selector
     currentPageArea.addEventListener('change', function () {
+      let n = +this.value;
+      if (isNaN(n)) {
+        alert('invalid page number!');
+        return;
+      }
+      if (n < 0 || n > that._totalPages) {
+        alert('page number out of range');
+        return;
+      }
       if (that._changePageByUser) {
         that.setPageNumber(+this.value);
         that.updateTableView();
