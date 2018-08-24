@@ -19,6 +19,7 @@ class DataTable {
     this._targetId = targetId;
     this._rowsPerPage = 10;
     this._pageNumber = 1;
+    this._totalPages = Math.ceil(this._data.length / this._rowsPerPage);
     this._changePageByUser = true;
     this._customizedFactories = {};
     this._tableCaption = typeof caption === 'string' ? caption : '';
@@ -83,6 +84,7 @@ class DataTable {
       throw new Error('a natural number expected');
     }
     this._rowsPerPage = n;
+    this._totalPages = Math.ceil(this._data.length / this._rowsPerPage);
   }
 
   static convertToString(d) {
@@ -238,27 +240,38 @@ class DataTable {
     // create number of rows per page selector
     let a = pager.appendChild(document.createElement('div'));
     a.appendChild(document.createElement('span'))
-    .appendChild(document.createTextNode('Items per Page'));
+    .appendChild(document.createTextNode('Rows per Page'));
     let num = a.appendChild(document.createElement('select'));
     num.classList.add('data-table-row-number-selector');
-    for (let i of [5, 10, 20, 50, 100]) {
+    for (let i of [5, 10, 20, 50, 100, 200]) {
       num.appendChild(document.createElement('option'))
       .appendChild(document.createTextNode(i));
     }
     num.value = 10;
 
-    // create page selector
-    let b = pager.appendChild(document.createElement('div'));
-    b.appendChild(document.createElement('span'))
-    .appendChild(document.createTextNode('Select Page'));
-    let pages = b.appendChild(document.createElement('select'));
-    pages.classList.add('data-table-pages-selector');
+    // page selector candidate
+    let c = pager.appendChild(document.createElement('div'));
+    c.classList.add('table-page-number-control-container');
+    c.appendChild(document.createElement('div'))
+      .classList
+      .add('table-page-number-control', 'table-page-number-minus-one');
+    let m = c.appendChild(document.createElement('div'));
+    m.classList.add('table-page-number-current-container');
+    m.appendChild(document.createElement('span'))
+    .appendChild(document.createTextNode('Page'));
+    let inp1 = m.appendChild(document.createElement('input'));
+    inp1.id = 'table-page-number-current';
+    inp1.value = this._pageNumber;
+    m.appendChild(document.createElement('span'))
+    .appendChild(document.createTextNode('of'));
+    let inp2 = m.appendChild(document.createElement('input'));
+    inp2.id = 'table-page-number-total';
+    inp2.setAttribute('readonly', true);
+    inp2.value = this._totalPages;
 
-    let totalPages = Math.ceil(this._data.length / this._rowsPerPage);
-    for (let i = 1; i <= totalPages; i++) {
-      pages.appendChild(document.createElement('option'))
-          .appendChild(document.createTextNode(i));
-    }
+    c.appendChild(document.createElement('div'))
+      .classList
+      .add('table-page-number-control', 'table-page-number-plus-one');
 
     // add the df to div
     div.appendChild(container);
@@ -274,7 +287,9 @@ class DataTable {
       throw new Error('failed to locate the table');
     }
     let pager = document.getElementById(this._targetId + '-pager-section');
-    let selects = pager.getElementsByTagName('select');
+    let rowPerPageSelector = pager.getElementsByTagName('select')[0];
+    let currentPageArea = document.getElementById('table-page-number-current');
+    let totalPageNumberArea = document.getElementById('table-page-number-total');
 
     // add event listener to up/down sort controls
     let sortingControls = document.getElementsByClassName('table-sorting-control');
@@ -294,27 +309,41 @@ class DataTable {
         evt.target.classList.add('table-sorting-control-active');
       }
       that._pageNumber = 1;
-      selects[1].value = 1;
+      currentPageArea.value = 1;
       that.updateTableView();
     });
 
+    // add event listener to page-number-control minus/plus icon using event
+    // delegation
+    pager.addEventListener('click', function (evt) {
+      if (evt.target.classList.contains('table-page-number-minus-one')) {
+        if (+currentPageArea.value > 1) {
+          let v = +currentPageArea.value - 1;
+          that._pageNumber = v;
+          currentPageArea.value = v;
+          that.updateTableView();
+        }
+      }
+      if (evt.target.classList.contains('table-page-number-plus-one')) {
+        if (+currentPageArea.value < that._totalPages) {
+          let v = +currentPageArea.value + 1;
+          that._pageNumber = v;
+          currentPageArea.value = v;
+          that.updateTableView();
+        }
+      }
+    });
+
     // add event listener to number of rows per page selector
-    selects[0].addEventListener('change', function () {
+    rowPerPageSelector.addEventListener('change', function () {
       // update table view
       that.setRowsPerPage(+this.value);
       that.setPageNumber(1);
       that.updateTableView();
 
       // update pager
-      let totalPages = Math.ceil(that._data.length / that._rowsPerPage);
-      while (selects[1].lastChild) {
-        selects[1].removeChild(selects[1].lastChild);
-      }
-      for (let i = 1; i <= totalPages; i++) {
-        selects[1].appendChild(document.createElement('option'))
-        .appendChild(document.createTextNode(i));
-      }
-      selects[1].value = 1;
+      currentPageArea.value = 1;
+      totalPageNumberArea.value = that._totalPages;
       that._changePageByUser = false;
       setTimeout(function () {
         that._changePageByUser = true;
@@ -322,7 +351,16 @@ class DataTable {
     });
 
     // add event listener to page selector
-    selects[1].addEventListener('change', function () {
+    currentPageArea.addEventListener('change', function () {
+      let n = +this.value;
+      if (isNaN(n)) {
+        alert('invalid page number!');
+        return;
+      }
+      if (n < 0 || n > that._totalPages) {
+        alert('page number out of range');
+        return;
+      }
       if (that._changePageByUser) {
         that.setPageNumber(+this.value);
         that.updateTableView();
