@@ -128,12 +128,12 @@ if (typeof module !== 'undefined' && module.parent) {
   // Node environment, required as module
 } else if (typeof window === 'object') {
   // Browser environment
-  document.getElementById('url').addEventListener('change', function () {
-    let d = request('GET', this.value, null);
-    d.then(console.log).catch(err => {
-      console.log(err);
-    });
-  });
+  // document.getElementById('url').addEventListener('change', function () {
+  //   let d = request('GET', this.value, null);
+  //   d.then(console.log).catch(err => {
+  //     console.log(err);
+  //   });
+  // });
 
 } else {
   // Node environment, run directly
