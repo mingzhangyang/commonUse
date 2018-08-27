@@ -4,6 +4,17 @@
 'use strict';
 
 function request(method, url, option) {
+  if (typeof method !== 'string') {
+    throw 'The first argument is expected to be a string.';
+  }
+  method = method.toUpperCase();
+  const METHODS = ['GET', 'HEAD', 'POST', 'PUT', 'DELETE, OPTIONS, PATCH'];
+  if (METHODS.indexOf(method) === -1) {
+    throw 'Method not recognized!';
+  }
+  if (typeof url !== 'string' || url.slice(4) !== 'http') {
+    throw 'The second argument is not a valid http url string.';
+  }
   return new Promise((resolve, reject) => {
     let xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function () {
@@ -88,7 +99,24 @@ function request(method, url, option) {
       }
     };
     xhr.open(method, url, true);
-    if (option) {
+    if (option && typeof option === 'object') {
+      if (option === null) {
+        xhr.send(null);
+        return;
+      }
+      if (option['headers']) {
+        let headers = object.keys(options.headers);
+        for (let header of headers) {
+          xhr.setRequestHeader(header, option.headers[header]);
+        }
+        delete option.headers;
+      }
+
+      if (option['mimeType']) {
+        xhr.overrideMimeType(option.mimeType);
+        delete option.mimeType;
+      }
+
       xhr.send(option);
     } else {
       xhr.send();
