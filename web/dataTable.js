@@ -11,9 +11,9 @@ class DataTable {
     if (Object.prototype.toString.call(arr[0]) !== '[object Object]') {
       throw new Error('an array of objects expected');
     }
-    if (typeof window === 'undefined') {
-      throw new Error('Data Table only works in browser');
-    }
+    // if (typeof window === 'undefined') {
+    //   throw new Error('Data Table only works in browser');
+    // }
     this._originalData = arr;
     this._data = arr.slice();
     this._targetId = targetId;
@@ -24,6 +24,9 @@ class DataTable {
     this._customizedFactories = {};
     this._tableCaption = typeof caption === 'string' ? caption : '';
     this._firstColumnAsRowNumber = true;
+    this._colNames = null;
+    this._customizedColumnNames = {};
+    this._filters = {};
   }
 
   // reset source data after sorting or filtering
@@ -37,6 +40,11 @@ class DataTable {
     if (typeof str === 'string' && str.length > 0) {
       this._tableCaption = str;
     }
+  }
+
+  // customized column names
+  renameColumn(oldName, newName) {
+    this._customizedColumnNames[oldName] = newName;
   }
 
   // set column names
@@ -72,13 +80,16 @@ class DataTable {
     this._customizedFactories[colName] = func;
   }
 
-  // page number starts from 1
+  // internal method to set page number (starts from 1)
   setPageNumber(n) {
     if (typeof n !== 'number' || n < 0) {
       throw new Error('a natural number expected');
     }
     this._pageNumber = n;
   }
+
+  // actually, this is a internal method, update the internal properties
+  // _rowsPerPage and _totalPages
   setRowsPerPage(n) {
     if (typeof n !== 'number' || n < 0) {
       throw new Error('a natural number expected');
@@ -87,6 +98,7 @@ class DataTable {
     this._totalPages = Math.ceil(this._data.length / this._rowsPerPage);
   }
 
+  // static method
   static convertToString(d) {
     switch (typeof d) {
       case 'number':
@@ -108,17 +120,107 @@ class DataTable {
     }
   }
 
-  // if descending is omitted,
+  // if descending is omitted, sort in descending order by default
   sort(col, descending) {
-    this._data.sort((x, y) => {
-      if (descending) {
-        return x[col] < y[col] ? 1 : -1;
-      } else {
-        return x[col] < y[col] ? -1 : 1;
-      }
-    });
+    if (descending) {
+      this._data.sort((x, y) => x[col] < y[col] ? 1 : -1);
+    } else {
+      this._data.sort((x, y) => x[col] < y[col] ? -1 : 1);
+    }
   }
 
+  /**
+   * AddFilter add a filter to filter section
+   * @param colName: string, column names
+   * @param type: string, value | range
+   * @param dataObj: array, return by solr/ngram. If not provided,
+   * it will be computed locally
+   */
+  addFilter(colName, type, dataObj) {
+    if (!this._colNames) {
+      this.setColumnNames();
+    }
+    if (this._colNames.indexOf(colName) === -1) {
+      throw 'Column name not recognized. Please use the original column name' +
+      ' but not the customized name.';
+    }
+    if (type !== 'value' && type !== 'range') {
+      throw 'Type not recognized. Only value or range allowed.';
+    }
+    if (typeof dataObj === 'undefined') {
+      // compute the dataObj locally
+      if (type === 'value') {
+        let m = new Map();
+        for (let item of this_data) {
+          let v = item[colName];
+          if (typeof v === 'undefined') {
+            continue;
+          }
+          let c = m.get(v);
+          if (c === undefined) {
+            m.set(v, 1);
+          } else {
+            m.set(v, c + 1);
+          }
+        }
+        let arr = [];
+        for (let [k, v] of m.entries()) {
+          arr.push({
+            value: k,
+            count: v
+          });
+        }
+        this._filters[colName] = arr;
+      }
+
+      if (type === 'range') {
+        // if type is range, the values of that column should be number
+        if (typeof this._data[0][colName] !== 'number') {
+          throw 'This column should be of type of number.';
+        }
+        this.sort(colName, false);
+        if (this._data.length < 5) {
+          throw 'Two few items to range.';
+        }
+        let min = this._data[0][colName];
+        let max = this._data[this._data.length - 1][colName];
+        let d = ((max - min) / 5).toFixed(2);
+        if (d.slice(-2) === '00') {
+          d = +d;
+        } else {
+          d = +(+d + .01).toFixed(2);
+        }
+        let arr = [];
+        for (let i = 0; i < 5; i++) {
+          arr.push([min + i * d, min + (i+1) * d, 0]);
+        }
+        let idx = 0;
+        for (let item of this._data) {
+          if (item[colName] >= arr[idx][0] && item[colName] < arr[idx][1]) {
+            arr[idx][2]++;
+          } else {
+            arr[idx+1][2]++;
+            idx++;
+          }
+        }
+        this._filters[colName] = arr.map(d => {
+          return {
+            range: `[${d[0]}, ${d[1]})`,
+            count: d[2]
+          };
+        });
+      }
+    }
+    else if (typeof  dataObj === 'object' && dataObj[colName]) {
+      // receive the dataObj returned by ngram/solr
+      this._filters[colName] = dataObj;
+    } else {
+      throw 'Adding filter failed';
+    }
+
+  }
+
+  // internal method, determine the range of data to show
   _updateDataToShow() {
     let res = [];
     let start = (this._pageNumber - 1) * this._rowsPerPage;
@@ -128,6 +230,7 @@ class DataTable {
     this._dataToShow = res;
   }
 
+  // update the table content
   updateTableView() {
     this._updateDataToShow();
     if (typeof this._targetId !== 'string' || !this._targetId) {
@@ -217,7 +320,11 @@ class DataTable {
     }
     for (let name of this._colNames) {
       let th = head.appendChild(document.createElement('th'));
-      th.appendChild(document.createTextNode(name));
+      if (this._customizedColumnNames[name]) {
+        th.appendChild(document.createTextNode(this._customizedColumnNames[name]));
+      } else {
+        th.appendChild(document.createTextNode(name));
+      }
       let control = th.appendChild(document.createElement('div'));
       control.classList.add('table-sorting-control-container');
       control._colName = name;
@@ -367,6 +474,51 @@ class DataTable {
       }
     });
   }
+
+  // create Filter section
+  createFilterSection() {
+
+  }
+
+  // create Visualization section
+  createVizSection() {
+    
+  }
+
+
 }
 
+
+// testing code
+if (typeof module !== 'undefined' && !module.parent) {
+  let data = [
+    {a: 'a', b: 'b', c: 17},
+    {a: 'a', b: 'b', c: 1},
+    {a: 'a', b: 'b', c: 7},
+    {a: 'a', b: 'b', c: 27},
+    {a: 'a', b: 'b', c: 12},
+    {a: 'a', b: 'b', c: 4},
+    {a: 'a', b: 'b', c: 8},
+    {a: 'a', b: 'b', c: 23},
+    {a: 'a', b: 'b', c: 21},
+    {a: 'a', b: 'b', c: 78},
+    {a: 'a', b: 'b', c: 65},
+    {a: 'a', b: 'b', c: 34},
+    {a: 'a', b: 'b', c: 89},
+    {a: 'a', b: 'b', c: 3},
+    {a: 'a', b: 'b', c: 56},
+    {a: 'a', b: 'b', c: 27},
+    {a: 'a', b: 'b', c: 62},
+    {a: 'a', b: 'b', c: 4},
+    {a: 'a', b: 'b', c: 17},
+    {a: 'a', b: 'b', c: 19},
+    {a: 'a', b: 'b', c: 27}
+  ];
+
+  let start = Date.now();
+  let t = new DataTable(data, 'test');
+  t.addFilter('c', 'range');
+  console.log(t._filters);
+  console.log(Date.now() - start);
+}
 
