@@ -166,7 +166,8 @@ class DataTable {
         let arr = [];
         for (let [k, v] of m.entries()) {
           arr.push({
-            value: k,
+            facetType: 'value',
+            facetValue: k,
             count: v
           });
         }
@@ -205,7 +206,8 @@ class DataTable {
         }
         this._filters[colName] = arr.map(d => {
           return {
-            range: `[${d[0]}, ${d[1]})`,
+            facetType: 'range',
+            facetValue: `[${d[0]}, ${d[1]})`,
             count: d[2]
           };
         });
@@ -477,7 +479,38 @@ class DataTable {
 
   // create Filter section
   createFilterSection() {
+    let filterSection = document.getElementById(this._targetId + '-filter-section');
+    if (!filterSection) {
+      throw new Error('Creating filter section failed.')
+    }
 
+    let filterNames = Object.keys(this._filters);
+    if (filterNames.length === 0) {
+      throw new Error('No filters found.');
+    }
+    let df = document.createDocumentFragment();
+    for (let filterName of filterNames) {
+      let row = df.appendChild(document.createElement('div'));
+      row.classList.add('filter-section-row');
+      let span = row.appendChild(document.createElement('span'));
+      span.classList.add('filter-name');
+      span.appendChild(document.createTextNode(filterName));
+      // reuse span variable below
+      span = row.appendChild(document.createElement('span'));
+      span.classList.add('filter-values');
+      for (let obj of this._filters[filterName]) {
+        let inp = span.appendChild('input');
+        inp.type = 'checkbox';
+        inp.facetType = obj.facetType;
+        inp.facetValue = obj.facetValue;
+        inp.count = obj.count;
+        let label = span.appendChild(document.createElement('label'));
+        label.appendChild(document.createTextNode(`${obj.facetValue} (${obj.count})`));
+      }
+    }
+    filterSection.appendChild(df);
+    // add event listener to input[type='checkbox'] elements
+    
   }
 
   // create Visualization section
