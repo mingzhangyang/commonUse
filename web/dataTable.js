@@ -151,7 +151,7 @@ class DataTable {
       // compute the dataObj locally
       if (type === 'value') {
         let m = new Map();
-        for (let item of this_data) {
+        for (let item of this._data) {
           let v = item[colName];
           if (typeof v === 'undefined') {
             continue;
@@ -482,7 +482,7 @@ class DataTable {
 
   // create Visualization section
   createVizSection() {
-    
+
   }
 
 
@@ -492,32 +492,33 @@ class DataTable {
 // testing code
 if (typeof module !== 'undefined' && !module.parent) {
   let data = [
-    {a: 'a', b: 'b', c: 17},
-    {a: 'a', b: 'b', c: 1},
-    {a: 'a', b: 'b', c: 7},
-    {a: 'a', b: 'b', c: 27},
-    {a: 'a', b: 'b', c: 12},
-    {a: 'a', b: 'b', c: 4},
-    {a: 'a', b: 'b', c: 8},
-    {a: 'a', b: 'b', c: 23},
-    {a: 'a', b: 'b', c: 21},
-    {a: 'a', b: 'b', c: 78},
-    {a: 'a', b: 'b', c: 65},
-    {a: 'a', b: 'b', c: 34},
-    {a: 'a', b: 'b', c: 89},
-    {a: 'a', b: 'b', c: 3},
-    {a: 'a', b: 'b', c: 56},
-    {a: 'a', b: 'b', c: 27},
-    {a: 'a', b: 'b', c: 62},
-    {a: 'a', b: 'b', c: 4},
-    {a: 'a', b: 'b', c: 17},
-    {a: 'a', b: 'b', c: 19},
-    {a: 'a', b: 'b', c: 27}
+    {a: 'a', b: 'x', c: 17},
+    {a: 'a', b: 'y', c: 1},
+    {a: 'a', b: 'd', c: 7},
+    {a: 'a', b: 'e', c: 27},
+    {a: 'a', b: 'd', c: 12},
+    {a: 'a', b: 'c', c: 4},
+    {a: 'a', b: 'e', c: 8},
+    {a: 'a', b: 'c', c: 23},
+    {a: 'a', b: 'v', c: 21},
+    {a: 'a', b: 'd', c: 78},
+    {a: 'a', b: 's', c: 65},
+    {a: 'a', b: 'c', c: 34},
+    {a: 'a', b: 'x', c: 89},
+    {a: 'a', b: 'x', c: 3},
+    {a: 'a', b: 'z', c: 56},
+    {a: 'a', b: 'e', c: 27},
+    {a: 'a', b: 'r', c: 62},
+    {a: 'a', b: 'f', c: 4},
+    {a: 'a', b: 'x', c: 17},
+    {a: 'a', b: 'r', c: 19},
+    {a: 'a', b: 'r', c: 27}
   ];
 
   let start = Date.now();
   let t = new DataTable(data, 'test');
   t.addFilter('c', 'range');
+  t.addFilter('b', 'value');
   console.log(t._filters);
   console.log(Date.now() - start);
 }
