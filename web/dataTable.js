@@ -577,7 +577,13 @@ class DataTable {
 
   // create Visualization section
   createVizSection() {
+    let vizSection = document.getElementById(this._targetId + '-visualization-section');
+    if (!vizSection) {
+      throw new Error('Creating visualization section failed.');
+    }
+    // create visualization control panel
 
+    // create visualization area
   }
 
 
