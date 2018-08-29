@@ -217,7 +217,6 @@
 .my-1535567872393-product div.filter-viz-download-buttons-wrapper {
     display: block;
     position: relative;
-    height: 40px;
 }
 
 .my-1535567872393-product div.table-top-button {
@@ -319,9 +318,6 @@
 
 /* download button position setting */
 .my-1535567872393-product div.download-control-button {
-    position: absolute;
     margin-right: 0;
-    right: 0;
-    top: 50%;
-    margin-top: -15px;
+    float: right;
 }
