@@ -14,6 +14,8 @@ class DataTable {
     // if (typeof window === 'undefined') {
     //   throw new Error('Data Table only works in browser');
     // }
+
+    // below are properties required to create and update table
     this._originalData = arr;
     this._data = arr.slice();
     this._targetId = targetId;
@@ -26,13 +28,24 @@ class DataTable {
     this._firstColumnAsRowNumber = true;
     this._colNames = null;
     this._customizedColumnNames = {};
+
+    // below are properties required to configure the element
     this._filters = {};
-    this.setting = {
-      searchBar: true,
-      filterButton: true,
-      vizButton: true,
-      downloadButton: true,
+    this._charts = [];
+    this._colorSchemes = {
+      default: 'default-color-scheme'
     };
+    this.configuration = {
+      searchBar: true,
+      filterButton: false,
+      vizButton: false,
+      downloadButton: true,
+      colorScheme: 'default',
+    };
+
+    // below are miscellaneous properties
+    this.messageQueue = [];
+    this._uid = 'my-1535567872393-product';
   }
 
   // reset source data after sorting or filtering
@@ -153,6 +166,8 @@ class DataTable {
     if (type !== 'value' && type !== 'range') {
       throw 'Type not recognized. Only value or range allowed.';
     }
+
+    this.configuration.filterButton = true;
     if (typeof dataObj === 'undefined') {
       // compute the dataObj locally
       if (type === 'value') {
@@ -228,6 +243,32 @@ class DataTable {
 
   }
 
+  /**
+   * AddChart add a chart to visualization section
+   * @param chart: object
+   * {
+   *    charType: bar/line/scatter/pie/...
+   *    xAxisColumn: a,
+   *    yAxisColumn: b,
+   *    ...
+   * }
+   */
+  addCharts(chart) {
+    this.configuration.vizButton = true;
+    this._charts.push(chart);
+  }
+
+  /**
+   * ChangeColorScheme change the color scheme of the whole object
+   * @param scheme
+   */
+  changeColorScheme(scheme) {
+    if (this._colorSchemes.indexOf(scheme) === -1) {
+      throw new Error(scheme + ' not set.');
+    }
+    this.configuration.colorScheme = scheme;
+  }
+
   // internal method, determine the range of data to show
   _updateDataToShow() {
     let res = [];
@@ -286,7 +327,8 @@ class DataTable {
     tBody.appendChild(df);
   }
 
-  // generate all table related panels
+  // generate all table related panels,
+  // can be used to refresh the whole object
   generate() {
     // replace the table with a div element
     let target = document.getElementById(this._targetId);
@@ -294,6 +336,8 @@ class DataTable {
     target.parentNode.insertBefore(div, target);
     target.parentNode.removeChild(target);
     div.id = this._targetId;
+    div.classList.add(this._uid);
+    div.classList.add(this._colorSchemes[this.configuration.colorScheme]);
 
     // create the contents of the new object
     let container = document.createDocumentFragment();
@@ -303,24 +347,48 @@ class DataTable {
     let btnPanle = container.appendChild(document.createElement('div'));
     btnPanle.classList.add('control-button-panel');
 
-    if (this.setting.searchBar) {
+    if (this.configuration.searchBar) {
       let searchBar = btnPanle.appendChild(document.createElement('div'));
       searchBar.id = this._targetId + '-search-bar';
       searchBar.classList.add('search-bar-wrapper');
+
       let sb = searchBar.appendChild(document.createElement('input'));
       sb.type = 'search';
       sb.id = this._targetId + '-search-box';
       sb.classList.add('search-box');
+      sb.addEventListener('focus', function () {
+        searchBar.classList.remove('search-hints-active');
+      });
+
       let lb = searchBar.appendChild(document.createElement('label'));
       lb.htmlFor = sb.id;
       lb.classList.add('label-for-search-box');
       lb.appendChild(document.createTextNode('Search'));
+
+      let sp = searchBar.appendChild(document.createElement('span'));
+      sp.classList.add('question-mark');
+      sp.addEventListener('click', function () {
+        searchBar.classList.add('search-hints-active');
+      });
+
+      let hintWrapper = searchBar.appendChild(document.createElement('div'));
+      hintWrapper.classList.add('search-hints-wrapper');
+      let hint = hintWrapper.appendChild(document.createElement('p'));
+      hint.innerText = `Syntax: "column name":[[operator] value] [AND | OR] ["column name"[:[operator]value]]`;
+      let example = hintWrapper.appendChild(document.createElement('p'));
+      example.appendChild(document.createTextNode('e.g. '));
+      example.appendChild(document.createElement('span'))
+          .appendChild(document.createTextNode('"length": > 120'));
+      example.appendChild(document.createElement('span'))
+          .appendChild(document.createTextNode(';'));
+      example.appendChild(document.createElement('span'))
+      .appendChild(document.createTextNode('"height": 80 AND "width": 100'));
     }
 
     let btns = container.appendChild(document.createElement('div'));
     btns.classList.add('filter-viz-download-buttons-wrapper');
 
-    if (this.setting.filterButton) {
+    if (this.configuration.filterButton) {
       let fBtn = btns.appendChild(document.createElement('div'));
       fBtn.classList.add('table-top-button', 'filter-section-control-button');
       fBtn.appendChild(document.createTextNode('Filters'));
@@ -329,7 +397,7 @@ class DataTable {
       });
     }
 
-    if (this.setting.vizButton) {
+    if (this.configuration.vizButton) {
       let vBtn = btns.appendChild(document.createElement('div'));
       vBtn.classList.add('table-top-button', 'viz-section-control-button');
       vBtn.appendChild(document.createTextNode('Visualize'));
@@ -338,7 +406,7 @@ class DataTable {
       });
     }
 
-    if (this.setting.downloadButton) {
+    if (this.configuration.downloadButton) {
       let dBtn = btns.appendChild(document.createElement('div'));
       dBtn.classList.add('table-top-button', 'download-control-button');
       dBtn.appendChild(document.createTextNode('Download'));
@@ -445,12 +513,25 @@ class DataTable {
   }
 
   // attach event listeners to controller elements
+  // Although it is better to add event listener as the element was created,
+  // which you save the time searching the DOM tree to get the elements,
+  // it is acceptable to add event listener after all the elements have been
+  // created. Because there are only a few of elements to take care of.
   attachListeners() {
     let that = this;
+    document.getElementById(this._targetId)
+        .addEventListener('click', function (evt) {
+            that.messageQueue.push({
+              target: evt.target,
+              //....
+            });
+    });
+
     let table = document.getElementById(this._targetId + '-table-section');
     if (!table) {
       throw new Error('failed to locate the table');
     }
+
     let pager = document.getElementById(this._targetId + '-pager-section');
     let rowPerPageSelector = pager.getElementsByTagName('select')[0];
     let currentPageArea = document.getElementById('table-page-number-current');
