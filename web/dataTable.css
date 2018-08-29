@@ -252,23 +252,23 @@
     transition: all .4s;
 }
 
-.my-1535567872393-product .filter-section-active .filter-section-control-button {
+.my-1535567872393-product.filter-section-active .filter-section-control-button {
     background-color: var(--hover-color);
 }
 
-.my-1535567872393-product .filter-section-active .filter-section-control-button::after {
+.my-1535567872393-product.filter-section-active .filter-section-control-button::after {
     transform: rotate(-135deg);
 }
 
-.my-1535567872393-product .filter-section-active table.filter-section-table {
+.my-1535567872393-product.filter-section-active .filter-section-table {
     display: table;
 }
 
-.my-1535567872393-product .filter-section-active div.filter-viz-download-buttons-wrapper {
+.my-1535567872393-product.filter-section-active .filter-viz-download-buttons-wrapper {
     border-bottom: 1px solid var(--border-color);
 }
 
-.my-1535567872393-product table.filter-section-table {
+.my-1535567872393-product .filter-section-table {
     margin-top: 4px;
     border-collapse: collapse;
     border: none;
@@ -304,15 +304,15 @@
 
 
 /* visualization section style */
-.my-1535567872393-product .viz-section-active .viz-section-control-button {
+.my-1535567872393-product.viz-section-active .viz-section-control-button {
     background-color: var(--hover-color);
 }
 
-.my-1535567872393-product .viz-section-active .viz-section-control-button::after {
+.my-1535567872393-product.viz-section-active .viz-section-control-button::after {
     transform: rotate(-135deg);
 }
 
-.my-1535567872393-product .viz-section-active div.filter-viz-download-buttons-wrapper {
+.my-1535567872393-product.viz-section-active div.filter-viz-download-buttons-wrapper {
     border-bottom: 1px solid var(--border-color);
 }
 
