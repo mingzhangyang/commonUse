@@ -510,6 +510,9 @@ class DataTable {
     div.appendChild(container);
     this.updateTableView();
     this.attachListeners();
+    if (this.configuration.filterButton) {
+      this.createFilterSection();
+    }
   }
 
   // attach event listeners to controller elements
