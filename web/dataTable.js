@@ -535,6 +535,7 @@ class DataTable {
 
   // create Filter section
   createFilterSection() {
+    let that = this;
     let filterSection = document.getElementById(this._targetId + '-filter-section');
     if (!filterSection) {
       throw new Error('Creating filter section failed.')
@@ -555,7 +556,7 @@ class DataTable {
       let td = row.appendChild(document.createElement('td'));
       td.classList.add('filter-name');
       td.appendChild(document.createTextNode(filterName));
-      // reuse div variable below
+      // reuse td variable below
       td = row.appendChild(document.createElement('td'));
       td.classList.add('filter-values');
       for (let obj of this._filters[filterName]) {
@@ -571,17 +572,21 @@ class DataTable {
       }
     }
     filterSection.appendChild(df);
+
     // add event listener to input[type='checkbox'] elements
     
   }
 
   // create Visualization section
   createVizSection() {
+    let that = this;
     let vizSection = document.getElementById(this._targetId + '-visualization-section');
     if (!vizSection) {
       throw new Error('Creating visualization section failed.');
     }
     // create visualization control panel
+
+    // add event listener to controls
 
     // create visualization area
   }
