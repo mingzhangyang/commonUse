@@ -27,6 +27,12 @@ class DataTable {
     this._colNames = null;
     this._customizedColumnNames = {};
     this._filters = {};
+    this.setting = {
+      searchBar: true,
+      filterButton: true,
+      vizButton: true,
+      downloadButton: true,
+    };
   }
 
   // reset source data after sorting or filtering
@@ -291,6 +297,56 @@ class DataTable {
 
     // create the contents of the new object
     let container = document.createDocumentFragment();
+    let that = this;
+
+    // create control buttons, i.e. search box, filter button, download button
+    let btnPanle = container.appendChild(document.createElement('div'));
+    btnPanle.classList.add('control-button-panel');
+
+    if (this.setting.searchBar) {
+      let searchBar = btnPanle.appendChild(document.createElement('div'));
+      searchBar.id = this._targetId + '-search-bar';
+      searchBar.classList.add('search-bar-wrapper');
+      let sb = searchBar.appendChild(document.createElement('input'));
+      sb.type = 'search';
+      sb.id = this._targetId + '-search-box';
+      sb.classList.add('search-box');
+      let lb = searchBar.appendChild(document.createElement('label'));
+      lb.htmlFor = sb.id;
+      lb.classList.add('label-for-search-box');
+      lb.appendChild(document.createTextNode('Search'));
+    }
+
+    let btns = container.appendChild(document.createElement('div'));
+    btns.classList.add('filter-viz-download-buttons-wrapper');
+
+    if (this.setting.filterButton) {
+      let fBtn = btns.appendChild(document.createElement('div'));
+      fBtn.classList.add('table-top-button', 'filter-section-control-button');
+      fBtn.appendChild(document.createTextNode('Filters'));
+      fBtn.addEventListener('click', function () {
+        document.getElementById(that._targetId).classList.toggle('filter-section-active');
+      });
+    }
+
+    if (this.setting.vizButton) {
+      let vBtn = btns.appendChild(document.createElement('div'));
+      vBtn.classList.add('table-top-button', 'viz-section-control-button');
+      vBtn.appendChild(document.createTextNode('Visualize'));
+      vBtn.addEventListener('click', function () {
+        document.getElementById(that._targetId).classList.toggle('viz-section-active');
+      });
+    }
+
+    if (this.setting.downloadButton) {
+      let dBtn = btns.appendChild(document.createElement('div'));
+      dBtn.classList.add('table-top-button', 'download-control-button');
+      dBtn.appendChild(document.createTextNode('Download'));
+      dBtn.addEventListener('click', function () {
+        // control download options
+      });
+    }
+
 
     // create filter panel
     let filterSection = container.appendChild(document.createElement('div'));
@@ -490,12 +546,6 @@ class DataTable {
       throw new Error('No filters found.');
     }
     let df = document.createDocumentFragment();
-    let ctrl = df.appendChild(document.createElement('div'));
-    ctrl.classList.add('filter-section-control');
-    ctrl.appendChild(document.createTextNode('Filters'));
-    ctrl.addEventListener('click', function () {
-      document.getElementById(that._targetId).classList.toggle('filter-section-active');
-    });
 
     let table = df.appendChild(document.createElement('table'));
     table.classList.add('filter-section-table');
@@ -506,7 +556,7 @@ class DataTable {
       let td = row.appendChild(document.createElement('td'));
       td.classList.add('filter-name');
       td.appendChild(document.createTextNode(filterName));
-      // reuse div variable below
+      // reuse td variable below
       td = row.appendChild(document.createElement('td'));
       td.classList.add('filter-values');
       for (let obj of this._filters[filterName]) {
@@ -522,13 +572,23 @@ class DataTable {
       }
     }
     filterSection.appendChild(df);
+
     // add event listener to input[type='checkbox'] elements
     
   }
 
   // create Visualization section
   createVizSection() {
+    let that = this;
+    let vizSection = document.getElementById(this._targetId + '-visualization-section');
+    if (!vizSection) {
+      throw new Error('Creating visualization section failed.');
+    }
+    // create visualization control panel
 
+    // add event listener to controls
+
+    // create visualization area
   }
 
 
