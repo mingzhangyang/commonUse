@@ -479,6 +479,7 @@ class DataTable {
 
   // create Filter section
   createFilterSection() {
+    let that = this;
     let filterSection = document.getElementById(this._targetId + '-filter-section');
     if (!filterSection) {
       throw new Error('Creating filter section failed.')
@@ -489,17 +490,29 @@ class DataTable {
       throw new Error('No filters found.');
     }
     let df = document.createDocumentFragment();
+    let ctrl = df.appendChild(document.createElement('div'));
+    ctrl.classList.add('filter-section-control');
+    ctrl.appendChild(document.createTextNode('Filters'));
+    ctrl.addEventListener('click', function () {
+      document.getElementById(that._targetId).classList.toggle('filter-section-active');
+    });
+
+    let table = df.appendChild(document.createElement('table'));
+    table.classList.add('filter-section-table');
     for (let filterName of filterNames) {
-      let row = df.appendChild(document.createElement('div'));
+      let row = table.appendChild(document.createElement('tr'));
       row.classList.add('filter-section-row');
-      let span = row.appendChild(document.createElement('span'));
-      span.classList.add('filter-name');
-      span.appendChild(document.createTextNode(filterName));
-      // reuse span variable below
-      span = row.appendChild(document.createElement('span'));
-      span.classList.add('filter-values');
+      row.filterName = filterName;
+      let td = row.appendChild(document.createElement('td'));
+      td.classList.add('filter-name');
+      td.appendChild(document.createTextNode(filterName));
+      // reuse div variable below
+      td = row.appendChild(document.createElement('td'));
+      td.classList.add('filter-values');
       for (let obj of this._filters[filterName]) {
-        let inp = span.appendChild('input');
+        let span = td.appendChild(document.createElement('span'));
+        span.classList.add('filter-value');
+        let inp = span.appendChild(document.createElement('input'));
         inp.type = 'checkbox';
         inp.facetType = obj.facetType;
         inp.facetValue = obj.facetValue;
