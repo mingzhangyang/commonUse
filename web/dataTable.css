@@ -298,7 +298,7 @@
     flex-direction: row;
     align-items: center;
 }
-.my-1535567872393-product .filter-value input[type='checkbox'] {
+.my-1535567872393-product .filter-value input[type='checkbox'] + label {
     margin-right: 8px;
     margin-left: 12px;
 }
@@ -321,4 +321,27 @@
 .my-1535567872393-product div.download-control-button {
     margin-right: 0;
     float: right;
+}
+
+.my-1535567872393-product .table-header-row th {
+    position: relative;
+}
+.my-1535567872393-product .table-header-row th .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+
+    /* Position the tooltip */
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1;
+}
+.my-1535567872393-product .table-header-row th:hover .tooltiptext {
+    visibility: visible;
 }

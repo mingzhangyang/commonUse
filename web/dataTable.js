@@ -34,11 +34,31 @@ class DataTable {
     this._changePageByUser = true;
     this._firstColumnAsRowNumber = true;
 
-    this._colNames = null;
-    this._customizedColumnNames = {};
-    this._customizedFactories = {};
+    // Create column model
+    this._colModel = {};
+    this.shownColumns = [];
+    let s = new Set();
+    for (let d of this._data) {
+      let keys = Object.keys(d);
+      for (let key of keys) {
+        s.add(key);
+      }
+    }
+    for (let name of s) {
+      this._colModel[name] = {
+        name: name,
+        label: name,
+        tips: '',
+        sortable: false,
+        hidden: false,
+        width: '',
+        align: '',
+        formatter: undefined // must a function
+      };
+      this.shownColumns.push(name);
+    }
 
-    // below are properties required to configure the element
+    // below are properties required to configure the whole
     this._filters = {};
     this._charts = [];
     this._colorSchemes = {
@@ -73,40 +93,58 @@ class DataTable {
 
   // customized column names
   renameColumn(oldName, newName) {
-    this._customizedColumnNames[oldName] = newName;
-  }
-
-  // set column names
-  setColumnNames(names) {
-    if (typeof names === 'undefined') {
-      let res = new Set();
-      for (let d of this._data) {
-        let keys = Object.keys(d);
-        for (let key of keys) {
-          res.add(key);
-        }
-      }
-      this._colNames = [...res];
-    } else if (Array.isArray(names)) {
-      this._colNames = names;
-    } else {
-      throw new Error('an array of name strings expected');
+    if (!this._colModel[oldName]) {
+      throw 'Column name not recognized.';
     }
+    this._colModel[oldName].label = newName;
   }
 
-  // factories to create customized elements
+  /**
+   * choose the columns to display in the table
+   * @param arr: array, a list of column names
+   */
+  selectColumnsToShow(arr) {
+    if (!Array.isArray(arr)) {
+      throw 'An array of column names expected.';
+    }
+    this.shownColumns = arr;
+  }
+
+  /**
+   * customize a column to show
+   * @param name: string, column name
+   * @param obj: object, an object describing the column
+   */
+  configureColumn(name, obj) {
+    if (!this._colModel[name]) {
+      throw new Error('Column name not recognized.');
+    }
+    if (typeof obj !== 'object') {
+      throw new Error('An object describing the column expected.');
+    }
+    Object.assign(this._colModel[name], obj);
+  }
+
+  // factories to create customized elements with the data
   // the provided func should return an document element object
   // or innerHTML
-  setCustomizedFactory(colName, func) {
-    if (typeof colName !== 'string') {
-      throw 'Failed to set customized factory function. The column name' +
-      ' should be a string.';
+  setFormatter(colName, func) {
+    if (typeof colName !== 'string' || !this._colModel[colName]) {
+      throw new Error('Column name not recognized.');
     }
-    if (typeof func !== 'function') {
-      throw 'Failed to set customized factory function. The second argument' +
-      ' is expected to be a function.';
+    if (typeof func === 'string') {
+      let f = DataTable.formatterPool(func);
+      if (!f) {
+        throw new Error('The formatter name not recognized.');
+      }
+      this._colModel[colName].formatter = f;
+      return;
     }
-    this._customizedFactories[colName] = func;
+    if (typeof func === 'function') {
+      this._colModel[colName].formatter = func;
+      return;
+    }
+    throw new Error('A predefined formatter name or custom function expected.');
   }
 
   // internal method to set page number (starts from 1)
@@ -149,6 +187,25 @@ class DataTable {
     }
   }
 
+  // Predefined formatter
+  static formatterPool(name) {
+    const pool = {
+      highlight: function (s) {
+        return `<mark>${s}</mark>`;
+      },
+      addLink: function (text, lnk) {
+        return `<a href="${lnk}">${text}</a>`;
+      },
+      bold: function (word) {
+        return `<strong>${word}</strong>`;
+      },
+      colorText: function (text, color) {
+        return `<span style="color: ${color}">${text}</span>`;
+      }
+    };
+    return pool[name];
+  }
+
   // if descending is omitted, sort in descending order by default
   sort(col, descending) {
     if (descending) {
@@ -159,11 +216,11 @@ class DataTable {
   }
 
   /**
-   * config method set configuration property
+   * configureLayout method set configuration property
    * @param prop: string
    * @param value: boolean | string
    */
-  config(prop, value) {
+  configureLayout(prop, value) {
     if (typeof prop !== 'string') {
       throw 'Invalid property: ' + prop;
     }
@@ -205,10 +262,7 @@ class DataTable {
    * range boundaries
    */
   addFilter(colName, type, dataObj, int) {
-    if (!this._colNames) {
-      this.setColumnNames();
-    }
-    if (this._colNames.indexOf(colName) === -1) {
+    if (!this._colModel[colName]) {
       throw 'Column name not recognized. Please use the original column name' +
       ' but not the customized name.';
     }
@@ -343,6 +397,23 @@ class DataTable {
   // update the table content
   updateTableView() {
     this._updateDataToShow();
+    // check formatter
+    for (let colName of this.shownColumns) {
+      if (this._colModel[colName].formatter) {
+        if (typeof this._colModel[colName].formatter === 'string') {
+          if (!DataTable.formatterPool((this._colModel[colName].formatter))) {
+            throw new Error('formatter not recognized');
+          } else {
+            this._colModel[colName].formatter = DataTable.formatterPool((this._colModel[colName].formatter));
+          }
+        } else if (typeof this._colModel[colName].formatter === 'function') {
+          // do nothing
+        } else {
+          throw new Error('Invalid formatter for ' + colName);
+        }
+      }
+    }
+
     if (typeof this._targetId !== 'string' || !this._targetId) {
       throw new Error('an element id expected');
     }
@@ -367,21 +438,25 @@ class DataTable {
         td.innerText = startIndex + i;
         td.classList.add('table-row-index-column');
       }
-      for (let name of this._colNames) {
-        if (this._customizedFactories[name]) {
-          let v = this._customizedFactories[name](row[name]);
+      for (let name of this.shownColumns) {
+        let td = tr.appendChild(document.createElement('td'));
+        if (this._colModel[name].formatter) {
+          let v = this._colModel[name].formatter(row[name]);
           switch (typeof v) {
             case 'string':
-              tr.appendChild(document.createElement('td')).innerHTML = v;
+              td.innerHTML = v;
               break;
             case 'object':
-              tr.appendChild(document.createElement('td')).appendChild(v);
+              td.appendChild(v);
               break;
             default:
-              tr.appendChild(document.createElement('td')).innerText = 'invalid customized factory function';
+              td.innerText = 'invalid customized formatter';
           }
         } else {
-          tr.appendChild(document.createElement('td')).innerText = DataTable.convertToString(row[name]);
+          td.innerText = DataTable.convertToString(row[name]);
+        }
+        if (this._colModel[name].align) {
+          td.style.textAlign = this._colModel[name].align;
         }
       }
     }
@@ -399,6 +474,8 @@ class DataTable {
     div.id = this._targetId;
     div.classList.add(this._uid);
     div.classList.add(this._colorSchemes[this.configuration.colorScheme]);
+    // set ARIA attribute
+    div.setAttribute('role', 'table');
 
     // create the contents of the new object
     let container = document.createDocumentFragment();
@@ -417,6 +494,7 @@ class DataTable {
       sb.type = 'search';
       sb.id = this._targetId + '-search-box';
       sb.classList.add('search-box');
+      sb.setAttribute('aria-label', 'search box');
       sb.addEventListener('focus', function () {
         searchBar.classList.remove('search-hints-active');
       });
@@ -424,18 +502,24 @@ class DataTable {
       let lb = searchBar.appendChild(document.createElement('label'));
       lb.htmlFor = sb.id;
       lb.classList.add('label-for-search-box');
+      lb.setAttribute('role', 'button');
+      lb.setAttribute('aria-label', 'search button');
       lb.appendChild(document.createTextNode('Search'));
 
       let sp = searchBar.appendChild(document.createElement('span'));
       sp.classList.add('question-mark');
+      sp.setAttribute('role', 'button');
+      sp.setAttribute('aria-label', 'hints for search syntax');
       sp.addEventListener('click', function () {
         searchBar.classList.add('search-hints-active');
       });
 
       let hintWrapper = searchBar.appendChild(document.createElement('div'));
       hintWrapper.classList.add('search-hints-wrapper');
+      hintWrapper.setAttribute('role', 'table');
       let hint = hintWrapper.appendChild(document.createElement('p'));
       hint.innerText = `Syntax: "column name":[[operator] value] [AND | OR] ["column name"[:[operator]value]]`;
+      hint.setAttribute('role', 'row');
       let example = hintWrapper.appendChild(document.createElement('p'));
       example.appendChild(document.createTextNode('e.g. '));
       example.appendChild(document.createElement('span'))
@@ -444,6 +528,7 @@ class DataTable {
           .appendChild(document.createTextNode(';'));
       example.appendChild(document.createElement('span'))
       .appendChild(document.createTextNode('"height": 80 AND "width": 100'));
+      example.setAttribute('role', 'row');
     }
 
     let btns = container.appendChild(document.createElement('div'));
@@ -453,6 +538,8 @@ class DataTable {
       let fBtn = btns.appendChild(document.createElement('div'));
       fBtn.classList.add('table-top-button', 'filter-section-control-button');
       fBtn.appendChild(document.createTextNode('Filters'));
+      fBtn.setAttribute('role', 'button');
+      fBtn.setAttribute('aria-label', 'filter button');
       fBtn.addEventListener('click', function () {
         document.getElementById(that._targetId).classList.toggle('filter-section-active');
       });
@@ -471,6 +558,8 @@ class DataTable {
       let dBtn = btns.appendChild(document.createElement('div'));
       dBtn.classList.add('table-top-button', 'download-control-button');
       dBtn.appendChild(document.createTextNode('Download'));
+      dBtn.setAttribute('role', 'button');
+      dBtn.setAttribute('aria-label', 'download button');
       dBtn.addEventListener('click', function () {
         // control download options
       });
@@ -499,31 +588,45 @@ class DataTable {
     // create table header
     // Since the header is supposed not to update, create it once
     let head = table.appendChild(document.createElement('thead'))
-    .appendChild(document.createElement('tr'));
-    if (!this._colNames) {
-      this.setColumnNames();
-    }
+      .appendChild(document.createElement('tr'));
+    head.classList.add('table-header-row');
+
     if (this._firstColumnAsRowNumber) {
       let firstCol = head.appendChild(document.createElement('th'));
       firstCol.innerHTML = '#';
       firstCol.classList.add('table-row-index-column');
     }
-    for (let name of this._colNames) {
+    for (let name of this.shownColumns) {
       let th = head.appendChild(document.createElement('th'));
-      if (this._customizedColumnNames[name]) {
-        th.appendChild(document.createTextNode(this._customizedColumnNames[name]));
-      } else {
-        th.appendChild(document.createTextNode(name));
+      th.appendChild(document.createTextNode(this._colModel[name].label));
+      let model = this._colModel[name];
+      // set width
+      if (model.width) {
+        th.style.width = model.width;
       }
-      let control = th.appendChild(document.createElement('div'));
-      control.classList.add('table-sorting-control-container');
-      control._colName = name;
-      let up = control.appendChild(document.createElement('i'));
-      up.classList.add('table-sorting-control', 'table-sorting-up-control');
-      up._colName = name;
-      let down = control.appendChild(document.createElement('i'));
-      down.classList.add('table-sorting-control', 'table-sorting-down-control');
-      down._colName = name;
+      // create tooltips
+      if (model.tips) {
+        let tip = th.appendChild(document.createElement('span'));
+        tip.classList.add('tooltiptext');
+        tip.setAttribute('aria-label', model.tips);
+        tip.appendChild(document.createTextNode(model.tips));
+      }
+      // create sorting icon if sortable
+      if (model.sortable) {
+        let control = th.appendChild(document.createElement('div'));
+        control.classList.add('table-sorting-control-container');
+        control._colName = name;
+        let up = control.appendChild(document.createElement('i'));
+        up.classList.add('table-sorting-control', 'table-sorting-up-control');
+        up._colName = name;
+        up.setAttribute('role', 'button');
+        up.setAttribute('aria-label', 'sort in ascending order');
+        let down = control.appendChild(document.createElement('i'));
+        down.classList.add('table-sorting-control', 'table-sorting-down-control');
+        down._colName = name;
+        down.setAttribute('role', 'button');
+        down.setAttribute('aria-label', 'sort in descending order');
+      }
     }
 
     //create tBody
@@ -549,9 +652,13 @@ class DataTable {
     // page selector candidate
     let c = pager.appendChild(document.createElement('div'));
     c.classList.add('table-page-number-control-container');
-    c.appendChild(document.createElement('div'))
-      .classList
-      .add('table-page-number-control', 'table-page-number-minus-one');
+    // last page button
+    let minusOne = c.appendChild(document.createElement('div'));
+    minusOne.classList.add('table-page-number-control', 'table-page-number-minus-one');
+    minusOne.setAttribute('role', 'button');
+    minusOne.setAttribute('aria-label', 'last page');
+
+    // middle content
     let m = c.appendChild(document.createElement('div'));
     m.classList.add('table-page-number-current-container');
     m.appendChild(document.createElement('span'))
@@ -566,9 +673,11 @@ class DataTable {
     inp2.setAttribute('readonly', true);
     inp2.value = this._totalPages;
 
-    c.appendChild(document.createElement('div'))
-      .classList
-      .add('table-page-number-control', 'table-page-number-plus-one');
+    // next page button
+    let plusOne = c.appendChild(document.createElement('div'));
+    plusOne.classList.add('table-page-number-control', 'table-page-number-plus-one');
+    plusOne.setAttribute('role', 'button');
+    plusOne.setAttribute('aria-label', 'next page');
 
     // add the df to div
     div.appendChild(container);
