@@ -199,7 +199,7 @@ class DataTable {
    * AddFilter add a filter to filter section
    * @param colName: string, column names
    * @param type: string, value | range
-   * @param dataObj: array, return by solr/ngram. If not provided,
+   * @param dataObj: array | null, return by solr/ngram. If is null,
    * it will be computed locally
    * @param int: boolean, specify when using range facet, only use integer as
    * range boundaries
@@ -217,7 +217,7 @@ class DataTable {
     }
 
     this.configuration.filterButton = true;
-    if (typeof dataObj === 'undefined') {
+    if (dataObj === null || typeof dataObj === 'undefined') {
       // compute the dataObj locally
       if (type === 'value') {
         let m = new Map();
@@ -271,6 +271,12 @@ class DataTable {
         for (let i = 0; i < 5; i++) {
           arr.push([min + i * d, min + (i+1) * d, 0]);
         }
+
+        // To avoid errors when categorized the max value
+        if (arr[4][1] === max) {
+          arr[4][1] += 1;
+        }
+
         let idx = 0;
         for (let item of this._data) {
           if (item[colName] >= arr[idx][0] && item[colName] < arr[idx][1]) {
@@ -474,14 +480,17 @@ class DataTable {
     // create filter panel
     let filterSection = container.appendChild(document.createElement('div'));
     filterSection.id = this._targetId + '-filter-section';
+    filterSection.classList.add('filter-section');
 
     // create visualization panel
     let vizSection = container.appendChild(document.createElement('div'));
     vizSection.id = this._targetId + '-visualization-section';
+    vizSection.classList.add('visualization-section');
 
     // create table panel
     let table = container.appendChild(document.createElement('table'));
     table.id = this._targetId + '-table-section';
+    table.classList.add('table-section');
 
     // add caption to the table
     table.appendChild(document.createElement('caption'))
@@ -523,14 +532,14 @@ class DataTable {
     // create page controller panel
     let pager = container.appendChild(document.createElement('div'));
     pager.id = this._targetId + '-pager-section';
-    pager.classList.add('table-page-control-container');
+    pager.classList.add('pager-section', 'table-page-control-container');
 
     // create number of rows per page selector
     let a = pager.appendChild(document.createElement('div'));
     a.appendChild(document.createElement('span'))
     .appendChild(document.createTextNode('Rows per Page'));
     let num = a.appendChild(document.createElement('select'));
-    num.classList.add('data-table-row-number-selector');
+    num.classList.add('table-row-number-selector');
     for (let i of [5, 10, 20, 50, 100, 200]) {
       num.appendChild(document.createElement('option'))
       .appendChild(document.createTextNode(i));
