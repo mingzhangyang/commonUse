@@ -50,7 +50,7 @@ class DataTable {
         label: name,
         tips: '',
         sortable: false,
-        hidden: false,
+        hidden: false, // redundant, use shownColumns to manage shown/hidden
         width: '',
         align: '',
         formatter: undefined // must a function
@@ -125,7 +125,44 @@ class DataTable {
     Object.assign(this._colModel[name], obj);
   }
 
-  // factories to create customized elements with the data
+  /**
+   * Add a column to the table to show
+   * @param colName: string, can put as many as possible
+   */
+  addColumn(...colName) {
+    for (let name of colName) {
+      if (typeof name !== 'string') {
+        continue;
+      }
+      if (!this._colModel[name]) {
+        console.error('Column name not recognized:', name);
+        continue;
+      }
+      if (this.shownColumns.indexOf(name) > -1) {
+        console.log('Column name has been in the shown list.');
+      } else {
+        this.shownColumns.push(name);
+      }
+    }
+  }
+
+  /**
+   * remove a present column in the table
+   * @param colName
+   */
+  removeColumn(colName) {
+    if (typeof colName !== 'string') {
+      console.error('Invalid argument.');
+    }
+    let i = this.shownColumns.indexOf(colName);
+    if (i === -1) {
+      console.error('Column not present in the table yet.');
+    } else {
+      this.shownColumns.splice(i, 1);
+    }
+  }
+
+  // formatter to create customized elements with the data
   // the provided func should return an document element object
   // or innerHTML
   setFormatter(colName, func) {
@@ -193,14 +230,14 @@ class DataTable {
       highlight: function (s) {
         return `<mark>${s}</mark>`;
       },
-      addLink: function (text, lnk) {
-        return `<a href="${lnk}">${text}</a>`;
+      addLink: function (obj) {
+        return `<a href="${obj.link}">${obj.text}</a>`;
       },
       bold: function (word) {
         return `<strong>${word}</strong>`;
       },
-      colorText: function (text, color) {
-        return `<span style="color: ${color}">${text}</span>`;
+      colorText: function (obj) {
+        return `<span style="color: ${obj.color}">${obj.text}</span>`;
       }
     };
     return pool[name];
