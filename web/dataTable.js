@@ -3,6 +3,14 @@
  */
 'use strict';
 
+/*******************************************************************************
+ * To-DO:
+ *    1. Panel for download options
+ *    2. Add charts (d3 or G2)
+ *    3. Layout adjustment
+ *    4. More color schemes
+*******************************************************************************/
+
 class DataTable {
   constructor(arr, targetId, caption) {
     if (!Array.isArray(arr)) {
@@ -22,12 +30,13 @@ class DataTable {
     this._rowsPerPage = 10;
     this._pageNumber = 1;
     this._totalPages = Math.ceil(this._data.length / this._rowsPerPage);
+
     this._changePageByUser = true;
-    this._customizedFactories = {};
-    this._tableCaption = typeof caption === 'string' ? caption : '';
     this._firstColumnAsRowNumber = true;
+
     this._colNames = null;
     this._customizedColumnNames = {};
+    this._customizedFactories = {};
 
     // below are properties required to configure the element
     this._filters = {};
@@ -36,6 +45,7 @@ class DataTable {
       default: 'default-color-scheme'
     };
     this.configuration = {
+      caption: typeof caption === 'string' ? caption : '',
       searchBar: true,
       filterButton: false,
       vizButton: false,
@@ -85,8 +95,8 @@ class DataTable {
   }
 
   // factories to create customized elements
-  // the provided func should return an document element
-  // or innerHTML?
+  // the provided func should return an document element object
+  // or innerHTML
   setCustomizedFactory(colName, func) {
     if (typeof colName !== 'string') {
       throw 'Failed to set customized factory function. The column name' +
@@ -146,6 +156,43 @@ class DataTable {
     } else {
       this._data.sort((x, y) => x[col] < y[col] ? -1 : 1);
     }
+  }
+
+  /**
+   * config method set configuration property
+   * @param prop: string
+   * @param value: boolean | string
+   */
+  config(prop, value) {
+    if (typeof prop !== 'string') {
+      throw 'Invalid property: ' + prop;
+    }
+    switch (prop.toUpperCase()) {
+      case 'DOWNLOAD':
+        this.configuration.downloadButton = value;
+        break;
+      case 'FILTER':
+        this.configuration.filterButton = value;
+        break;
+      case 'CAPTION':
+        this.configuration.caption = value;
+        break;
+      case 'VISUALIZATION':
+        this.configuration.vizButton = value;
+        break;
+      case 'SEARCH':
+        this.configuration.searchBar = value;
+        break;
+      case 'SCHEME':
+        this.changeColorScheme(value);
+        break;
+      default:
+        console.log('Property not recognized!');
+        console.log('Expect: download | search | filter | visualization |' +
+            ' scheme | caption');
+        return;
+    }
+    console.log('Configuration updated.');
   }
 
   /**
@@ -430,7 +477,7 @@ class DataTable {
 
     // add caption to the table
     table.appendChild(document.createElement('caption'))
-        .appendChild(document.createTextNode(this._tableCaption));
+        .appendChild(document.createTextNode(this.configuration.caption));
 
     // create table header
     // Since the header is supposed not to update, create it once
