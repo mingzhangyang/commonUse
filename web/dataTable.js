@@ -201,8 +201,10 @@ class DataTable {
    * @param type: string, value | range
    * @param dataObj: array, return by solr/ngram. If not provided,
    * it will be computed locally
+   * @param int: boolean, specify when using range facet, only use integer as
+   * range boundaries
    */
-  addFilter(colName, type, dataObj) {
+  addFilter(colName, type, dataObj, int) {
     if (!this._colNames) {
       this.setColumnNames();
     }
@@ -253,11 +255,17 @@ class DataTable {
         }
         let min = this._data[0][colName];
         let max = this._data[this._data.length - 1][colName];
-        let d = ((max - min) / 5).toFixed(2);
-        if (d.slice(-2) === '00') {
-          d = +d;
+        let d;
+        if (int) {
+          // when both min and max are integers, you don't expect to see floats
+          d = Math.ceil((max - min) / 5);
         } else {
-          d = +(+d + .01).toFixed(2);
+          d = ((max - min) / 5).toFixed(2);
+          if (d.slice(-2) === '00') {
+            d = +d;
+          } else {
+            d = +(+d + .01).toFixed(2);
+          }
         }
         let arr = [];
         for (let i = 0; i < 5; i++) {
