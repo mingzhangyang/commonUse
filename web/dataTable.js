@@ -107,7 +107,10 @@ class DataTable {
     if (!Array.isArray(arr)) {
       throw 'An array of column names expected.';
     }
-    this.shownColumns = arr;
+    // column names not in the colModel will be eliminated
+    this.shownColumns = arr.filter(name => {
+      return this._colModel[name];
+    });
   }
 
   /**
