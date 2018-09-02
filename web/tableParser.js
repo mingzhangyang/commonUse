@@ -19,7 +19,7 @@ function parseTable(str) {
       }
       return {
         tagName: s,
-        following: str[i],
+        following: str[i], // if " ", skipSpace; else if ">", findTextNode
         index: i
       };
     },
@@ -37,7 +37,8 @@ function parseTable(str) {
       return {
         attrName: s,
         following: str[i],
-        withoutValue: str[i] !== '=',
+        withoutValue: str[i] !== '=', // if true, findValue; else if " ",
+        // skipSpace; else if ">", findTextNode
         index: i
       };
     },
@@ -48,27 +49,49 @@ function parseTable(str) {
       }
       return {
         value: s,
-        following: str[i+1],
+        following: str[i+1], // if ">", findTextNode; else if " ", skipSpace
         index: i+1
       };
     },
-    findText: function (i) {
+    findTextNode: function (i) {
       let s = '';
       while (str[i] !== '<') {
         s += str[i++];
       }
       return {
         text: s,
-        followingCloseTag: str[i+1] === '/',
+        followingCloseTag: str[i+1] === '/', // if true, findCloseTag; else
+        // findOpenTag
         index: i+1
-      }
+      };
+    },
+    findCloseTag: function (i) {
+
     }
   };
   // sm: state machine
   let sm = {
     stack: [],
     currentObject: null,
-    nextStep: 'findOpenTag'
+    currentTask: 'findOpenTag'
   };
+  while (i < str.length) {
+    let res = Tasks[sm.currentTask](i);
+    i = res.index;
+    switch (sm.currentTask) {
+      case 'findOpenTag':
+        break;
+      case 'findTextNode':
+        break;
+      case 'findAttr':
+        break;
+      case 'findValue':
+        break;
+      case 'findCloseTag':
+        break;
+      default:
+
+    }
+  }
   
 }
