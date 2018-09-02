@@ -23,11 +23,14 @@ function parseTable(str) {
         index: i
       };
     },
-    skipSpace: function (i) {
+    skipSpace: function (i, preTask) {
       while (str[i] === '') {
         i++;
       }
-      return i;
+      return {
+        index: i,
+        preTask: preTask
+      };
     },
     findAttr: function (i) {
       let s = '';
