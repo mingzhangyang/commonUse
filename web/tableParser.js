@@ -23,13 +23,12 @@ function parseTable(str) {
         index: i
       };
     },
-    skipSpace: function (i, preTask) {
+    skipSpace: function (i) {
       while (str[i] === '') {
         i++;
       }
       return {
-        index: i,
-        preTask: preTask
+        index: i
       };
     },
     findAttr: function (i) {
@@ -69,20 +68,44 @@ function parseTable(str) {
       };
     },
     findCloseTag: function (i) {
-
+      let s = '';
+      i++; // str at current index is "/", so we need go next index
+      while (str[i] !== '>') {
+        s += str[i++];
+      }
+      return {
+        tagName: s,
+        index: i
+      }
     }
   };
+  let obj = {};
   // sm: state machine
   let sm = {
-    stack: [],
-    currentObject: null,
-    currentTask: 'findOpenTag'
+    stack: [obj],
+    // currentObject: {}, // not necessary, just use the last object in the stack
+    // currentElementDone: true, // not necessary, can be determined by the length of stack
+    currentTask: 'findOpenTag',
+    preTask: '',
+    nextTask: ''
   };
   while (i < str.length) {
     let res = Tasks[sm.currentTask](i);
     i = res.index;
     switch (sm.currentTask) {
       case 'findOpenTag':
+        let cobj = sm.stack[sm.stack.length - 1];
+        cobj.tagName = res.tagName;
+        if (res.following = ' ') {
+          sm.nexttTask = 'skipSpace';
+        } else if (res.following = '>') {
+          sm.nextTask = 'findTextNode';
+        } else {
+          throw new Error('finding open tag faild.');
+        }
+        sm.preTask = sm.currentTask;
+        sm.currentTask = sm.nextTask;
+        sm.nextTask = '';
         break;
       case 'findTextNode':
         break;
@@ -91,6 +114,17 @@ function parseTable(str) {
       case 'findValue':
         break;
       case 'findCloseTag':
+        break;
+      case 'skipSpace':
+        if (sm.preTask === 'findOpenTag') {
+        
+        } else if (sm.preTask === 'findValue') {
+          
+        } else if (sm.preTask === 'findAttr') {
+        
+        } else {
+        
+        }
         break;
       default:
 
