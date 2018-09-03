@@ -23,8 +23,9 @@ function parseTable(str) {
         index: i
       };
     },
+    // skipSpace happens in the middle of open tag
     skipSpace: function (i) {
-      while (str[i] === '') {
+      while (str[i] === ' ') {
         i++;
       }
       return {
@@ -55,6 +56,7 @@ function parseTable(str) {
         index: i+1
       };
     },
+    // findTextNode happens between open and closing tag
     findTextNode: function (i) {
       let s = '';
       while (str[i] !== '<') {
@@ -79,7 +81,8 @@ function parseTable(str) {
       }
     }
   };
-  const SelfContainTags = [
+  // list of tags that are without closing tag
+  const SelfContainedTags = [
     'br',
     'input'
   ];
@@ -98,41 +101,52 @@ function parseTable(str) {
     i = res.index;
     switch (sm.currentTask) {
       case 'findOpenTag':
-        let cobj = sm.stack[sm.stack.length - 1];
-        cobj.tagName = res.tagName;
+        sm.stack.push({
+          tagName: res.tagName,
+          open: SelfContainedTags.indexOf(cobj.tagName) === -1
+        });
+
         if (res.following = ' ') {
           sm.nexttTask = 'skipSpace';
         } else if (res.following = '>') {
           sm.nextTask = 'findTextNode';
         } else {
-          throw new Error('finding open tag faild.');
+          throw new Error('finding open tag failed.');
         }
-        sm.preTask = sm.currentTask;
-        sm.currentTask = sm.nextTask;
-        sm.nextTask = '';
         break;
       case 'findTextNode':
+        if (res.followingCloseTag) {
+          i++;
+          sm.nextTask = 'findCloseTag';
+        } else {
+          sm.nextTask = 'findOpenTag';
+        }
+        sm.stack.push({
+          type: 'textNode',
+          content: res.text,
+          parent: sm.stack[sm.stack.length - 1]
+        });
         break;
       case 'findAttr':
+        
         break;
       case 'findValue':
         break;
       case 'findCloseTag':
         break;
       case 'skipSpace':
-        if (sm.preTask === 'findOpenTag') {
-        
-        } else if (sm.preTask === 'findValue') {
-          
-        } else if (sm.preTask === 'findAttr') {
-        
+        if (str[i] === '>') {
+          sm.nextTask = 'findTextNode';
         } else {
-        
+         sm.nextTask = 'findAttr';
         }
         break;
       default:
-
+        console.error('something wrong');
     }
+    sm.preTask = sm.currentTask;
+    sm.currentTask = sm.nextTask;
+    sm.nextTask = '';
   }
   
 }
