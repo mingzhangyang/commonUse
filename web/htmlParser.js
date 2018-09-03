@@ -300,7 +300,7 @@ function parseHTML(str) {
       }
 
       nodeList.push(obj);
-      return j+1; // new index to continue
+      return j+1; // the first char after ">"
     },
     processTextNode: function (i) {
       let s = '';
@@ -335,7 +335,7 @@ function parseHTML(str) {
 
         nodeList.push(obj);
       }
-      return i; // the first char after "<"
+      return i; // the index of "<"
     },
     processClosingTag: function (i) {
       let s = '';
