@@ -17,11 +17,20 @@ function parseTable(str) {
       while (str[i] !== ' ' && str[i] !== '>') {
         s += str[i++];
       }
-      return {
-        tagName: s,
-        following: str[i], // if " ", skipSpace; else if ">", findTextNode
-        index: i
-      };
+      if (str[i] === ' ') {
+        return {
+          tagName: s,
+          endChar: str[i], // if " ", skipSpace; else if ">", findTextNode
+          index: i
+        };
+      } else {
+        return {
+          tagName: s,
+          endChar: str[i], // if " ", skipSpace; else if ">", findTextNode
+          index: i+1
+        };
+      }
+      
     },
     // skipSpace happens in the middle of open tag
     skipSpace: function (i) {
@@ -29,32 +38,48 @@ function parseTable(str) {
         i++;
       }
       return {
-        index: i
+        index: i,
+        endChar: str[i]
       };
     },
     findAttr: function (i) {
       let s = '';
-      while (str[i] !== '=' && str[i] !== ' ' && str[i] !== '>') {
+      let equalMark = false;
+      let quotes = 0;
+      while (i < str.length) {
+        if (str[i] === '=') {
+          equalMark = true;
+        }
+        if (str[i] === '"') {
+          quotes++;
+        }
+        if (str[i] === ' ' && !equalMark) {
+          return {
+            attrName: s,
+            attrValue: true,
+            endChar: ' ',
+            index: i
+          };
+        }
+        if (str[i] === '>' && !equalMark) {
+          return {
+            attrName: s,
+            attrValue: true,
+            endChar: '>',
+            index: i
+          };
+        }
+        if (str[i] === '"' && equalMark && quotes === 1) {
+          let a = s.split('="');
+          return {
+            attrName: a[0],
+            attrValue: a[1],
+            endChar: '"',
+            index: i+1
+          };
+        }
         s += str[i++];
       }
-      return {
-        attrName: s,
-        following: str[i],
-        withoutValue: str[i] !== '=', // if true, findValue; else if " ",
-        // skipSpace; else if ">", findTextNode
-        index: i
-      };
-    },
-    findValue: function (i) {
-      let s = '';
-      while (str[i] !== '"') {
-        s += str[i++];
-      }
-      return {
-        value: s,
-        following: str[i+1], // if ">", findTextNode; else if " ", skipSpace
-        index: i+1
-      };
     },
     // findTextNode happens between open and closing tag
     findTextNode: function (i) {
@@ -77,8 +102,8 @@ function parseTable(str) {
       }
       return {
         tagName: s,
-        index: i
-      }
+        index: i+1
+      };
     }
   };
   // list of tags that are without closing tag
@@ -86,29 +111,37 @@ function parseTable(str) {
     'br',
     'input'
   ];
-  let obj = {};
+  
   // sm: state machine
   let sm = {
-    stack: [obj],
+    stack: [],
     // currentObject: {}, // not necessary, just use the last object in the stack
     // currentElementDone: true, // not necessary, can be determined by the length of stack
     currentTask: 'findOpenTag',
     preTask: '',
-    nextTask: ''
+    nextTask: '',
+    count: 0
   };
-  while (i < str.length) {
+  i++;
+  while (i < str.length - 1 && sm.count < str.length) {
+    console.log(i, str.length);
+    sm.count++;
+    if (!Tasks[sm.currentTask]) {
+      console.error(sm);
+      throw new Error('failed to parse');
+    }
     let res = Tasks[sm.currentTask](i);
-    i = res.index;
+    console.log(res);
     switch (sm.currentTask) {
       case 'findOpenTag':
         sm.stack.push({
           tagName: res.tagName,
-          open: SelfContainedTags.indexOf(cobj.tagName) === -1
+          open: SelfContainedTags.indexOf(res.tagName) === -1
         });
 
-        if (res.following = ' ') {
-          sm.nexttTask = 'skipSpace';
-        } else if (res.following = '>') {
+        if (res.endChar === ' ') {
+          sm.nextTask = 'skipSpace';
+        } else if (res.endChar === '>') {
           sm.nextTask = 'findTextNode';
         } else {
           throw new Error('finding open tag failed.');
@@ -121,21 +154,41 @@ function parseTable(str) {
         } else {
           sm.nextTask = 'findOpenTag';
         }
-        sm.stack.push({
-          type: 'textNode',
-          content: res.text,
-          parent: sm.stack[sm.stack.length - 1]
-        });
+        if (res.text.trim()) {
+          sm.stack.push({
+            type: 'textNode',
+            content: res.text,
+            parent: sm.stack[sm.stack.length - 1]
+          });
+        }
         break;
       case 'findAttr':
-        
-        break;
-      case 'findValue':
+        sm.stack[sm.stack.length - 1][res.attrName] = res.attrValue;
+        if (res.following === '>') {
+          sm.nextTask = 'findTextNode';
+        } else if (res.following === ' ') {
+          sm.nextTask = 'skipSpace';
+        }
         break;
       case 'findCloseTag':
+        let h = sm.stack.length - 1;
+        if (sm.stack[h-1].open) {
+          sm.stack[h-1].firstChild = sm.stack[h];
+          sm.stack[h].parent = sm.stack[h-1];
+        } else {
+          sm.stack[h-1].nextSibling = sm.stack[h];
+          sm.stack[h].lastSibling = sm.stack[h-1];
+        }
+        for (h; h > -1; h--) {
+          if (sm.stack[h].open === true) {
+            sm.stack[h].open = false;
+          }
+        }
+        sm.nextTask = 'findTextNode';
         break;
       case 'skipSpace':
-        if (str[i] === '>') {
+        // skipSpace only happens in the middle of open tag
+        if (res.following === '>') {
           sm.nextTask = 'findTextNode';
         } else {
          sm.nextTask = 'findAttr';
@@ -147,6 +200,7 @@ function parseTable(str) {
     sm.preTask = sm.currentTask;
     sm.currentTask = sm.nextTask;
     sm.nextTask = '';
+    i = res.index;
   }
-  
+  return sm.stack;
 }
