@@ -79,6 +79,10 @@ function parseTable(str) {
       }
     }
   };
+  const SelfContainTags = [
+    'br',
+    'input'
+  ];
   let obj = {};
   // sm: state machine
   let sm = {
