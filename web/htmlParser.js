@@ -367,7 +367,9 @@ function parseHTML(str) {
     }
     let j = Handlers[task](i);
     switch (str[j]) {
-      case '<':
+      case '<': 
+        // "processTextNode" will leads to this case, 
+        // but both "processOpenTag" and "processClosingTag" can also give rise to this case
         if (str[j+1] === '/') {
           task = 'processClosingTag';
            i = j+1;
