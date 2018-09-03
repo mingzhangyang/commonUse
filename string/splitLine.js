@@ -11,16 +11,16 @@
  */
 function splitLine(s, sep) {
   sep = sep || ',';
-  var elem = '';
-  var quo = {
+  let elem = '';
+  let quo = {
     open: false,
     // seq: '',
     sign: '',
     ready: false
   };
-  var array = [];
+  let array = [];
 
-  for (var i = 0; i < s.length; i++) {
+  for (let i = 0; i < s.length; i++) {
     if (quo.open) {
       elem += s[i];
       if (s[i] === quo.sign) {
@@ -67,11 +67,11 @@ function splitLine(s, sep) {
 
 function splitLineB(s, sep) {
   sep = sep || ',';
-  var elem = '';
-  var quo = 0;
-  var array = [];
+  let elem = '';
+  let quo = 0;
+  let array = [];
 
-  for (var i = 0; i < s.length; i++) {
+  for (let i = 0; i < s.length; i++) {
     if (s[i] === '"') {
       if (quo === 0) {
         quo++;
@@ -86,7 +86,7 @@ function splitLineB(s, sep) {
         continue;
       }
     }
-    elem  += s[i];
+    elem += s[i];
   }
   array.push(elem);
   return array;
