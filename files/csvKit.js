@@ -320,10 +320,8 @@ function join2json (keys, values, types) {
     switch (type) {
       case 'string':
         return str;
-        break;
       case 'number':
         return Number(str);
-        break;
       case 'boolean':
         if (['true', 'True', 'TRUE'].includes(str)) {
           return true;
@@ -333,7 +331,6 @@ function join2json (keys, values, types) {
         break;
       case 'null':
         return null;
-        break;
       default:
         throw 'unrecognized type';
     }
@@ -507,6 +504,36 @@ function sampleGenerator(opts) {
   });
 }
 
+/**
+ * Given a csv file, transpose it, which works like transposing a matrix.
+ * This only works for small csv files that row number is lager than column
+ * number.
+ * @param file: string, path to the csv file
+ */
+function transpose(file) {
+  let mat = [];
+  let rl = readline.createInterface({
+    input: fs.createReadStream(file)
+  });
+  rl.on('line', line => {
+    mat.push(splitLine(line, ','));
+  }).on('close', () => {
+    let target = fs.createWriteStream(file.slice(0, -4) + '.transposed.csv');
+    let tmp = new Array(mat[0].length);
+    for (let i = 0, cols = mat[0].length; i < cols; i++) {
+      tmp[i] = new Array(mat.length);
+      for (let j = 0, rows = mat.length; j < rows; j++) {
+        tmp[i][j] = mat[j][i];
+      }
+    }
+    target.end(tmp.map(a => a.join(',')).join('\n'), () => {
+      console.log('finished.');
+    });
+  }).on('error', err => {
+    console.error(err);
+    process.exit(1);
+  });
+}
 
 
 if (typeof module !== 'undefined' && module.parent) {
@@ -554,10 +581,39 @@ if (typeof module !== 'undefined' && module.parent) {
 
   // _csv2json('sample_csv.csv');
 
-  let file = process.argv[2];
-  if (file && file.slice(-4) === '.csv') {
-    _csv2json(file);
-  }
+  // let file = process.argv[2];
+  // if (file && file.slice(-4) === '.csv') {
+  //   _csv2json(file);
+  // }
 
+  let args = process.argv;
+
+  if (args.length < 4) {
+    console.error('Invalid command. Correct usage: node csvKit.js [cmd]' +
+        ' path_to_CSV_file');
+    process.exit(1);
+  }
+  if (args[3].slice(-4).toLowerCase() !== '.csv') {
+    console.error('Invalid file. CSV file expected.');
+    process.exit(1);
+  }
+  switch (args[2]) {
+    case 'transpose':
+      transpose(args[3]);
+      break;
+    case 'createSample':
+      sampleGenerator({
+        fileName: args[3]
+      });
+      break;
+    case 'tojson':
+      break;
+    case 'merge':
+      break;
+    case 'read':
+      break;
+    default:
+      console.error('Command not recognized.');
+  }
 }
 
