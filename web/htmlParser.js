@@ -3,6 +3,9 @@
  */
 'use strict';
 
+// The commented-out below is a complicated version, which may contain bugs.
+// The most important is it doesn't follow "Simple is beautiful" principle.
+// So just forget it and go to the next one.
 // function parseHTML(str) {
 //   if (typeof str !== 'string') {
 //     throw new Error('string argument expected.');
@@ -206,6 +209,7 @@
 //   return sm.stack;
 // }
 
+// Auxiliary function for HTML parser
 function splitLine(s, sep) {
   sep = sep || ',';
   let elem = '';
@@ -244,7 +248,7 @@ function parseHTML(str) {
   let nodeList = [];
   let TagsWithoutClosingTag = ['input', 'br'];
   const Handlers = {
-    processOpenTag: function (i) {
+    processOpenTag: function (i) { // i is the index of "<"
       let j = i+1;
       while (j < str.length && str[j] !== '>') {
         j++;
@@ -279,6 +283,7 @@ function parseHTML(str) {
         }
       }
 
+      // set parentNode
       for (let h = nodeList.length - 1; h > -1; h--) {
         if (nodeList[h].open) {
           obj.parentNode = nodeList[h];
@@ -288,6 +293,8 @@ function parseHTML(str) {
           break;
         }
       }
+
+      //set previousSibling if there is one
       for (let h = nodeList.length - 1; h > -1; h--) {
         if (nodeList[h].parentNode === obj.parentNode) {
           nodeList[h].nextSibling = obj;
@@ -313,6 +320,7 @@ function parseHTML(str) {
           content: s
         };
 
+        // set parentNode and previousSibling
         for (let h = nodeList.length - 1; h > -1; h--) {
           if (nodeList[h].open) {
             obj.parentNode = nodeList[h];
@@ -337,9 +345,9 @@ function parseHTML(str) {
       }
       return i; // the index of "<"
     },
-    processClosingTag: function (i) {
+    processClosingTag: function (i) { // i is the index of "/"
       let s = '';
-      i++; // str at current index is "/", so we need go next index
+      i++; // current index is "/", so we need to go next index
       while (str[i] !== '>') {
         s += str[i++];
       }
@@ -383,7 +391,8 @@ function parseHTML(str) {
         i = j;
     }
   }
-  return nodeList;
+  // only return the first object in the nodeList, which is the root
+  return nodeList[0];
 }
 
 let s = '<h1><span>Hello world!</span>  <a href="hello.world">Link</a></h1>';

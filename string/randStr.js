@@ -3,18 +3,28 @@
  */
 'use strict';
 
-let chars = 'abcdefghijklmnopqrstuvwxyz';
-// let marks = '~!@#$%^&*()_+-={}[]:";``,.<>?/\\|';
+const mix = require('./mixTwoString');
 
 function randStr(opts) {
+  const chars = 'abcdefghijklmnopqrstuvwxyz';
+  const marks = '~!@#$%^&*()_+-={}[]:";``,.<>?/\\|';
+
   opts = opts || {};
   let len = opts.len || 10;
   let cap = opts.cap || false;
   let space = opts.space || 0;
+  let charOnly = opts.characterOnly || false;
 
   let res = '';
-  for (let i = 0; i < len; i++) {
-    res += chars[Math.floor(chars.length * Math.random())];
+  if (charOnly) {
+    for (let i = 0; i < len; i++) {
+      res += chars[Math.floor(chars.length * Math.random())];
+    }
+  } else {
+    let base = mix(chars, marks);
+    for (let i = 0; i < len; i++) {
+      res += base[Math.floor(chars.length * Math.random())];
+    }
   }
 
   let spacePos = [];
