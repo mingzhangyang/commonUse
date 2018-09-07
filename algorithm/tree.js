@@ -4,21 +4,21 @@
 'use strict';
 
 class TreeNode {
-  constructor(parentNode=null, previousSibling=null) {
+  constructor(parentNode=null, nextSibling=null) {
     if (!(parentNode instanceof TreeNode)) {
       if (parentNode !== null) {
         throw new TypeError('an instance of TreeNode or null expected');
       }
     }
-    if (!(previousSibling instanceof TreeNode)) {
-      if (previousSibling !== null) {
+    if (!(nextSibling instanceof TreeNode)) {
+      if (nextSibling !== null) {
         throw new TypeError('an instance of TreeNode or null expected');
       }
     }
     this.parentNode = parentNode;
-    this.previousSibling = previousSibling;
+    this.nextSibling = nextSibling;
     this.firstChild = null;
-    this.nextSibling = null;
+
     this.depth = undefined;
 
     Object.defineProperties(this, {
@@ -29,9 +29,6 @@ class TreeNode {
         enumerable: false
       },
       parentNode: {
-        enumerable: false
-      },
-      previousSibling: {
         enumerable: false
       }
     })
@@ -57,6 +54,12 @@ class TreeNode {
     recur(this.firstChild, prop, value);
     return res;
   }
+
+  /**
+   * append a node to the tail of the  child node list of a given parent node
+   * @param node
+   * @returns {*}
+   */
   appendChildNode(node) {
     if (node.constructor !== TreeNode) {
       throw TypeError('an instance of TreeNode expected');
@@ -70,7 +73,6 @@ class TreeNode {
         c1 = c0.nextSibling;
       }
       c0.nextSibling = node;
-      node.previousSibling = c0;
     } else {
       this.firstChild = node;
     }
@@ -79,38 +81,94 @@ class TreeNode {
     }
     return node;
   }
+
+  // connect two nodes
+  addSiblingAfter(node) {
+    if (!(node instanceof TreeNode)) {
+      throw new TypeError('an instance of TreeNode expected');
+    }
+    this.nextSibling = node;
+    node.parentNode = this.parentNode;
+    node.depth = this.depth;
+  }
 }
 
 class Tree extends TreeNode {
   constructor () {
     super(null, null);
+    delete this.addSiblingAfter;
     this.depth = 0;
   }
   insertNodeAfter(nodeToBeInserted, targetNode) {
-    if (nodeToBeInserted.constructor !== TreeNode) {
+    if (!(nodeToBeInserted instanceof TreeNode)) {
       throw TypeError('an instance of TreeNode expected');
     }
-    if (targetNode.constructor !== TreeNode) {
+    if (!(targetNode instanceof TreeNode)) {
       throw TypeError('an instance of TreeNode expected');
     }
     let p = targetNode.parentNode;
     if (!p) {
-      throw new Error('can\'t insert sibling node after root node');
+      throw new Error('can\'t insert sibling node before root node');
     }
-    while (p) {
+    while (p.parentNode) {
       p = p.parentNode;
     }
     if (p !== this) {
       throw new Error('target node is not a sub child of the tree');
     }
+
+    // set the parent node of the node to be inserted
     nodeToBeInserted.parentNode = targetNode.parentNode;
+
+    // set the relationship between the two siblings
     let n = targetNode.nextSibling;
     targetNode.nextSibling = nodeToBeInserted;
     if (n) {
       nodeToBeInserted.nextSibling = n;
     }
-  }
 
+    // set the depth
+    nodeToBeInserted.depth = targetNode.parentNode.depth + 1;
+    return targetNode;
+  }
+  insertNodeBefore(nodeToBeInserted, targetNode) {
+    if (!(nodeToBeInserted instanceof TreeNode)) {
+      throw TypeError('an instance of TreeNode expected');
+    }
+    if (!(targetNode instanceof TreeNode)) {
+      throw TypeError('an instance of TreeNode expected');
+    }
+    let p = targetNode.parentNode;
+    if (!p) {
+      throw new Error('can\'t insert sibling node before root node');
+    }
+    while (p.parentNode) {
+      p = p.parentNode;
+    }
+    if (p !== this) {
+      throw new Error('target node is not a sub child of the tree');
+    }
+
+    // set the parent node of the node to be inserted
+    nodeToBeInserted.parentNode = targetNode.parentNode;
+
+    // set the relationship between the two siblings
+    let fc = targetNode.parentNode.firstChild;
+    if (fc === targetNode) {
+      targetNode.parentNode.firstChild = nodeToBeInserted;
+      nodeToBeInserted.nextSibling = targetNode;
+    } else {
+      while (fc.nextSibling !== targetNode) {
+        fc = fc.nextSibling;
+      }
+      fc.nextSibling = nodeToBeInserted;
+      nodeToBeInserted.nextSibling = targetNode;
+    }
+
+    // set the depth
+    nodeToBeInserted.depth = targetNode.parentNode.depth + 1;
+    return targetNode;
+  }
 }
 
 if (typeof module !== 'undefined' && module.parent) {
@@ -141,4 +199,9 @@ if (typeof module !== 'undefined' && module.parent) {
   // console.log(t);
   console.log(t.search('value', 40));
   console.log(t.firstChild);
+  console.log(t.firstChild.parentNode);
+  t.insertNodeBefore((new TreeNode()).setProperty('value', 100), t.firstChild);
+  console.log(t.firstChild);
+  t.insertNodeAfter((new TreeNode()).setProperty('value', 200), t.firstChild);
+  console.log(t.firstChild.nextSibling);
 }
