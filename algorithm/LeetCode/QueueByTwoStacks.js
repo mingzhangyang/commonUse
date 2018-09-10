@@ -3,7 +3,7 @@
  */
 'use strict';
 
-const Stack = require('../stack');
+const Stack = require('../Data_Structure/stack');
 // const Queue = require('../queue');
 
 
