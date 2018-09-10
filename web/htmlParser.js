@@ -246,7 +246,7 @@ function parseHTML(str) {
     throw new Error('no HTML tag identified.');
   }
   let nodeList = [];
-  let TagsWithoutClosingTag = ['input', 'br'];
+  let TagsWithoutClosingTag = ['input', 'br', 'img'];
   const Handlers = {
     processOpenTag: function (i) { // i is the index of "<"
       let j = i+1;
