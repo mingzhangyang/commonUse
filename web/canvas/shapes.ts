@@ -6,7 +6,11 @@ const DefaultLineWidth:number = 20;
 
 abstract class Shape {
     public shown: boolean = true;
+    public strokeStyle:string = DefaultColor;
+    public fillStyle:string = DefaultColor;
+    public lineWidth:number = DefaultLineWidth;
     abstract translate(x,y:number):void;
+    abstract draw(ctx:object):void;
 }
 
 
@@ -24,6 +28,9 @@ class Point extends Shape {
     translate(x, y:number):void {
       this.x += x;
       this.y += y;
+    }
+    draw(ctx):void {
+
     }
 }
 
@@ -47,6 +54,14 @@ class Line extends Shape {
         this.end.x += x;
         this.end.y += y;
     }
+    draw(ctx):void {
+        ctx.strokeStyle = this.fillStyle;
+        ctx.beginPath();
+        ctx.moveTo(this.start.x, this.start.y);
+        ctx.lineTo(this.end.x, this.end.y);
+        ctx.closePath();
+        ctx.stroke();
+    }
 }
 
 class Rectangle extends Shape {
@@ -69,29 +84,53 @@ class Rectangle extends Shape {
         this.vertex.x += x;
         this.vertex.y += y;
     }
+    draw(ctx):void {
+        ctx.fillStyle = this.fillStyle;
+        ctx.strokeStyle = this.strokeStyle;
+        ctx.lineWidth = this.lineWidth;
+        if (this.fillStyle === 'transparent') {
+            ctx.strokeRect(this.vertex.x, this.vertex.y, this.width, this.height);
+        } else if (this.strokeStyle === 'transparent') {
+            ctx.fillRect(this.vertex.x, this.vertex.y, this.width, this.height);
+        } else {
+            ctx.fillRect(this.vertex.x, this.vertex.y, this.width, this.height);
+            ctx.strokeRect(this.vertex.x, this.vertex.y, this.width, this.height);
+        }
+    }
 }
 
 class Circle extends Shape {
     center:Point;
     radius:number;
+    filled:boolean = true;
     constructor (c:Point, r:number=DefaultWidth) {
         super();
         this.center = c;
         this.radius = r;
     }
-
     contain(p:Point):boolean {
         return Point.distance(p, this.center) < this.radius;
     }
-
     translate(x,y:number):void {
         this.center.x += x;
         this.center.y += y;
+    }
+    draw(ctx):void {
+        ctx.fillStyle = this.fillStyle;
+        ctx.strokeStyle = this.strokeStyle;
+        ctx.lineWidth = this.lineWidth;
+        ctx.arc(this.center.x, this.center.y, this.radius, 0, Math.PI * 2, false);
+        if (this.filled) {
+            ctx.fill();
+        } else {
+            ctx.stroke();
+        }
     }
 }
 
 class Polygon extends Shape {
     vertexes:Point[];
+    close:boolean = false;
     constructor (...p:Point[]) {
         super();
         this.vertexes = p;
@@ -102,9 +141,26 @@ class Polygon extends Shape {
             p.y += y;
         }
     }
+    draw(ctx):void {
+        ctx.fillStyle = this.fillStyle;
+        ctx.strokeStyle = this.strokeStyle;
+        ctx.lineWidth = this.lineWidth;
+        ctx.beginPath();
+        ctx.moveTo(this.vertexes[0].x, this.vertexes[0].y);
+        for (let i = 1; i < this.vertexes.length; i++) {
+            ctx.lineTo(this.vertexes[i].x, this.vertexes[i].y);
+        }
+        ctx.closePath();
+        if (this.close) {
+            ctx.stroke();
+            ctx.fill();
+        } else {
+            ctx.stroke();
+        }
+    }
 }
 
-class HiddenZone extends Rectangle {
+class Mask extends Rectangle {
     targets:Shape[];
     constructor (p:Point, w,h:number) {
         super(p, w, h);
