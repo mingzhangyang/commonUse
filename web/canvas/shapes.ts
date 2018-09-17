@@ -10,7 +10,7 @@ abstract class Shape {
     public fillStyle:string = DefaultColor;
     public lineWidth:number = DefaultLineWidth;
     abstract translate(x,y:number):void;
-    abstract draw(ctx:object):void;
+    abstract draw(ctx:CanvasRenderingContext2D):void;
 }
 
 
@@ -29,7 +29,7 @@ class Point extends Shape {
       this.x += x;
       this.y += y;
     }
-    draw(ctx):void {
+    draw(ctx:CanvasRenderingContext2D):void {
 
     }
 }
@@ -54,7 +54,7 @@ class Line extends Shape {
         this.end.x += x;
         this.end.y += y;
     }
-    draw(ctx):void {
+    draw(ctx:CanvasRenderingContext2D):void {
         ctx.strokeStyle = this.fillStyle;
         ctx.beginPath();
         ctx.moveTo(this.start.x, this.start.y);
@@ -84,7 +84,7 @@ class Rectangle extends Shape {
         this.vertex.x += x;
         this.vertex.y += y;
     }
-    draw(ctx):void {
+    draw(ctx:CanvasRenderingContext2D):void {
         ctx.fillStyle = this.fillStyle;
         ctx.strokeStyle = this.strokeStyle;
         ctx.lineWidth = this.lineWidth;
@@ -115,7 +115,7 @@ class Circle extends Shape {
         this.center.x += x;
         this.center.y += y;
     }
-    draw(ctx):void {
+    draw(ctx:CanvasRenderingContext2D):void {
         ctx.fillStyle = this.fillStyle;
         ctx.strokeStyle = this.strokeStyle;
         ctx.lineWidth = this.lineWidth;
@@ -141,7 +141,7 @@ class Polygon extends Shape {
             p.y += y;
         }
     }
-    draw(ctx):void {
+    draw(ctx:CanvasRenderingContext2D):void {
         ctx.fillStyle = this.fillStyle;
         ctx.strokeStyle = this.strokeStyle;
         ctx.lineWidth = this.lineWidth;
