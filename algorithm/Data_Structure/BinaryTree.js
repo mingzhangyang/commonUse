@@ -71,6 +71,46 @@ class BinaryTree {
   }
 }
 
+class Node {
+  constructor(v) {
+    if (!v) {
+      throw 'a value expected';
+    }
+    this.value = v;
+    this.left = null;
+    this.right = null;
+  }
+  insert(v) {
+    if (this.value > v) {
+      if (this.left) {
+        this.left.insert(v);
+      } else {
+        this.left = new Node(v);
+      }
+    } else {
+      if (this.right) {
+        this.right.insert(v);
+      } else {
+        this.right = new Node(v);
+      }
+    }
+  }
+  toArray() {
+    if (!this.left && !this.right) {
+      return [this.value];
+    }
+    if (this.left && !this.right) {
+      return [...this.left.toArray(), this.value];
+    }
+    if (!this.left && this.right) {
+      return [this.value, ...this.right.toArray()];
+    }
+    if (this.left && this.right) {
+      return [...this.left.toArray(), this.value, ...this.right.toArray()];
+    }
+  }
+}
+
 if (typeof module !== 'undefined' && module.parent) {
   module.exports = BinaryTree;
 } else if (typeof window !== 'undefined') {
@@ -78,11 +118,18 @@ if (typeof module !== 'undefined' && module.parent) {
 } else {
   let s = [10, 2, 7, 9, 3, 1, 13, 17, 3, 5, 6, 9, 8, 11, 27];
 
-  let t = new BinaryTree(s);
-  console.dir(t._entry, {depth: null});
-  console.log(t.toSortedList());
+  // let t = new BinaryTree(s);
+  // console.dir(t._entry, {depth: null});
+  // console.log(t.toSortedList());
+  //
+  // s = 'EFGDCBAABCDEFGH';
+  // t = new BinaryTree(s);
+  // console.dir(t._entry, {depth: null});
 
-  s = 'EFGDCBAABCDEFGH';
-  t = new BinaryTree(s);
-  console.dir(t._entry, {depth: null});
+  let n = new Node(10);
+  for (let v of s) {
+    n.insert(v);
+  }
+  console.log(n.toArray());
+
 }
