@@ -3,6 +3,7 @@
  */
 'use strict';
 
+// a complicated implementation, not recommended.
 class BinaryTree {
   constructor(list) {
     list = list || [null];
@@ -71,6 +72,7 @@ class BinaryTree {
   }
 }
 
+// a better implementation
 class Node {
   constructor(v) {
     if (!v) {
@@ -109,6 +111,28 @@ class Node {
       return [...this.left.toArray(), this.value, ...this.right.toArray()];
     }
   }
+  revert() {
+    if (!this.left && !this.right) {
+      return;
+    }
+    if (this.left && !this.right) {
+      this.left.revert();
+      this.right = this.left;
+      this.left = null;
+      return;
+    }
+    if (!this.left && this.right) {
+      this.right.revert();
+      this.left = this.right;
+      this.right = null;
+      return;
+    }
+    if (this.left && this.right) {
+      this.left.revert();
+      this.right.revert();
+      [this.left, this.right] = [this.right, this.left];
+    }
+  }
 }
 
 if (typeof module !== 'undefined' && module.parent) {
@@ -131,5 +155,14 @@ if (typeof module !== 'undefined' && module.parent) {
     n.insert(v);
   }
   console.log(n.toArray());
+  n.revert();
+  console.log(n.toArray());
 
+  // console.log(n);
+  // n.insert(3);
+  // // n.insert(12);
+  // console.log(n);
+  //
+  // n.revert();
+  // console.log(n);
 }
