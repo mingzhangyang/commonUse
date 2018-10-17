@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<ol>
+    <li id="id-1"></li>
+    <li id="id-2"></li>
+    <li id="id-3"></li>
+    <li id="id-4"></li>
+</ol>
+
+<script src="staple.js"></script>
+<script>
+  let data = {a: 3, b: 4, c: 5, d: 6};
+
+  let st = new Staple(data);
+
+  st.link('a', 'id-1');
+  st.link('b', 'id-2');
+  st.link('c', 'id-3');
+  st.link('d', 'id-4');
+
+  st.publish();
+
+  console.log(st);
+</script>
+</body>
+</html>
