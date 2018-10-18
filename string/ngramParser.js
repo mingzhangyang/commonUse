@@ -18,7 +18,31 @@
 class NgParser {
   constructor() {}
   parse(s) {
-
+    let a = NgParser.split(s);
+    let res = [];
+    for (let i = 0; i < a.length; i++) {
+      let s = a[i];
+      let v;
+      if (s[0] === '[') {
+        v = NgParser.splitArray(s);
+      } else {
+        v = NgParser.parse(s); 
+      }
+      if (v[0] === null) {
+        if (Array.isArray(v[1])) {
+          let t = NgParser.parseArray(v[1]);
+          if (t[0] !== null) {
+            return [t[0], null];
+          }
+          res.push(t[1]);
+        } else {
+          res.push(v[1]);
+        }
+      } else {
+        return [v[0], null];
+      }
+    }
+    return [null, res];
   }
   static split(s) {
     s = s.toLowerCase().trim();
@@ -62,11 +86,47 @@ class NgParser {
       }
       i++;
     }
+    res.push(sub);
     return res;
   }
   static splitArray(s) {
-
+    s = s.toLowerCase().trim();
+    if (s[0] !== '[' || s[s.length-1] !== ']') {
+      return [new Error('invalide array format'), null];
+    }
+    let group = 0;
+    let sub = '';
+    let res = [];
+    let i = 1;
+    let j = s.length-1;
+    while (i < j) {
+      switch (s[i]) {
+        case ',':
+          if (group === 0) {
+            res.push(sub);
+            sub = '';
+          } else {
+            sub += s[i];
+          }
+          break;
+        case '(':
+          group++;
+          sub += s[i];
+          break;
+        case ')':
+          group--;
+          sub += s[i];
+          break;
+        default:
+          sub += s[i];
+      }
+      i++;
+    }
+    res.push(sub);
+    return [null, res];
   }
+
+  // parse a block
   static parse(s) {
     const verbs = ['display', 'from', 'usingschema', 'matching', 'hist'];
     s = s.toLowerCase().trim();
@@ -83,6 +143,20 @@ class NgParser {
       args: s.slice(i+1, -1).split(',').filter(d => !!d.length)
     }];
   }
+
+  // parse a list of blocks
+  static parseArray(a) {
+    let res = [];
+    for (let j = 0; j < a.length; j++) {
+      let o = NgParser.parse(a[j]);
+      if (o[0] !== null) {
+        return [o[0], null];
+      } else {
+        res.push(o[1]);
+      }
+    }
+    return [null, res];
+  }
 }
 
 if (typeof module !== 'undefined') {
@@ -95,6 +169,11 @@ if (typeof module !== 'undefined') {
 
     let s = '[display(),hist(actvty,genename,acname,aidtype)].from(bioactivity).usingschema(schema.bioactivity).matching(cid==2244&&actvty==active)';
     console.log(NgParser.split(s));
+    let s1 = '[display(),hist(actvty,genename,acname,aidtype)]';
+    console.log(NgParser.splitArray(s1));
+
+    let ng = new NgParser();
+    console.dir(ng.parse(s), {depth: null, colors: true});
 
   }
 } else if (typeof window === 'object') {
