@@ -45,7 +45,7 @@ class NgParser {
     return [null, res];
   }
   static split(s) {
-    s = s.toLowerCase().trim();
+    s = s.trim();
     let group = {
       '[': 0,
       '(': 0
@@ -90,7 +90,7 @@ class NgParser {
     return res;
   }
   static splitArray(s) {
-    s = s.toLowerCase().trim();
+    s = s.trim();
     if (s[0] !== '[' || s[s.length-1] !== ']') {
       return [new Error('invalide array format'), null];
     }
@@ -129,7 +129,7 @@ class NgParser {
   // parse a block
   static parse(s) {
     const verbs = ['display', 'from', 'usingschema', 'matching', 'hist'];
-    s = s.toLowerCase().trim();
+    s = s.trim();
     let i = s.indexOf('(');
     if (i === -1 || s[s.length-1] !== ')') {
       return [new Error('invalid format: incomplete parenthesis'), null];
