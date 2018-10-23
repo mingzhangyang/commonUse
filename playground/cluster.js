@@ -9,31 +9,45 @@ const os = require('os');
 
 const NumCPUs = os.cpus().length;
 let stat = {
+  pid: process.pid,
   count: 0
 };
 
-if (cluster.isMaster) {
-  for (let i = 0; i < NumCPUs; i++) {
-    cluster.fork();
+let workers = [];
+
+function registerHandlers(worker) {
+  worker.on('message', msg => {
+    console.log(`Message from worker with pid ${worker.process.pid}: ${typeof msg === 'string' ? msg : JSON.stringify(msg)}`);
+    stat[msg.pid] = msg.count;
+  });
+  worker.on('online', () => {
+    console.log(`Worker id: ${worker.process.pid} is online.`);
+  });
+  worker.on('exit', (w, code, signal) => {
+    console.log(`Worker with pid ${w.process.pid} died with code ${code} and signal ${signal}`);
+    console.log('Restarting a new worker');
+    registerHandlers(cluster.fork());
+  })
+}
+
+function init() {
+  if (cluster.isMaster) {
+    for (let i = 0; i < NumCPUs; i++) {
+      let worker = cluster.fork();
+      workers.push(worker);
+      registerHandlers(worker);
+    }
+    cluster.on('message', () => {
+      console.log(stat);
+    })
+  } else {
+    http.createServer((req, res) => {
+      stat.count++;
+      process.send(stat);
+      res.writeHead(200);
+      res.end(`Process ${process.pid} responded! The stat object is: ${JSON.stringify(stat)}`);
+    }).listen(8000);
   }
-  cluster.on('online', worker => {
-    console.log(`Worker id: ${worker.process.pid} is online.`)
-  });
-  cluster.on('exit', (worker, code, signal) => {
-    console.log(`Worker ${worker.process.pid} died with code: ${code}\n and signal: ${signal}`);
-    console.log('Starting a new worker');
-    cluster.fork();
-  });
-  cluster.on('message', worker => {
-    console.log('Message from ' + worker.process.pid + ', count: ' + stat.count); // why stat.count is always 0?
-  });
-} else {
-  http.createServer((req, res) => {
-    stat.count++;
-    process.send('A request has received. Please log.');
-    res.writeHead(200);
-    res.end(`Process ${process.pid} responded! The total requests received for now is: ${stat.count}`);
-  }).listen(8000);
 }
 
 
@@ -45,9 +59,7 @@ if (typeof module !== 'undefined') {
   } else {
     // run as executable
 
-    console.log('Starting server ...');
-    console.log(process.pid, stat.count);
-
+    init();
   }
 } else if (typeof window === 'object') {
   // Browser environment
