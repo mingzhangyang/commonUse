@@ -13,7 +13,7 @@ let stat = {
   count: 0
 };
 
-let workers = [];
+// let workers = [];
 
 function registerHandlers(worker) {
   worker.on('message', msg => {
@@ -34,7 +34,7 @@ function init() {
   if (cluster.isMaster) {
     for (let i = 0; i < NumCPUs; i++) {
       let worker = cluster.fork();
-      workers.push(worker);
+      // workers.push(worker);
       registerHandlers(worker);
     }
     cluster.on('message', () => {

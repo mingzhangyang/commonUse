@@ -494,7 +494,7 @@ const stats = (function () {
     qnorm: qnorm,
     factorial: factorial,
     combination: combination
-  }
+  };
 })();
 
 // ###############################################################################
