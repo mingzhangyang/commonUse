@@ -24,3 +24,4 @@ let arr4 = [0, -2, -1, -7, -4];
 
 console.log(work(arr1, arr2));
 console.log(work(arr3, arr4));
+
