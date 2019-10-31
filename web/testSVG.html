@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test SVG</title>
+    <style>
+        #svg {
+            border: 2px solid dodgerblue;
+            margin: 100px;
+        }
+        #g {
+            transform: translate(300px, 200px) scale(2);
+            stroke: black;
+        }
+        #g rect {
+            width: 120px;
+            height: 100px;
+            cursor: pointer;
+            stroke: #f66;
+            stroke-width: 4px;
+        }
+        #g #h {
+            transform: rotate(-45deg);
+            transition: opacity .6s;
+        }
+
+        #g:hover #h {
+            opacity: 0;
+        }
+
+        #t {
+            stroke: yellow;
+            transform: translate(60px, 50px);
+            text-anchor: middle;
+        }
+    </style>
+</head>
+<body>
+<svg id="svg" width="800" height="600">
+    <g id="g" width="120" height="100">
+        <rect id="rect"></rect>
+        <text id="h" x="20" y="20">Hello World!</text>
+        <text id="t">Test</text>
+    </g>
+</svg>
+<script>
+    // let svg = document.getElementById("svg");
+    // console.log(svg.contentDocument);
+    let g = document.getElementById("g");
+    let hold = false;
+    let start = {x: 0, y: 0};
+    console.log(g);
+
+    // let d = g.getBoundingClientRect();
+    // start.x = d.x;
+    // start.y = d.y;
+
+    let xforms = g.transform.baseVal;
+    // let xforms = g.getAttributeNS(null, "transform");
+    // let xforms = g.transform;
+    console.log(xforms);
+    let f = xforms.getItem(0);
+    if (f.type === SVGTransform.SVG_TRANSFORM_TRANSLATE){
+        start.x = f.matrix.e,
+            start.y = f.matrix.f;
+    }
+
+    console.log(start);
+
+    g.addEventListener('mousedown', evt => {
+        if (!hold) {
+            hold = true;
+            start.x = evt.clientX;
+            start.y = evt.clientY;
+            console.log(start);
+        }
+    });
+    g.addEventListener("mouseup", evt => {
+        if (hold) {
+            hold = false;
+            let dx = evt.clientX - start.x;
+            let dy = evt.clientY - start.y;
+            console.log(dx, dy);
+            f.setTranslate(0, 0);
+            console.log("---");
+        }
+    });
+</script>
+</body>
+</html>
