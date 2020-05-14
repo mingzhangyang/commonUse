@@ -3,20 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
-    <script src="circle.js"></script>
+    <style>
+        #canvas {
+            display: block;
+            border: 1px solid #f66;
+            margin: 100px auto;
+        }
+    </style>
 </head>
 <body>
-    <canvas id="canvas" width="800" height="800"></canvas>
+    <canvas id="canvas" width="1200" height="800"></canvas>
 </body>
-<script>
-    let canvas = document.getElementById("canvas");
-    let ctx = canvas.getContext('2d');
-
-    let c = new Circle(ctx, [100, 100], 50, 1, {
-        lineWidth: 6,
-        strokeStyle: '#f66',
-        fillStyle: "green"
-    });
-    c.draw();
-</script>
+<script type="module" src="main.js"></script>
 </html>

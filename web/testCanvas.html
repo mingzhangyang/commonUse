@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Canvas testing</title>
+    <style>
+        #canvas {
+            display: block;
+            margin: 60px auto;
+            border: 1px dashed #f66;
+        }
+    </style>
+</head>
+<body>
+<canvas id="canvas" width="1200" height="800"></canvas>
+<script>
+    let canvas = document.getElementById("canvas");
+    let ctx = canvas.getContext('2d');
+    ctx.fillStyle = "#f66";
+    ctx.strokeStyle = "dodgerblue";
+
+    for (let i = 0; i < 11; i++) {
+        ctx.fillRect(50 + 100 * i, 0, 1, 800);
+        // ctx.fillRect(75.5 + 100 * i, 0, 1, 800);
+        ctx.beginPath();
+        ctx.moveTo(75.5 + 100 * i, 0);
+        ctx.lineTo(75.5 + 100 * i, 800);
+        ctx.stroke();
+        ctx.closePath();
+    }
+
+    let x = 0;
+    let y = 0;
+    let isDrawing = false;
+    let rect = canvas.getBoundingClientRect();
+
+    canvas.addEventListener('mousedown', e => {
+        if (!isDrawing) {
+          x = e.clientX - rect.left;
+          y = e.clientY - rect.top;
+          isDrawing = true;
+          console.log('mouse down');
+        }
+    });
+
+    canvas.addEventListener('mousemove', e => {
+      if (isDrawing) {
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        x = e.clientX - rect.left;
+        y = e.clientY - rect.top;
+        ctx.lineTo(x, y);
+        ctx.stroke();
+        ctx.closePath();
+      }
+    });
+
+    canvas.addEventListener('mouseout', e => {
+      console.log('mouse out');
+      isDrawing = false;
+      x = 0;
+      y = 0;
+    });
+
+    canvas.addEventListener('mouseup', e => {
+      console.log('mouse up');
+      isDrawing = false;
+      x = 0;
+      y = 0;
+    });
+
+</script>
+</body>
+</html>

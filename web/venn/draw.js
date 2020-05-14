@@ -3,8 +3,17 @@
  */
 'use strict';
 
-export class Circle {
+class Shape {
+  constructor() {}
+  isShape() {
+    return true;
+  }
+  generate() {}
+}
+
+export class Circle extends Shape {
   constructor(obj) {
+    super();
     obj = obj ? obj : {};
     if (typeof obj !== "object") {
       throw "invalid argument to create a Circle instance";
@@ -31,7 +40,14 @@ export class Circle {
 
 export function draw(id, shapes) {
   let svg = document.getElementById(id);
+  if (!Array.isArray(shapes) && shapes.isShape()) {
+    shapes = [shapes];
+  }
   for (let shape of shapes) {
-    svg.appendChild(shape.generate());
+    if (shape.isShape()) {
+      svg.appendChild(shape.generate());
+    } else {
+      console.log('Not a shape object. Ignored ...');
+    }
   }
 }
