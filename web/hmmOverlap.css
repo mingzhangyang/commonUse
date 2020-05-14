@@ -1,0 +1,38 @@
+body {
+    margin: 0;
+    position: relative;
+}
+.section {
+    width: 80%;
+    margin: 0 auto;
+    background-color: azure;
+    position: relative;
+}
+
+div.section section {
+    margin: 0 30px;
+    border: 1px dashed transparent;
+}
+
+li {
+    margin: 8px 0;
+}
+
+a::before {
+    content: "[";
+    margin: 0 6px 0 20px;
+}
+a::after {
+    content: ']';
+    margin: 0 20px 0 6px;
+}
+
+span.count::before {
+    content: "(";
+    margin: 0 6px 0 40px;
+}
+
+span::after {
+    content: ")";
+    margin: 0 20px 0 6px;
+}
