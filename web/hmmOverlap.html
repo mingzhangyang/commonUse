@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Example Graph</title>
+    <link rel="stylesheet" href="hmmOverlap.css">
+</head>
+<body>
+<div class="section" id="explanation">
+    <section class="head">
+        <h1>Example data</h1>
+    </section>
+    <section class="body">
+        <p>Take <strong>NF006914</strong> for example.</p>
+        <ol>
+            <li>total number of RefSeq proteins hit by NF006914 is <strong>23774</strong> <a
+                    href="https://www.ncbi.nlm.nih.gov/genome/annotation_prok/evidence/NF006914/">link</a></li>
+            <li>the number of RefSeq named by NF006914 is <strong>2840</strong></li>
+            <li>the number of other hits is <strong>20934</strong> and includes:
+                <ul>
+                    <li>PRK09404.1 <span class="count">11298</span></li>
+                    <li>PRK12270.1 <span class="count">4373</span></li>
+                    <li>TIGR00239.1 <span class="count">3629</span></li>
+                    <li>NF008907.0 <span class="count">1185</span></li>
+                    <li>NBR006631 <span class="count">443</span></li>
+                    <li>NA <span class="count">6</span></li>
+                </ul>
+            </li>
+            <li>
+                then, count the total number of RefSeq proteins hit by PRK09404.1, PRK12270.1, TIGR00239.1, NF008907.0
+                and NBR006631 respectively:
+                <ul>
+                    <li>PRK09404.1 <span class="count">???</span><a href="https://www.ncbi.nlm.nih.gov/genome/annotation_prok/evidence/NF006914/">link</a></li>
+                    <li>PRK12270.1 <span class="count">23433</span> <a
+                            href="https://www.ncbi.nlm.nih.gov/genome/annotation_prok/evidence/NF008907/">link</a></li>
+                    <li>TIGR00239.1 <span class="count">23676</span> <a
+                            href="https://www.ncbi.nlm.nih.gov/genome/annotation_prok/evidence/TIGR00239/">link</a></li>
+                    <li>NF008907.0 <span class="count">23433</span> <a
+                            href="https://www.ncbi.nlm.nih.gov/genome/annotation_prok/evidence/NF008907/">link</a></li>
+                    <li>NBR006631 <span class="count">444</span> <a
+                            href="https://www.ncbi.nlm.nih.gov/genome/annotation_prok/evidence/NBR006631/">link</a></li>
+                </ul>
+            </li>
+        </ol>
+
+    </section>
+</div>
+<div class="section" id="graph-1"></div>
+<div class="section" id="graph-2"></div>
+<div class="section" id="graph-3"></div>
+</body>
+<script type="module" src="hmmOverlap.js"></script>
+</html>

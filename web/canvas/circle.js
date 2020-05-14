@@ -27,17 +27,4 @@ class Circle {
 }
 
 
-if (typeof window === 'object' && typeof global === 'undefined') {
-    // work in browser
-
-} else {
-    if (typeof module === 'object' && module.parent) {
-        // work as a module
-
-    } else {
-        // work as an exectuable
-
-    }
-}
-
 
