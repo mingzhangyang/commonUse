@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Setting-Panel</title>
+    <style>
+        .setting-panel-item-tab-header {
+            border-bottom: 1px solid #f66;
+        }
+    </style>
+</head>
+<body>
+<div id="place-holder"></div>
+<script type="module">
+    import SettingPanel from './setting-panel.js';
+    let obj = {
+      Display: {
+        "show-title": true,
+        "show-axis": true,
+        "show-arrow": false,
+        "title-position": 'center',
+      },
+      Colors: {
+        CDS: 'green',
+        tRNA: 'yellow',
+        rRNA: 'blue',
+      },
+      Scale: .5
+    };
+    let schema = {
+      "Display-title-position": {
+        tag: 'form',
+        values:['top', 'center', 'bottom']
+      },
+      "Scale": {
+        type: "range",
+        attributes: {
+          min: 0,
+          max: 1,
+          step: .1,
+        }
+      }
+    };
+    let sp = new SettingPanel(obj, schema);
+    document.getElementById('place-holder').appendChild(sp.generate());
+    // console.log(sp);
+</script>
+</body>
+</html>
